@@ -12,7 +12,7 @@ Forget about cheat sheets and notes, with this tool you can get accurate answers
 
 ## Installation
 ```shell
-pip install shell_gpt --user
+pip install shell-gpt --user
 ```
 On first start you would need to generate and provide your API key, get one [here](https://beta.openai.com/account/api-keys).
 
