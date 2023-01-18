@@ -18,7 +18,6 @@ api_key_file = Path(app_data_folder) / "shell-gpt" / "api_key.txt"
 
 def get_api_key():
     if not api_key_file.exists():
-        typer.echo(f"To get your own API secret key go to: {SECRET_KEY_URL}")
         api_key = typer.prompt("Please enter your API secret key")
         api_key_file.parent.mkdir(parents=True, exist_ok=True)
         api_key_file.write_text(api_key)
@@ -28,8 +27,7 @@ def get_api_key():
 
 
 @loading_spinner
-def openai_request(prompt, model, max_tokens):
-    api_key = get_api_key()
+def openai_request(prompt, model, max_tokens, api_key):
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -67,11 +65,12 @@ def main(
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
 ):
+    api_key = get_api_key()
     if shell:
         prompt = f"{prompt}. Provide only shell command as output."
     if code:
         prompt = f"{prompt}. Provide only code as output."
-    response_text = openai_request(prompt, model, max_tokens, spinner=spinner)
+    response_text = openai_request(prompt, model, max_tokens, api_key, spinner=spinner)
     # For some reason OpenAI returns several leading/trailing white spaces.
     response_text = response_text.strip()
 
