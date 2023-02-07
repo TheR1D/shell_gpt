@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="shell_gpt",
-    version="0.3",
+    version="0.4",
     packages=find_packages(),
     py_modules=[
         "sgpt",
@@ -11,7 +11,7 @@ setup(
     install_requires=[
         "typer~=0.7.0",
         "requests~=2.28.2",
-        "rich==13.1.0",
+        "rich==13.3.1",
     ],
     entry_points={
         'console_scripts': [
