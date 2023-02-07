@@ -110,3 +110,15 @@ This is, just some examples of what we can do using GPT-3 models, I'm sure you w
 --spinner         --no-spinner               Show loading spinner during API request. [default: spinner]
 --help                                       Show this message and exit.
 ```
+
+## Docker
+Use the provided `Dockerfile` to build a container:
+```shell
+docker build -t sgpt .
+```
+
+You may use a named volume (therefore sgpt will ask your API key only once) to run the container:
+```shell
+docker run --rm -ti -v gpt-config:/home/app/.config/shell-gpt sgpt "what are the colors of a rainbow"
+```
+
