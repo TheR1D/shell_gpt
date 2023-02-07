@@ -1,12 +1,12 @@
 # Shell GPT
-A command-line interface (CLI) productivity tool for developers powered by OpenAI's GPT-3, will help you accomplish your tasks faster and more efficiently.
+A command-line interface (CLI) productivity tool powered by OpenAI's Davinci model, will help you accomplish your tasks faster and more efficiently.
 
 <div align="center">
-    <img src="https://i.ibb.co/zVm2YYc/output-video-2.gif" width="800"/>
+    <img src="https://i.ibb.co/VHVSSLL/v2-final-3.gif" width="800"/>
 </div>
 
 ## Description
-Chat GPT is a powerful language model developed by OpenAI that can generate human-like text. It can be used by us, coders, to generate code snippets, comments, documentation and more, helping us increase our productivity and efficiency while coding.
+`text-davinci-003` is a powerful language model developed by OpenAI that can generate human-like text. It can be used by us, coders, to generate code snippets, comments, documentation and more, helping us increase our productivity and efficiency while coding.
 
 Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
 
@@ -34,23 +34,23 @@ Usually we are forgetting commands like `chmod 444` and we want quickly find the
 sgpt --shell "make all files in current directory read only"
 # -> chmod 444 *
 ```
-Since we are receiving valid shell command, we can execute it using `eval $(sgpt --shell "make all files in current directory read only")` but this is not very convenient, instead we can use `--execute` parameter:
+Since we are receiving valid shell command, we can execute it using `eval $(sgpt --shell "make all files in current directory read only")` but this is not very convenient, instead we can use `--execute` (or shortcut `-se` for `--shell` `--execute`) parameter:
 ```shell
 sgpt --shell --execute "make all files in current directory read only"
 # -> chmod 444 *
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-At this point it is already can solve half of my Google searches, but how far we can push the limits of Chat GPT? Let's try some docker containers:
+At this point it is already can solve half of my Google searches, but how far we can push the limits of `text-davinci-003` model? Let's try some docker containers:
 ```shell
-sgpt --shell --execute "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
+sgpt -se "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
 # -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
 # -> Execute shell command? [y/N]: y
 # ...
 ```
 Also, we can provide some parameters name in our prompt, for example, I want to pass input and output file names to ffmpeg:
 ```shell
-sgpt --shell --execute "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
+sgpt -se "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
 # -> ffmpeg -i input.mp4 -filter:v "setpts=2.0*PTS" output.mp4
 # -> Execute shell command? [y/N]: y
 # ...
@@ -59,12 +59,12 @@ And remember we are in shell, this means we can use outputs of any commands in o
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
-sgpt --shell --execute "using ffmpeg combine multiple videos into one without audio. Video file names $(ls)"
+sgpt -se "using ffmpeg combine multiple videos into one without audio. Video file names $(ls)"
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Since GPT-3 models can also do summarization and analyzing of input text, we can ask Chat GPT to find error in logs and provide some details:
+Since GPT-3 models can also do summarization and analyzing of input text, we can ask `text-davinci-003` to find error in logs and provide some details:
 ```shell
 sgpt "check these logs, find errors, and explain what the error is about: ${docker logs -n 20 container_name}"
 # ...
@@ -101,12 +101,12 @@ This is, just some examples of what we can do using GPT-3 models, I'm sure you w
 
 ### Full list of arguments
 ```shell
---model                           TEXT     OpenAI model name. [default: text-davinci-003]
---max-tokens                      INTEGER  Strict length of output (words). [default: 2048]
---shell         --no-shell                 Get shell command as output. [default: no-shell]
---execute       --no-execute               Used with --shell, will execute command. [default: no-execute]
---code          --no-code                  Provide only code as output. [default: no-code]
---spinner       --no-spinner               Show loading spinner during API request. [default: spinner]
---animation     --no-animation             Typewriter animation. [default: animation]
---help                                     Show this message and exit.
+--model                             TEXT     OpenAI model name. [default: text-davinci-003]
+--max-tokens                        INTEGER  Strict length of output (words). [default: 2048]
+--shell       -s                             Provide shell command as output.
+--execute     -e                             Used with --shell, will execute command.
+--code            --no-code                  Provide code as output. [default: no-code]
+--animation       --no-animation             Typewriter animation. [default: animation]
+--spinner         --no-spinner               Show loading spinner during API request. [default: spinner]
+--help                                       Show this message and exit.
 ```
