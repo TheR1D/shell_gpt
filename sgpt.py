@@ -1,5 +1,4 @@
 import os
-import json
 from time import sleep
 from pathlib import Path
 
@@ -31,7 +30,7 @@ def openai_request(prompt, model, max_tokens, api_key):
         "Authorization": f"Bearer {api_key}"
     }
     data = {
-        "prompt": json.dumps(prompt),
+        "prompt": prompt,
         "model": model,
         "max_tokens": max_tokens,
     }
