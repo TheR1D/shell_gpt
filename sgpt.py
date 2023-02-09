@@ -1,26 +1,40 @@
 import os
 from time import sleep
 from pathlib import Path
+from getpass import getpass
 
 import typer
 import requests
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from utils import loading_spinner
 
 API_URL = "https://api.openai.com/v1/completions"
-
-app_data_folder = os.path.expanduser('~/.config')
-api_key_file = Path(app_data_folder) / "shell-gpt" / "api_key.txt"
+DATA_FOLDER = os.path.expanduser('~/.config')
+KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
 
 
 def get_api_key():
-    if not api_key_file.exists():
-        api_key = typer.prompt("Please enter your API secret key")
-        api_key_file.parent.mkdir(parents=True, exist_ok=True)
-        api_key_file.write_text(api_key)
+    if not KEY_FILE.exists():
+        api_key = getpass(prompt="Please enter your API secret key")
+        KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        KEY_FILE.write_text(api_key)
     else:
-        api_key = api_key_file.read_text()
+        api_key = KEY_FILE.read_text()
     return api_key
+
+
+def loading_spinner(func):
+    def wrapper(*args, **kwargs):
+        if not kwargs.pop("spinner"):
+            return func(*args, **kwargs)
+        with Progress(
+                SpinnerColumn(),
+                TextColumn("[green]Requesting OpenAI..."),
+                transient=True
+        ) as progress:
+            progress.add_task("request")
+            return func(*args, **kwargs)
+    return wrapper
 
 
 @loading_spinner

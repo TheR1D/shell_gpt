@@ -1,2 +1,4 @@
 *.egg-info
 dist
+sgpt.spec
+build
