@@ -57,7 +57,7 @@ def openai_request(prompt, model, max_tokens, api_key):
         "model": model,
         "max_tokens": max_tokens,
     }
-    response = requests.post(API_URL, headers=headers, json=data, timeout=5)
+    response = requests.post(API_URL, headers=headers, json=data, timeout=180)
     response.raise_for_status()
     return response.json()["choices"][0]["text"]
 
