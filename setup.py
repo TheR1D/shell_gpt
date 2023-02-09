@@ -13,9 +13,7 @@ setup(
         "rich==13.3.1",
     ],
     entry_points={
-        'console_scripts': [
-            'sgpt = sgpt:entry_point'
-        ],
+        "console_scripts": ["sgpt = sgpt:entry_point"],
     },
     author="Farkhod Sadykov",
     author_email="farkhod@sadykov.dev",
