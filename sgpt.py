@@ -62,14 +62,14 @@ def main(
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Used with --shell, will execute command."),
     code: bool = typer.Option(False, help="Provide code as output."),
-    send-os: bool = typer.Option(False, "--send-os-info", "-o", help="Used with --shell, also send OS information to chatGPT. Useful for OS-specific commands, such as updating."),
+    send_os: bool = typer.Option(False, "--send-os-info", "-o", help="Used with --shell, also send OS information to chatGPT. Useful for OS-specific commands, such as updating."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ):
     api_key = get_api_key()
     if shell:
         prompt = f"{prompt}. Provide only shell command as output."
-        if send-os:
+        if send_os:
             prompt = f"{prompt} The system is {platform.system()} {platform.release()}."
             if {platform.system()} == 'Linux':
                 prompt = f"{prompt} The Linux distribution is {distro.id()}."
