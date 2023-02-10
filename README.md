@@ -41,7 +41,7 @@ sgpt --shell --execute "make all files in current directory read only"
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-At this point it is already can solve half of my Google searches, but how far we can push the limits of `text-davinci-003` model? Let's try some docker containers:
+At this point it is already can solve half of most frequent Google searches, but how far we can push the limits of `text-davinci-003` model? Let's try some docker containers:
 ```shell
 sgpt -se "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
 # -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx

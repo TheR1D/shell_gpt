@@ -1,41 +1,63 @@
+"""
+shell-gpt: An interface to OpenAI's GPT-3 API
+
+This module provides a simple interface for OpenAI's GPT-3 API using Typer
+as the command line interface. It supports different modes of output including
+shell commands and code, and allows users to specify the desired OpenAI model
+and length of the output. Additionally, it supports executing shell
+commands directly from the interface.
+
+API Key is stored locally for easy use in future runs.
+"""
+
+# pylint: disable=missing-function-docstring,too-many-arguments
+
 import os
-import json
 from time import sleep
 from pathlib import Path
+from getpass import getpass
 
 import typer
 import requests
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from utils import loading_spinner
 
 API_URL = "https://api.openai.com/v1/completions"
-
-app_data_folder = os.path.expanduser('~/.config')
-api_key_file = Path(app_data_folder) / "shell-gpt" / "api_key.txt"
+DATA_FOLDER = os.path.expanduser("~/.config")
+KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
 
 
 def get_api_key():
-    if not api_key_file.exists():
-        api_key = typer.prompt("Please enter your API secret key")
-        api_key_file.parent.mkdir(parents=True, exist_ok=True)
-        api_key_file.write_text(api_key)
+    if not KEY_FILE.exists():
+        api_key = getpass(prompt="Please enter your API secret key")
+        KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        KEY_FILE.write_text(api_key)
     else:
-        api_key = api_key_file.read_text().strip()
+        api_key = KEY_FILE.read_text().strip()
     return api_key
+
+
+def loading_spinner(func):
+    def wrapper(*args, **kwargs):
+        if not kwargs.pop("spinner"):
+            return func(*args, **kwargs)
+        text = TextColumn("[green]Requesting OpenAI...")
+        with Progress(SpinnerColumn(), text, transient=True) as progress:
+            progress.add_task("request")
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 @loading_spinner
 def openai_request(prompt, model, max_tokens, api_key):
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
     data = {
-        "prompt": json.dumps(prompt),
+        "prompt": prompt,
         "model": model,
         "max_tokens": max_tokens,
     }
-    response = requests.post(API_URL, headers=headers, json=data)
+    response = requests.post(API_URL, headers=headers, json=data, timeout=180)
     response.raise_for_status()
     return response.json()["choices"][0]["text"]
 
@@ -59,7 +81,7 @@ def main(
     model: str = typer.Option("text-davinci-003", help="OpenAI model name."),
     max_tokens: int = typer.Option(2048, help="Strict length of output (words)."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
-    execute: bool = typer.Option(False, "--execute", "-e", help="Used with --shell, will execute command."),
+    execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
