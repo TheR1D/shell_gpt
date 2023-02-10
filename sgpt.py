@@ -33,7 +33,7 @@ def get_api_key():
         KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
         KEY_FILE.write_text(api_key)
     else:
-        api_key = KEY_FILE.read_text()
+        api_key = KEY_FILE.read_text().strip()
     return api_key
 
 

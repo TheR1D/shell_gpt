@@ -1,4 +1,5 @@
 *.egg-info
 dist
+config/api_key.txt
 sgpt.spec
 build
