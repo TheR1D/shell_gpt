@@ -1,9 +1,9 @@
-name: Lint
+name: Run linters and unittests
 
 on: [push]
 
 jobs:
-  build:
+  lint_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,10 +19,23 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylint
         pip install black
+        pip install requests_mock
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint sgpt.py
+        pylint \
+        sgpt.py \
+        tests.py \
+        --disable=missing-function-docstring \
+        --disable=too-many-arguments \
+        --disable=missing-module-docstring \
+        --disable=import-error \
+        --disable=missing-class-docstring \
+        --disable=too-many-instance-attributes \
+        --max-line-length=120
     - name: Analysing the code with black
       run: |
-        black --target-version py310 -l 120 sgpt.py
+        black --target-version py310 -l 120 sgpt.py tests.py
+    - name: Run unittests
+      run: |
+        python -m unittest tests.py

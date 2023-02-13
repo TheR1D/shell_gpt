@@ -10,7 +10,6 @@ commands directly from the interface.
 API Key is stored locally for easy use in future runs.
 """
 
-# pylint: disable=missing-function-docstring,too-many-arguments
 
 import os
 from time import sleep
@@ -65,7 +64,6 @@ def openai_request(prompt, model, max_tokens, api_key):
 def typer_writer(text, code, shell, animate):
     shell_or_code = shell or code
     color = "magenta" if shell_or_code else None
-    # typer.colors.
     if animate and not shell_or_code:
         for char in text:
             typer.secho(char, nl=False, fg=color, bold=shell_or_code)
