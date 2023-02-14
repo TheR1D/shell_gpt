@@ -58,7 +58,7 @@ def openai_request(prompt, model, max_tokens, api_key):
     }
     response = requests.post(API_URL, headers=headers, json=data, timeout=180)
     response.raise_for_status()
-    return response.json()["choices"][0]["text"]
+    return response.json()["choices"][0]["text"].encode().decode("unicode-escape") 
 
 
 def typer_writer(text, code, shell, animate):
