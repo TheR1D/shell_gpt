@@ -15,6 +15,7 @@ import os
 from time import sleep
 from pathlib import Path
 from getpass import getpass
+from tempfile import NamedTemporaryFile
 
 import typer
 import requests
@@ -24,6 +25,13 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
 KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
+
+
+def get_edited_prompt():
+    editor = os.environ.get("EDITOR", "vim")
+    with NamedTemporaryFile() as f:
+        os.system(f"{editor} {f.name}")
+        return f.read().decode()
 
 
 def get_api_key():
@@ -75,7 +83,7 @@ def typer_writer(text, code, shell, animate):
 
 
 def main(
-    prompt: str,
+    prompt: str = typer.Argument(None, help="Prompt for OpenAI GPT-3 API."),
     model: str = typer.Option("text-davinci-003", help="OpenAI model name."),
     max_tokens: int = typer.Option(2048, help="Strict length of output (words)."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
@@ -84,6 +92,8 @@ def main(
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ):
+    if prompt is None or len(prompt.strip()) == 0:
+        prompt = get_edited_prompt()
     api_key = get_api_key()
     if shell:
         prompt = f"{prompt}. Provide only shell command as output."
