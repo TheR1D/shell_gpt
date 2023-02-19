@@ -16,6 +16,20 @@ pip install shell-gpt --user
 ```
 On first start you would need to generate and provide your API key, get one [here](https://beta.openai.com/account/api-keys).
 
+### Changeing API Key
+
+If you need to change your API key, run:
+
+```bash
+rm ~/.config/shell-gpt/api_key.txt
+```
+
+Followed by
+
+```bash
+sgpt "anything"
+```
+
 ## Usage
 `sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
 ### Simple queries
