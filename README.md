@@ -1,12 +1,12 @@
 # Shell GPT
-A command-line interface (CLI) productivity tool powered by OpenAI's Davinci model, will help you accomplish your tasks faster and more efficiently.
+A command-line interface (CLI) productivity tool powered by OpenAI's Davinci model, that will help you accomplish your tasks faster and more efficiently.
 
 <div align="center">
-    <img src="https://i.ibb.co/VHVSSLL/v2-final-3.gif" width="800"/>
+    <img src="https://i.ibb.co/QX236hx/sgpt-5-0-0.gif" width="800"/>
 </div>
 
 ## Description
-`text-davinci-003` is a powerful language model developed by OpenAI that can generate human-like text. It can be used by us, coders, to generate code snippets, comments, documentation and more, helping us increase our productivity and efficiency while coding.
+`text-davinci-003` is a powerful language model developed by OpenAI that can generate human-like text. It can be used by us developers, to generate code snippets, comments, documentation and more, helping us increase our productivity and efficiency while coding.
 
 Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
 
@@ -16,7 +16,8 @@ pip install shell-gpt --user
 ```
 On first start you would need to generate and provide your API key, get one [here](https://beta.openai.com/account/api-keys).
 
-## Use cases
+## Usage
+`sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
 ### Simple queries
 We can use it pretty much as normal search engine, asking about anything, for example:
 ```shell
@@ -28,9 +29,8 @@ sgpt "mass of sun"
 # -> = 1.99 × 10^30 kg
 ```
 ### Shell queries
-Usually we are forgetting commands like `chmod 444` and we want quickly find the answer in google, clicking pages, scrolling, copy&pasting, usually takes some time, but now we "google" and execute it right in the terminal using `--shell` flag `sgpt` will provide only shell commands:
+Usually we are forgetting commands like `chmod 444` and we want quickly find the answer in google, but now we "google" and execute it right in the terminal using `--shell` flag `sgpt` will provide only shell commands:
 ```shell
-# Here we are using special flag --shell, which will output only shell commands.
 sgpt --shell "make all files in current directory read only"
 # -> chmod 444 *
 ```
@@ -41,30 +41,35 @@ sgpt --shell --execute "make all files in current directory read only"
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-At this point it is already can solve half of most frequent Google searches, but how far we can push the limits of `text-davinci-003` model? Let's try some docker containers:
+Let's try some docker containers:
 ```shell
 sgpt -se "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
 # -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Also, we can provide some parameters name in our prompt, for example, I want to pass input and output file names to ffmpeg:
+Also, we can provide some parameters name in our prompt, for example, passing output file names to ffmpeg:
 ```shell
 sgpt -se "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
 # -> ffmpeg -i input.mp4 -filter:v "setpts=2.0*PTS" output.mp4
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-And remember we are in shell, this means we can use outputs of any commands in our prompt, this brings it to another level, here is simple examples with ffmpeg and list of videos in current folder:
+We can apply additional shell magic in our prompt, here is simple examples with ffmpeg and list of videos in current folder:
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
-sgpt -se "using ffmpeg combine multiple videos into one without audio. Video file names $(ls)"
+sgpt -se "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Since GPT-3 models can also do summarization and analyzing of input text, we can ask `text-davinci-003` to find error in logs and provide some details:
+Since GPT-3 models can also do summarization and analyzing of input text, we can ask `text-davinci-003` generate for example, commit message:
+```shell
+sgpt "Generate git commit message with details, my changes: $(git diff)"
+# -> Commit message: Implement Model enum and get_edited_prompt() func, add temperature, top_p and editor args for OpenAI request.
+```
+Or ask it to find error in logs and provide more details:
 ```shell
 sgpt "check these logs, find errors, and explain what the error is about: ${docker logs -n 20 container_name}"
 # ...
@@ -85,7 +90,7 @@ for i in range(1, 101):
     else:
         print(i)
 ```
-Since it is valid python code without any other text, we can redirect the output to file:
+Since it is valid python code, we can redirect the output to file:
 ```shell
 sgpt --code "solve classic fizz buzz problem using Python" > fizz_buzz.py
 python fizz_buzz.py

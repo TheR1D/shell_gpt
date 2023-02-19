@@ -24,18 +24,19 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint \
-        sgpt.py \
-        tests.py \
+        *.py \
         --disable=missing-function-docstring \
         --disable=too-many-arguments \
         --disable=missing-module-docstring \
         --disable=import-error \
         --disable=missing-class-docstring \
         --disable=too-many-instance-attributes \
+        --disable=too-many-function-args \
+        --disable=unspecified-encoding \
         --max-line-length=120
     - name: Analysing the code with black
       run: |
-        black --target-version py310 -l 120 sgpt.py tests.py
+        black --target-version py310 -l 120 *.py
     - name: Run unittests
       run: |
-        python -m unittest tests.py
+        python -m unittest unittests.py
