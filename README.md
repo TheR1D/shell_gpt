@@ -48,14 +48,14 @@ sgpt -se "start nginx using docker, forward 443 and 80 port, mount current folde
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Also, we can provide some parameters name in our prompt, for example, passing output file names to ffmpeg:
+Also, we can provide some parameters name in our prompt, for example, passing output file name to ffmpeg:
 ```shell
 sgpt -se "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
 # -> ffmpeg -i input.mp4 -filter:v "setpts=2.0*PTS" output.mp4
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-We can apply additional shell magic in our prompt, here is simple examples with ffmpeg and list of videos in current folder:
+We can apply additional shell magic in our prompt, in this example passing file names to ffmpeg:
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
@@ -64,7 +64,7 @@ sgpt -se "using ffmpeg combine multiple videos into one without audio. Video fil
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Since GPT-3 models can also do summarization and analyzing of input text, we can ask `text-davinci-003` generate for example, commit message:
+Since GPT-3 models can also do summarization and analyzing of input text, we can ask `text-davinci-003` to generate commit message:
 ```shell
 sgpt "Generate git commit message with details, my changes: $(git diff)"
 # -> Commit message: Implement Model enum and get_edited_prompt() func, add temperature, top_p and editor args for OpenAI request.
@@ -106,14 +106,22 @@ This is, just some examples of what we can do using GPT-3 models, I'm sure you w
 
 ### Full list of arguments
 ```shell
---model                             TEXT     OpenAI model name. [default: text-davinci-003]
---max-tokens                        INTEGER  Strict length of output (words). [default: 2048]
---shell       -s                             Provide shell command as output.
---execute     -e                             Used with --shell, will execute command.
---code            --no-code                  Provide code as output. [default: no-code]
---animation       --no-animation             Typewriter animation. [default: animation]
---spinner         --no-spinner               Show loading spinner during API request. [default: spinner]
---help                                       Show this message and exit.
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                                                 │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --model                                  [davinci|curie|codex]      GPT-3 model name. [default: davinci]                        │
+│ --max-tokens                             INTEGER                    Strict length of output (words). [default: (dynamic)]       │
+│ --temperature                            FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: (dynamic)]        │
+│ --top-probability                        FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens. [default: (dynamic)]        │
+│ --shell            -s                                               Provide shell command as output.                            │
+│ --execute          -e                                               Will execute --shell command.                               │
+│ --code                 --no-code                                    Provide code as output. [default: no-code]                  │
+│ --editor               --no-editor                                  Open $EDITOR to provide a prompt. [default: no-editor]      │
+│ --animation            --no-animation                               Typewriter animation. [default: animation]                  │
+│ --spinner              --no-spinner                                 Show loading spinner during API request. [default: spinner] │
+│ --help                                                              Show this message and exit.                                 │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Docker
