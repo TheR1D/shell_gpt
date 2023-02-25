@@ -16,7 +16,6 @@ from time import sleep, gmtime, strftime
 from pathlib import Path
 from getpass import getpass
 from types import DynamicClassAttribute
-from tempfile import NamedTemporaryFile
 
 import json
 import typer
@@ -28,6 +27,8 @@ from click import MissingParameter, BadParameter, UsageError
 
 from utils import hugging_face
 from utils.terminal_functions import *
+from utils.prompt_functions import *
+
 
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
@@ -103,22 +104,6 @@ def filter_facts(fact, filter="nofilter"):
 
 
 
-def get_edited_prompt():
-    with NamedTemporaryFile(suffix=".txt", delete=False) as file:
-        # Create file and store path.
-        file_path = file.name
-    editor = os.environ.get("EDITOR", "vim")
-    # This will write text to file using $EDITOR.
-    os.system(f"{editor} {file_path}")
-    # Read file when editor is closed.
-    with open(file_path, "r") as file:
-        output = file.read()
-    os.remove(file_path)
-    if not output:
-        raise BadParameter("Couldn't get valid PROMPT from $EDITOR")
-    return output
-
-
 @loading_spinner
 def openai_request(prompt, model, max_tokens, api_key, temperature, top_p):
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
@@ -132,7 +117,6 @@ def openai_request(prompt, model, max_tokens, api_key, temperature, top_p):
     response = requests.post(API_URL, headers=headers, json=data, timeout=180)
     response.raise_for_status()
     return response.json()["choices"][0]["text"]
-
 
 
 # Using lambda to pass a function to default value, which make it apper as "dynamic" in help.
@@ -246,15 +230,11 @@ def main(
 
         elif not set_openai_api_key == None:
             update_config("openai_api_key", set_openai_api_key)
-            typer_writer(
-                f"OpenAI API key set.", False, False, animation
-            )
+            typer_writer(f"OpenAI API key set.", False, False, animation)
 
         elif not set_hugging_face_api_key == None:
             update_config("hugging_face_api_key", set_hugging_face_api_key)
-            typer_writer(
-                f"Hugging Face API key set.", False, False, animation
-            )
+            typer_writer(f"Hugging Face API key set.", False, False, animation)
 
         elif ls_common:
             pass
@@ -265,7 +245,7 @@ def main(
         else:
             raise MissingParameter(param_hint="PROMPT", param_type="string")
 
-        return 
+        return
     if cache:
         if prompt.isdigit():
             with open(".inst_memory.json", "r+") as jsonFile:
