@@ -25,8 +25,8 @@ import yaml
 
 # Click is part of typer.
 from click import MissingParameter, BadParameter, UsageError
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
+from utils.terminal_functions import *
 
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
@@ -101,17 +101,6 @@ def filter_facts(fact, filter="nofilter"):
         raise NotImplementedError
 
 
-def loading_spinner(func):
-    def wrapper(*args, **kwargs):
-        if not kwargs.pop("spinner"):
-            return func(*args, **kwargs)
-        text = TextColumn("[green]Requesting OpenAI...")
-        with Progress(SpinnerColumn(), text, transient=True) as progress:
-            progress.add_task("request")
-            return func(*args, **kwargs)
-
-    return wrapper
-
 
 def get_edited_prompt():
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
@@ -143,18 +132,6 @@ def openai_request(prompt, model, max_tokens, api_key, temperature, top_p):
     response.raise_for_status()
     return response.json()["choices"][0]["text"]
 
-
-def typer_writer(text, code, shell, animate):
-    shell_or_code = shell or code
-    color = "magenta" if shell_or_code else None
-    if animate and not shell_or_code:
-        for char in text:
-            typer.secho(char, nl=False, fg=color, bold=shell_or_code)
-            sleep(0.015)
-        # Add new line at the end, to prevent % from appearing.
-        typer.echo("")
-        return
-    typer.secho(text, fg=color, bold=shell_or_code)
 
 
 # Using lambda to pass a function to default value, which make it apper as "dynamic" in help.
