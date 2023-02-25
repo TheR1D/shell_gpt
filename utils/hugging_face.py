@@ -6,5 +6,9 @@ models = {
 }
 
 def hugging_face_api(request_data, model, api_key):
-    response = requests.post(models[model], headers={"Authorization": f"Bearer {api_key}"}, json=request_data)
+    response = requests.post(
+        models[model], 
+        headers={"Authorization": f"Bearer {api_key}"}, 
+        json=request_data
+    )
     return response.json()

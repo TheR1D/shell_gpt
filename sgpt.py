@@ -16,7 +16,6 @@ from time import sleep, gmtime, strftime
 from pathlib import Path
 from getpass import getpass
 from types import DynamicClassAttribute
-from tempfile import NamedTemporaryFile
 
 import json
 import typer
@@ -29,7 +28,9 @@ from click import MissingParameter, BadParameter, UsageError
 
 from utils.terminal_functions import *
 from utils.hugging_face import hugging_face_api
-from utils.memory import filter_facts
+from utils.prompt_functions import *
+from utils.memory import *
+
 
 # TODO: Add hugging face api call function and hugging face api key into config
 # TODO: Merge so that alper has functions and new code structure
@@ -89,6 +90,7 @@ def update_config(key, value):
         file.write(yaml.dump(data, default_flow_style=False))
     return value
 
+
 def save_fact(fact):
     if not FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -96,26 +98,10 @@ def save_fact(fact):
     with open(FACT_MEMORY_FILE, "a") as file:
         file.write(fact + "\n")
 
+
 def clear_fact_memory():
     if FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.unlink()
-
-
-
-def get_edited_prompt():
-    with NamedTemporaryFile(suffix=".txt", delete=False) as file:
-        # Create file and store path.
-        file_path = file.name
-    editor = os.environ.get("EDITOR", "vim")
-    # This will write text to file using $EDITOR.
-    os.system(f"{editor} {file_path}")
-    # Read file when editor is closed.
-    with open(file_path, "r") as file:
-        output = file.read()
-    os.remove(file_path)
-    if not output:
-        raise BadParameter("Couldn't get valid PROMPT from $EDITOR")
-    return output
 
 
 @loading_spinner
@@ -131,7 +117,6 @@ def openai_request(prompt, model, max_tokens, api_key, temperature, top_p):
     response = requests.post(API_URL, headers=headers, json=data, timeout=180)
     response.raise_for_status()
     return response.json()["choices"][0]["text"]
-
 
 
 # Using lambda to pass a function to default value, which make it apper as "dynamic" in help.
@@ -215,11 +200,11 @@ def main(
             typer.secho("No facts have been memorized yet.", fg="red")
             return
         else:
-            query = prompt 
+            query = prompt
             hf_api_key = get_config("hugging_face_api_key")
 
             all_facts = FACT_MEMORY_FILE.read_text()
-            filtered_facts = filter_facts(f"What is {query}?", all_facts, hf_api_key)
+            filtered_facts = filter_facts(f"What is {query}?", all_facts, filter="hf", hf_api_key=hf_api_key)
 
             fact_retrieval_prompt_path = "prompts/fact_retrieval_v1.txt"
             retrieval_prompt = Path(fact_retrieval_prompt_path).read_text()
@@ -248,15 +233,11 @@ def main(
 
         elif not set_openai_api_key == None:
             update_config("openai_api_key", set_openai_api_key)
-            typer_writer(
-                f"OpenAI API key set.", False, False, animation
-            )
+            typer_writer(f"OpenAI API key set.", False, False, animation)
 
         elif not set_hugging_face_api_key == None:
             update_config("hugging_face_api_key", set_hugging_face_api_key)
-            typer_writer(
-                f"Hugging Face API key set.", False, False, animation
-            )
+            typer_writer(f"Hugging Face API key set.", False, False, animation)
 
         elif toggle_hugging_face_naming:
             if get_config("hugging_face_naming") == True:
@@ -279,7 +260,7 @@ def main(
         else:
             raise MissingParameter(param_hint="PROMPT", param_type="string")
 
-        return 
+        return
     if cache:
         if prompt.isdigit():
             with open(".inst_memory.json", "r+") as jsonFile:

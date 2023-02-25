@@ -27,4 +27,3 @@ def typer_writer(text, code, shell, animate):
         typer.echo("")
         return
     typer.secho(text, fg=color, bold=shell_or_code)
-
