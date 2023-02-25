@@ -1,0 +1,19 @@
+
+"""
+Example: 
+Write a python program that 
+1. Queries the memory for my research directory
+2. Runs main.py in the research directory
+
+import os 
+#returns a list of strings
+my_research_directory = os.system("python sgpt.py -r 'my research directory' ") 
+execute_path = os.path.join(my_research_directory, 'main.py')
+os.system(execute_path)
+
+
+Example: 
+
+
+"""
+
