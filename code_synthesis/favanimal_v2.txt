@@ -1,0 +1,1 @@
+1. download a wikipedia article about ${my favorite animal} into ${my school directory}

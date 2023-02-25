@@ -1,0 +1,3 @@
+1. query memory for my favorite animal 
+2. query my school directory
+2. download a wikipedia article about my favorite animal into my school directory

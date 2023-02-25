@@ -1,0 +1,38 @@
+
+"""
+Your task is to take instructions and turn it into code. In the instructions you may see that the user wants to query
+memory. If the user wants to query some [object] from memory using words or using the syntax ${[object]}, you should run "python3 sgpt.py -r '[object]', which will return a string that represents a list of strings. 
+Applying json.loads to the output of a memory query results in a list of strings. Here are some examples:
+
+Example 1:
+
+Write a python program that
+1. Run main.py in ${my research directory}
+
+import json
+import os
+#returns a list of strings
+my_research_directory = json.loads(os.popen("python3 sgpt.py -r \"my research directory\" ").read())[0]
+execute_path = os.path.join(my_research_directory, 'main.py')
+os.system(execute_path)
+
+Example 2:
+
+Write a Python program that
+1. Queries the memory for ${names of people in my research group}
+2. Queries the memory to get the education level of each person in the research group
+3. Prints the education level of each person in the group
+
+import json
+import os
+names = json.loads(os.popen("python3 sgpt.py -r 'names of people in my research group'").read())
+print(f"names={names}")
+name_edu_dict = {}
+for name in names:
+    name_edu_dict[name] = json.loads(os.popen("python3 sgpt.py -r \"($name)'s level of education\"").read())[0]
+for name in name_edu_dict.keys():
+    print(f"{name}'s level of education is {name_edu_dict[name]}.")
+
+This concludes the examples. Your task starts now.
+"""
+Write a python program that 

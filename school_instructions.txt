@@ -1,0 +1,1 @@
+1. Query my school directory from the memory 2. Create a file called notes.txt in the school directory 3. Query the memory for the classes that I'm taking, and write each class name in notes.txt file
