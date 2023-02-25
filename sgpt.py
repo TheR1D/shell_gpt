@@ -10,10 +10,6 @@ shell commands directly from the interface.
 API Key is stored locally for easy use in future runs.
 """
 
-# TODO: enforce size
-# --cache
-
-
 import os
 from enum import Enum
 from time import sleep, gmtime, strftime
@@ -25,15 +21,16 @@ from tempfile import NamedTemporaryFile
 import json
 import typer
 import requests
+import yaml
 
 # Click is part of typer.
-from click import MissingParameter, BadParameter
+from click import MissingParameter, BadParameter, UsageError
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
-KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
+KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "config.yml"
 FACT_MEMORY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "fact_memory.txt"
 
 # pylint: disable=invalid-name
@@ -51,34 +48,58 @@ class Model(str, Enum):
 
 
 # pylint: enable=invalid-name
+def create_config():
+    openai_api_key = getpass(prompt="Please enter your OpenAI API secret key: ")
+    KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    KEY_FILE.write_text(f"openai_api_key: {openai_api_key}")
 
 
-def get_api_key():
+def get_config(key):
     if not KEY_FILE.exists():
-        api_key = getpass(prompt="Please enter your API secret key")
-        KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-        KEY_FILE.write_text(api_key)
-    else:
-        api_key = KEY_FILE.read_text().strip()
-    return api_key
+        create_config()
+    with KEY_FILE.open(mode="r") as file:
+        data = yaml.safe_load(file)
+        try:
+            return data[key]
+        except KeyError:
+            raise UsageError(
+                f"Key '{key}' not found in config file. Please check your config file."
+            )
+
+
+def update_config(key, value):
+    if not KEY_FILE.exists():
+        create_config()
+
+    with KEY_FILE.open(mode="r") as file:
+        data = yaml.safe_load(file)
+
+    data[key] = value
+
+    with KEY_FILE.open(mode="w") as file:
+        file.write(yaml.dump(data, default_flow_style=False))
+    return value
+
 
 def save_fact(fact):
     if not FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    #write fact onto the file as a new line
+    # write fact onto the file as a new line
     with open(FACT_MEMORY_FILE, "a") as file:
         file.write(fact + "\n")
+
 
 def clear_fact_memory():
     if FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.unlink()
-                   
+
 
 def filter_facts(fact, filter="nofilter"):
     if filter == "nofilter":
         return fact
-    else: 
+    else:
         raise NotImplementedError
+
 
 def loading_spinner(func):
     def wrapper(*args, **kwargs):
@@ -162,25 +183,50 @@ def main(
     execute: bool = typer.Option(
         False, "--execute", "-e", help="Will execute --shell command."
     ),
-    memorize_fact: bool = typer.Option(False, "--memorize", "-m", help="Will memorize the following fact you gave to ShellGPT."),
-    clear_facts: bool = typer.Option(False, "--clear_facts", "-cf", help="Will clear facts you gave to ShellGPT."),
-    retrieve_fact: bool = typer.Option(False, "--retrieve", "-r", help="Will retrieve the desired fact."),
+    memorize_fact: bool = typer.Option(
+        False,
+        "--memorize",
+        "-m",
+        help="Will memorize the following fact you gave to ShellGPT.",
+    ),
+    clear_facts: bool = typer.Option(
+        False, "--clear_facts", "-cf", help="Will clear facts you gave to ShellGPT."
+    ),
+    retrieve_fact: bool = typer.Option(
+        False, "--retrieve", "-r", help="Will retrieve the desired fact."
+    ),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
+    set_history: int = typer.Option(
+        lambda: 500, min=0, max=10000, help="Set the history length to be saved."
+    ),  # TODO: Add this with naming
+    set_api_key: int = typer.Option(
+        None, show_default=False, help="Set the history length to be saved."
+    ),  # TODO: Add this with naming
+    favorite: bool = typer.Option(
+        False,
+        help="Mark the command as a favorite command that can be searched through and won't be deleted.",
+    ),  # TODO: Add this with naming
+    ls_common: bool = typer.Option(
+        False, help="List all common commands."
+    ),  # TODO: Add this with naming using some model
+    ls_history: bool = typer.Option(
+        False, help="List all history."
+    ),  # TODO: Add this with naming
 ):
-    api_key = get_api_key()
+    api_key = get_config("openai_api_key")
 
     if clear_facts:
         clear_fact_memory()
         return
-    
+
     if memorize_fact:
         curr_time = strftime("%H:%M:%S %d/%m/%Y", gmtime())
         save_fact(curr_time + " " + prompt)
-        return 
-    
+        return
+
     if retrieve_fact:
         if not FACT_MEMORY_FILE.exists():
             typer.secho("No facts have been memorized yet.", fg="red")
@@ -193,18 +239,45 @@ def main(
             retrieval_prompt = Path(fact_retrieval_prompt_path).read_text()
 
             full_prompt = f"{retrieval_prompt}\n{filtered_facts}\n What is {prompt}?"
-            
+
             print(full_prompt)
 
-            response_text = openai_request(full_prompt, model, max_tokens, api_key, 0, top_probability, spinner=spinner)
+            response_text = openai_request(
+                full_prompt,
+                model,
+                max_tokens,
+                api_key,
+                0,
+                top_probability,
+                spinner=spinner,
+            )
             response_text = response_text.strip()
             typer_writer(response_text, code, shell, animation)
-        return 
-
+        return
 
     if not prompt and not editor:
-        raise MissingParameter(param_hint="PROMPT", param_type="string")
+        if not set_history == 500:
+            update_config("history_length", set_history)
+            typer_writer(
+                f"History length set to {set_history}.", False, False, animation
+            )
 
+        elif not set_api_key == None:
+            update_config("openai_api_key", set_api_key)
+            typer_writer(
+                f"OpenAI API key set to {set_api_key}.", False, False, animation
+            )
+
+        elif ls_common:
+            pass
+
+        elif ls_history:
+            pass
+
+        else:
+            raise MissingParameter(param_hint="PROMPT", param_type="string")
+
+        return 
     if cache:
         if prompt.isdigit():
             with open(".inst_memory.json", "r+") as jsonFile:
@@ -253,18 +326,19 @@ def main(
     typer_writer(response_text, code, shell, animation)
 
     if shell:
-        write_to_memory(prompt, response_text, "bro")
+        write_to_memory(prompt, response_text, "bro", favorite)
 
     if shell and execute and typer.confirm("Execute shell command?"):
         os.system(response_text)
 
 
-def write_to_memory(input_text, output_text, name):
+def write_to_memory(input_text, output_text, name, favorite):
     dictionary = {
         "input": input_text,
         "output": output_text,
         "name": name,
-        "saved": False,
+        "favorite": favorite,
+        "uid": False,
     }
 
     with open(".inst_memory.json", "r+") as jsonFile:

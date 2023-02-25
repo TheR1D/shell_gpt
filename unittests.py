@@ -21,9 +21,19 @@ class TestMain(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_openai_request(self, mock):
-        mock.post(sgpt.API_URL, json={"choices": [{"text": self.response_text}]}, status_code=200)
+        mock.post(
+            sgpt.API_URL,
+            json={"choices": [{"text": self.response_text}]},
+            status_code=200,
+        )
         result = sgpt.openai_request(
-            self.prompt, self.model, self.max_tokens, self.api_key, self.temperature, self.top_p, spinner=self.spinner
+            self.prompt,
+            self.model,
+            self.max_tokens,
+            self.api_key,
+            self.temperature,
+            self.top_p,
+            spinner=self.spinner,
         )
         self.assertEqual(result, self.response_text)
         expected_json = {
@@ -33,7 +43,10 @@ class TestMain(unittest.TestCase):
             "temperature": self.temperature,
             "top_p": self.top_p,
         }
-        expected_headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"}
+        expected_headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
         request = mock.request_history[0]
         self.assertEqual(request.json(), expected_json)
         for key, value in expected_headers.items():
