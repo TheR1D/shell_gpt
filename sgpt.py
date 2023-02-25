@@ -27,6 +27,7 @@ import yaml
 from click import MissingParameter, BadParameter, UsageError
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
+from utils import hugging_face
 
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
@@ -202,7 +203,10 @@ def main(
     set_history: int = typer.Option(
         lambda: 500, min=0, max=10000, help="Set the history length to be saved."
     ),  # TODO: Add this with naming
-    set_api_key: int = typer.Option(
+    set_openai_api_key: int = typer.Option(
+        None, show_default=False, help="Set the history length to be saved."
+    ),  # TODO: Add this with naming
+    set_hugging_face_api_key: int = typer.Option(
         None, show_default=False, help="Set the history length to be saved."
     ),  # TODO: Add this with naming
     favorite: bool = typer.Option(
@@ -216,7 +220,8 @@ def main(
         False, help="List all history."
     ),  # TODO: Add this with naming
 ):
-    api_key = get_config("openai_api_key")
+    openai_api_key = get_config("openai_api_key")
+    # get hugging face api key: get_config("hugging_face_api_key")
 
     if clear_facts:
         clear_fact_memory()
@@ -246,7 +251,7 @@ def main(
                 full_prompt,
                 model,
                 max_tokens,
-                api_key,
+                openai_api_key,
                 0,
                 top_probability,
                 spinner=spinner,
@@ -262,10 +267,16 @@ def main(
                 f"History length set to {set_history}.", False, False, animation
             )
 
-        elif not set_api_key == None:
-            update_config("openai_api_key", set_api_key)
+        elif not set_openai_api_key == None:
+            update_config("openai_api_key", set_openai_api_key)
             typer_writer(
-                f"OpenAI API key set to {set_api_key}.", False, False, animation
+                f"OpenAI API key set.", False, False, animation
+            )
+
+        elif not set_hugging_face_api_key == None:
+            update_config("hugging_face_api_key", set_hugging_face_api_key)
+            typer_writer(
+                f"Hugging Face API key set.", False, False, animation
             )
 
         elif ls_common:
@@ -316,7 +327,7 @@ def main(
         prompt,
         model,
         max_tokens,
-        api_key,
+        openai_api_key,
         temperature,
         top_probability,
         spinner=spinner,
