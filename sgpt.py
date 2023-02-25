@@ -10,8 +10,8 @@ shell commands directly from the interface.
 API Key is stored locally for easy use in future runs.
 """
 
-#TODO: enforce size
-
+# TODO: enforce size
+# --cache
 
 
 import os
@@ -120,22 +120,60 @@ def typer_writer(text, code, shell, animate):
 
 
 # Using lambda to pass a function to default value, which make it apper as "dynamic" in help.
+
+# cache should be able to be int or string
 def main(
-    prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
+    prompt: str = typer.Argument(
+        None, show_default=False, help="The prompt to generate completions for."
+    ),
     model: Model = typer.Option("davinci", help="GPT-3 model name.", show_choices=True),
-    max_tokens: int = typer.Option(lambda: 2048, help="Strict length of output (words)."),
-    temperature: float = typer.Option(lambda: 1.0, min=0.0, max=1.0, help="Randomness of generated output."),
-    top_probability: float = typer.Option(lambda: 1.0, min=0.1, max=1.0, help="Limits highest probable tokens."),
-    shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
-    execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
+    max_tokens: int = typer.Option(
+        lambda: 2048, help="Strict length of output (words)."
+    ),
+    temperature: float = typer.Option(
+        lambda: 1.0, min=0.0, max=1.0, help="Randomness of generated output."
+    ),
+    top_probability: float = typer.Option(
+        lambda: 1.0, min=0.1, max=1.0, help="Limits highest probable tokens."
+    ),
+    cache: bool = typer.Option(
+        False, "--cache", "-c", help="Access the memory using name or an index."
+    ),
+    shell: bool = typer.Option(
+        False, "--shell", "-s", help="Provide shell command as output."
+    ),
+    execute: bool = typer.Option(
+        False, "--execute", "-e", help="Will execute --shell command."
+    ),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ):
     api_key = get_api_key()
+
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
+
+    if cache:
+        if prompt.isdigit():
+            with open(".inst_memory.json", "r+") as jsonFile:
+                data = json.load(jsonFile)
+            N = len(data)
+            if int(prompt) >= N:
+                print("Index is out of range")
+                return
+            else:
+                reversed_index = N - int(prompt) - 1
+                output = data[reversed_index]["output"]
+                typer_writer(output, code, shell, animation)
+        else:
+            print("need to implement lol")
+
+        # modular as cache retrival function
+
+        return
+
     if shell:
         # If default values where not changed, make it more accurate.
         if temperature == 1.0 == top_probability:
@@ -151,33 +189,41 @@ def main(
         max_tokens = 1024
     if editor:
         prompt = get_edited_prompt()
-    response_text = openai_request(prompt, model, max_tokens, api_key, temperature, top_probability, spinner=spinner)
+    response_text = openai_request(
+        prompt,
+        model,
+        max_tokens,
+        api_key,
+        temperature,
+        top_probability,
+        spinner=spinner,
+    )
     # For some reason OpenAI returns several leading/trailing white spaces.
     response_text = response_text.strip()
     typer_writer(response_text, code, shell, animation)
-    
-    
-    
+
+    if shell:
+        write_to_memory(prompt, response_text, "bro")
+
     if shell and execute and typer.confirm("Execute shell command?"):
-        write_to_memory(prompt,response_text,"bro")
         os.system(response_text)
 
 
-def write_to_memory(input_text,output_text,name):
+def write_to_memory(input_text, output_text, name):
     dictionary = {
         "input": input_text,
         "output": output_text,
         "name": name,
-        "saved": False
+        "saved": False,
     }
-   
+
     with open(".inst_memory.json", "r+") as jsonFile:
         data = json.load(jsonFile)
-    
+
     data.append(dictionary)
-    
+
     jsonFile = open(".inst_memory.json", "w+")
-    jsonFile.write(json.dumps(data))
+    jsonFile.write(json.dumps(data, indent=4))
     jsonFile.close()
 
 
