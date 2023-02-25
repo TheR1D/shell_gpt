@@ -192,7 +192,7 @@ def main(
             hf_api_key = get_config("hugging_face_api_key")
 
             all_facts = FACT_MEMORY_FILE.read_text()
-            filtered_facts = filter_facts(f"What is {query}?", all_facts, hf_api_key)
+            filtered_facts = filter_facts(f"What is {query}?", all_facts, filter="hf", hf_api_key=hf_api_key)
 
             fact_retrieval_prompt_path = "prompts/fact_retrieval_v1.txt"
             retrieval_prompt = Path(fact_retrieval_prompt_path).read_text()
