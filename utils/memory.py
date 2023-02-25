@@ -17,18 +17,14 @@ def filter_facts(query, all_facts, filter="hf", hf_api_key=None, MAX_FACTS=50):
 
         response = hugging_face_api(huggingface_request_json, model='sentence_translation', api_key=hf_api_key)
 
-        response_fact_pairs = list(zip(response, all_facts))
+        response_fact_pairs = list(zip(response, all_facts_without_dates))
         response_fact_pairs.sort(reverse=True)
-        response_fact_pairs = response_fact_pairs[:MAX_FACTS]
+        relevant_facts = [x[1] for x in response_fact_pairs[:MAX_FACTS]]
 
-        #merge all response_fact_pairs onto one string
-        # filtered_facts = ""
-        # for i, fact_without_date in enumerate(all_facts_without_dates):
-        #     if fact_without_date in 
-        #     filtered_facts += pair[i] + "\n"
+        filtered_facts = ""
+        for i, fact_without_date in enumerate(all_facts_without_dates):
+            if fact_without_date in relevant_facts:
+                filtered_facts += all_facts[i] + "\n"
 
-
-        return all_facts
-
-        # return hugging_face_api(fact, hf_api_key)
+        return filtered_facts
 
