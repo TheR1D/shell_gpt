@@ -28,6 +28,7 @@ from click import MissingParameter, BadParameter, UsageError
 from utils import hugging_face
 from utils.terminal_functions import *
 from utils.prompt_functions import *
+from utils.memory import *
 
 
 API_URL = "https://api.openai.com/v1/completions"
