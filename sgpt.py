@@ -149,6 +149,9 @@ def main(
     retrieve_fact: bool = typer.Option(
         False, "--retrieve", "-r", help="Will retrieve the desired fact."
     ),
+    add_instruction: bool = typer.Option(
+        False, "--add_instruction", "-ai", help="Will add instruction to ShellGPT."
+    ),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
@@ -177,6 +180,41 @@ def main(
     ),  # TODO: Add this with naming
 ):
     openai_api_key = get_config("openai_api_key")
+
+    if add_instruction:
+        typer.secho("Adding new instruction...", fg="green")
+        instruction_prompt_path = "prompts/instruction_generation_v2.txt"
+
+        instruction_prompt = Path(instruction_prompt_path).read_text()
+        custom_prompt = Path(prompt).read_text()
+
+        full_prompt = instruction_prompt + " " + custom_prompt
+
+        response_text = openai_request(
+                full_prompt,
+                model,
+                max_tokens,
+                openai_api_key,
+                0,
+                top_probability,
+                spinner=spinner,
+            )
+        response_text = response_text.strip()
+        typer_writer(response_text, code, shell, animation)
+
+        confirmation = input("Execute? (y/n)")
+
+        #create a python file called temp.py and write the response_text to it
+        with open("temp.py", "w") as file:
+            file.write(response_text)
+
+        if confirmation == "y":
+            os.system("python temp.py")
+        else:
+            typer.secho("Command not executed.", fg="red")
+
+        return
+
 
     if clear_facts:
         clear_fact_memory()

@@ -6,6 +6,8 @@ def filter_facts(query, all_facts, filter="hf", hf_api_key=None, MAX_FACTS=50):
     elif filter == "hf":
         #split all facts into lines
         all_facts = all_facts.splitlines()
+        #go through all_facts, remove empty lines
+        all_facts = [fact for fact in all_facts if len(fact)]
         #the date is the first two words of a line
         all_facts_without_dates = [fact.split(" ", 2)[2] for fact in all_facts]
         
