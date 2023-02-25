@@ -8,7 +8,7 @@ Example 1:
 17:36:07 25/02/2023 my name is Berkan
 17:40:39 25/02/2023 My research directory is /local/crv/acanberk/airesearch
 
-Question: What is my name? ['Berkan']
+Question: What is my name? ["Berkan"]
 
 
 Example 2:
@@ -17,7 +17,7 @@ Example 2:
 14:36:07 27/02/2023 my name is Berkan
 15:40:39 28/02/2023 My research directory is /local/crv/acanberk/airesearch
 
-Question: What are my past names? ['Alper', 'Berkan']
+Question: What are my past names? ["Alper", 'Berkan"]
 
 
 Example 3:
@@ -25,7 +25,7 @@ Example 3:
 10:35:59 26/02/2023 I am working on a project called shellgpt
 14:36:07 27/02/2023 I am working on a project called helloworld
 
-Question: What are projects that I'm working on? ['shellgpt', 'helloworld']
+Question: What are projects that I'm working on? ["shellgpt", "helloworld"]
 
 This concludes the set of examples. None of the example facts are true. Below this comment, you may start your task.
 """
