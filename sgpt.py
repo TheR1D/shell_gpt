@@ -19,6 +19,7 @@ from getpass import getpass
 from types import DynamicClassAttribute
 from tempfile import NamedTemporaryFile
 
+import json
 import typer
 import requests
 
@@ -151,8 +152,32 @@ def main(
     # For some reason OpenAI returns several leading/trailing white spaces.
     response_text = response_text.strip()
     typer_writer(response_text, code, shell, animation)
+    
+    
+    
     if shell and execute and typer.confirm("Execute shell command?"):
+        write_to_memory(prompt,response_text,"bro")
         os.system(response_text)
+
+
+def write_to_memory(input_text,output_text,name):
+    dictionary = {
+        "input": input_text,
+        "output": output_text,
+        "name": name
+    }
+   
+    with open(".inst_memory.json", "r+") as jsonFile:
+        data = json.load(jsonFile)
+    
+    
+    data.append(dictionary)
+    
+    
+    
+    jsonFile = open(".inst_memory.json", "w+")
+    jsonFile.write(json.dumps(data))
+    jsonFile.close()
 
 
 def entry_point():
