@@ -169,12 +169,14 @@ def main(
             all_facts = FACT_MEMORY_FILE.read_text()
             filtered_facts = filter_facts(all_facts)
 
-            #query GPT-3 to get the desired fact
-            retrieval_prompt = f"Here are some facts in the form [timestamp, fact]:\n{filtered_facts}\n Using the facts above that I have said in the past, and looking at the most recent fact, answer the following question: what is {prompt}?"
-            
-            print(retrieval_prompt)
+            fact_retrieval_prompt_path = "prompts/fact_retrieval_v1.txt"
+            retrieval_prompt = Path(fact_retrieval_prompt_path).read_text()
 
-            response_text = openai_request(retrieval_prompt, model, max_tokens, api_key, 0, top_probability, spinner=spinner)
+            full_prompt = f"{retrieval_prompt}\n{filtered_facts}\n What is {prompt}?"
+            
+            print(full_prompt)
+
+            response_text = openai_request(full_prompt, model, max_tokens, api_key, 0, top_probability, spinner=spinner)
             response_text = response_text.strip()
             typer_writer(response_text, code, shell, animation)
         return 
