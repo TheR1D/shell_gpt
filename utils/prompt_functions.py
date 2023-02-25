@@ -1,6 +1,7 @@
 from tempfile import NamedTemporaryFile
 from click import MissingParameter, BadParameter, UsageError
 
+
 def get_edited_prompt():
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
         # Create file and store path.
@@ -15,4 +16,3 @@ def get_edited_prompt():
     if not output:
         raise BadParameter("Couldn't get valid PROMPT from $EDITOR")
     return output
-

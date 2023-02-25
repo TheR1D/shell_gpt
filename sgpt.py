@@ -82,6 +82,7 @@ def update_config(key, value):
         file.write(yaml.dump(data, default_flow_style=False))
     return value
 
+
 def save_fact(fact):
     if not FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -89,10 +90,10 @@ def save_fact(fact):
     with open(FACT_MEMORY_FILE, "a") as file:
         file.write(fact + "\n")
 
+
 def clear_fact_memory():
     if FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.unlink()
-
 
 
 @loading_spinner
@@ -188,7 +189,7 @@ def main(
             typer.secho("No facts have been memorized yet.", fg="red")
             return
         else:
-            query = prompt 
+            query = prompt
             hf_api_key = get_config("hugging_face_api_key")
 
             all_facts = FACT_MEMORY_FILE.read_text()
