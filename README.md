@@ -1,9 +1,14 @@
 # Shell GPT
 A command-line interface (CLI) productivity tool powered by OpenAI's Davinci model, that will help you accomplish your tasks faster and more efficiently.
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
 <div align="center">
     <img src="https://i.ibb.co/QX236hx/sgpt-5-0-0.gif" width="800"/>
 </div>
+
+
 
 ## Description
 `text-davinci-003` is a powerful language model developed by OpenAI that can generate human-like text. It can be used by us developers, to generate code snippets, comments, documentation and more, helping us increase our productivity and efficiency while coding.
