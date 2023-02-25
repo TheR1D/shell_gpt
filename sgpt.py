@@ -82,7 +82,6 @@ def update_config(key, value):
         file.write(yaml.dump(data, default_flow_style=False))
     return value
 
-
 def save_fact(fact):
     if not FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -90,17 +89,9 @@ def save_fact(fact):
     with open(FACT_MEMORY_FILE, "a") as file:
         file.write(fact + "\n")
 
-
 def clear_fact_memory():
     if FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.unlink()
-
-
-def filter_facts(fact, filter="nofilter"):
-    if filter == "nofilter":
-        return fact
-    else:
-        raise NotImplementedError
 
 
 
@@ -164,11 +155,11 @@ def main(
     set_history: int = typer.Option(
         lambda: 500, min=0, max=10000, help="Set the history length to be saved."
     ),  # TODO: Add this with naming
-    set_openai_api_key: int = typer.Option(
-        None, show_default=False, help="Set the history length to be saved."
+    set_openai_api_key: str = typer.Option(
+        None, show_default=False, help="Set OpenAI API key."
     ),  # TODO: Add this with naming
-    set_hugging_face_api_key: int = typer.Option(
-        None, show_default=False, help="Set the history length to be saved."
+    set_hugging_face_api_key: str = typer.Option(
+        None, show_default=False, help="Set Hugging Face API key."
     ),  # TODO: Add this with naming
     favorite: bool = typer.Option(
         False,
@@ -182,7 +173,6 @@ def main(
     ),  # TODO: Add this with naming
 ):
     openai_api_key = get_config("openai_api_key")
-    # get hugging face api key: get_config("hugging_face_api_key")
 
     if clear_facts:
         clear_fact_memory()
@@ -198,15 +188,16 @@ def main(
             typer.secho("No facts have been memorized yet.", fg="red")
             return
         else:
+            query = prompt 
+            hf_api_key = get_config("hugging_face_api_key")
+
             all_facts = FACT_MEMORY_FILE.read_text()
-            filtered_facts = filter_facts(all_facts)
+            filtered_facts = filter_facts(f"What is {query}?", all_facts, hf_api_key)
 
             fact_retrieval_prompt_path = "prompts/fact_retrieval_v1.txt"
             retrieval_prompt = Path(fact_retrieval_prompt_path).read_text()
 
-            full_prompt = f"{retrieval_prompt}\n{filtered_facts}\n What is {prompt}?"
-
-            print(full_prompt)
+            full_prompt = f"{retrieval_prompt}\n{filtered_facts}\n What is {query}?"
 
             response_text = openai_request(
                 full_prompt,
