@@ -29,6 +29,12 @@ from click import MissingParameter, BadParameter, UsageError
 from utils import hugging_face
 from utils.terminal_functions import *
 
+# TODO: Add hugging face api call function and hugging face api key into config
+# TODO: Merge so that alper has functions and new code structure
+# TODO: Update naming of past programs/prompts
+# Summarize the command below in 8 or fewer words.
+# start nginx using docker, forward 443 and 80 port, mount current folder with index.html
+
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
 KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "config.yml"
