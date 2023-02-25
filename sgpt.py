@@ -13,7 +13,7 @@ API Key is stored locally for easy use in future runs.
 
 import os
 from enum import Enum
-from time import sleep
+from time import sleep, gmtime, strftime
 from pathlib import Path
 from getpass import getpass
 from types import DynamicClassAttribute
@@ -31,7 +31,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
 KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
-
+FACT_MEMORY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "fact_memory.txt"
 
 # pylint: disable=invalid-name
 class Model(str, Enum):
@@ -58,6 +58,12 @@ def get_api_key():
     else:
         api_key = KEY_FILE.read_text().strip()
     return api_key
+
+def save_fact(fact):
+    if not KEY_FILE.exists():
+        FACT_MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    FACT_MEMORY_FILE.write_text(fact)
+        
 
 
 def loading_spinner(func):
@@ -125,11 +131,19 @@ def main(
     top_probability: float = typer.Option(lambda: 1.0, min=0.1, max=1.0, help="Limits highest probable tokens."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
+    memorize: bool = typer.Option(False, "--memorize", "-m", help="Will memorize the following fact you gave to ShellGPT."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ):
+    if memorize:
+        #get current time in hours:minutes:seconds day/month/year
+        curr_time = strftime("%H:%M:%S %d/%m/%Y", gmtime())
+        save_fact(curr_time + " " + prompt)
+        return 
+
+
     api_key = get_api_key()
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
