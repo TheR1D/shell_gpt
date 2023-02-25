@@ -8,7 +8,7 @@ def loading_spinner(func):
     def wrapper(*args, **kwargs):
         if not kwargs.pop("spinner"):
             return func(*args, **kwargs)
-        text = TextColumn("[green]Requesting OpenAI...")
+        text = TextColumn("[green]Requesting API...")
         with Progress(SpinnerColumn(), text, transient=True) as progress:
             progress.add_task("request")
             return func(*args, **kwargs)

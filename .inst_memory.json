@@ -1,1 +1,128 @@
-[]
+[
+    {
+        "input": "list files in current directory. Provide only shell command as output.",
+        "output": "ls",
+        "name": "listfilesincurrentdirectoryprovideonlyshellcommandasoutputlistfilesincurrentdirectorylistfilesincurrentdirectorylistfileincurrentfolderlistfilesincurrentdirectorylistfilesincurrentdocumentlistfilesincurrentdocumentlistfileincurrentdocumentslistfileincurrentfolderlistfileincurrentdocumentlistfileincurrentdeviceslistfileincurrentdeviceslistfilesincurrentdeviceslistfileincurrentdeviceslistfiles",
+        "favorite": false,
+        "uid": false
+    },
+    {
+        "input": "list files in current directory. Provide only shell command as output.",
+        "output": "ls",
+        "name": "list files in current directoryprovide only shell command as outputlist files incurrent directorylist files in current directorylist file in current folderlistfiles in current directorylist files in current documentlistfiles in current documentlistfile in current documentslistfile in current folderlist file in currentdocumentlistfile in currentdeviceslist file in currentdeviceslist files in current devices.list file incurrentdeviceslistfiles.",
+        "favorite": false,
+        "uid": false
+    },
+    {
+        "input": "list files in current directory. Provide only shell command as output.",
+        "output": "ls",
+        "name": "list_files_in_current_directory",
+        "favorite": false,
+        "uid": false
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start_nginx_using_docker",
+        "favorite": false,
+        "uid": false
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start_nginx_using_docker",
+        "favorite": false,
+        "uid": 167735804665
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start_nginx_using_docker",
+        "favorite": false,
+        "uid": 167735810916
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start_nginx_using_dockerforward_443_and_80_portmount_current_folder_with_index.htmlprovide_only_shell_command_as_output.",
+        "favorite": false,
+        "uid": 167735815226
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start nginx using dockerforward 443",
+        "favorite": false,
+        "uid": 167735823234
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start nginx using dockerforward 443",
+        "favorite": false,
+        "uid": 167735835429
+    },
+    {
+        "input": "start nginx using docker, forward 443 and 80 port, mount current folder with index.html. Provide only shell command as output.",
+        "output": "docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx",
+        "name": "start nginx using dockerforward 443",
+        "favorite": false,
+        "uid": 167735837324
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "apples aremy favorite snackprovide only",
+        "favorite": false,
+        "uid": 167735840499
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "apples aremy favorite snackprovide only shell command as output.",
+        "favorite": false,
+        "uid": 167735855768
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "apples are my favorite snack",
+        "favorite": false,
+        "uid": 167735859817
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "apples are my favorite",
+        "favorite": false,
+        "uid": 167735884423
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "apples are my favorite",
+        "favorite": false,
+        "uid": 167735887285
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "apples are my favorite",
+        "favorite": false,
+        "uid": 167735891569
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "use_shell_command",
+        "favorite": false,
+        "uid": 167735900465
+    },
+    {
+        "input": "apples are, my favorite snack. Provide only shell command as output.",
+        "output": "echo \"apples\"",
+        "name": "_apples_are_",
+        "favorite": false,
+        "uid": 167735935561
+    }
+]

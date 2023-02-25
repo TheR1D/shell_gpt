@@ -12,7 +12,7 @@ API Key is stored locally for easy use in future runs.
 
 import os
 from enum import Enum
-from time import sleep, gmtime, strftime
+from time import gmtime, strftime, time
 from pathlib import Path
 from getpass import getpass
 from types import DynamicClassAttribute
@@ -21,12 +21,13 @@ import json
 import typer
 import requests
 import yaml
+import re
 
 # Click is part of typer.
-from click import MissingParameter, BadParameter, UsageError
+from click import MissingParameter, UsageError
 
-from utils import hugging_face
 from utils.terminal_functions import *
+from utils.hugging_face import hugging_face_api
 from utils.prompt_functions import *
 from utils.memory import *
 
@@ -54,7 +55,7 @@ class Model(str, Enum):
 def create_config():
     openai_api_key = getpass(prompt="Please enter your OpenAI API secret key: ")
     KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    KEY_FILE.write_text(f"openai_api_key: {openai_api_key}")
+    KEY_FILE.write_text(f"openai_api_key: {openai_api_key}\nhugging_face_naming: false")
 
 
 def get_config(key):
@@ -163,6 +164,9 @@ def main(
     set_hugging_face_api_key: str = typer.Option(
         None, show_default=False, help="Set Hugging Face API key."
     ),  # TODO: Add this with naming
+    toggle_hugging_face_naming: bool = typer.Option(
+        False, show_default=False, help="Use or don't use hugging face naming."
+    ),  # TODO: Add this with naming
     favorite: bool = typer.Option(
         False,
         help="Mark the command as a favorite command that can be searched through and won't be deleted.",
@@ -232,6 +236,18 @@ def main(
             update_config("hugging_face_api_key", set_hugging_face_api_key)
             typer_writer(f"Hugging Face API key set.", False, False, animation)
 
+        elif toggle_hugging_face_naming:
+            if get_config("hugging_face_naming") == True:
+                update_config("hugging_face_naming", False)
+                typer_writer(
+                    f"Hugging Face naming toggled to False.", False, False, animation
+                )
+            else:
+                update_config("hugging_face_naming", True)
+                typer_writer(
+                    f"Hugging Face naming toggled to True.", False, False, animation
+                )
+
         elif ls_common:
             pass
 
@@ -269,19 +285,19 @@ def main(
         # If default values where not changed, make it more accurate.
         if temperature == 1.0 == top_probability:
             temperature, top_probability = 0.2, 0.9
-        prompt = f"{prompt}. Provide only shell command as output."
+        request_prompt = f"{prompt}. Provide only shell command as output."
     elif code:
         # If default values where not changed, make it more creative (diverse).
         if temperature == 1.0 == top_probability:
             temperature, top_probability = 0.8, 0.2
-        prompt = f"{prompt}. Provide only code as output."
+        request_prompt = f"{prompt}. Provide only code as output."
     # Curie has hard cap 2048 + prompt.
     if model == "text-curie-001" and max_tokens == 2048:
         max_tokens = 1024
     if editor:
-        prompt = get_edited_prompt()
+        request_prompt = get_edited_prompt()
     response_text = openai_request(
-        prompt,
+        request_prompt,
         model,
         max_tokens,
         openai_api_key,
@@ -294,7 +310,17 @@ def main(
     typer_writer(response_text, code, shell, animation)
 
     if shell:
-        write_to_memory(prompt, response_text, "bro", favorite)
+        if get_config("hugging_face_naming") == True:
+            # TODO: Add spinning wheel
+            hugging_face_api_key = get_config("hugging_face_api_key")
+            command_name = hugging_face_api({"inputs": prompt, "parameters": {"max_length": 6, "min_length": 3}}, "naming", hugging_face_api_key, spinner=spinner)[0]["summary_text"]
+            command_name = re.sub(r"[^a-zA-Z0-9]+", " ", command_name).lower().replace(" ", "_")
+
+        else:
+            prompt_list = re.sub(r"[^a-zA-Z0-9]+", " ", prompt).lower().split(" ")
+            command_name = " ".join(prompt_list[:min(len(prompt_list), 4)])
+
+        write_to_memory(request_prompt, response_text, command_name, favorite)
 
     if shell and execute and typer.confirm("Execute shell command?"):
         os.system(response_text)
@@ -306,7 +332,7 @@ def write_to_memory(input_text, output_text, name, favorite):
         "output": output_text,
         "name": name,
         "favorite": favorite,
-        "uid": False,
+        "uid": round(time()*100),
     }
 
     with open(".inst_memory.json", "r+") as jsonFile:
