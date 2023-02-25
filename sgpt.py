@@ -25,6 +25,7 @@ from tempfile import NamedTemporaryFile
 import json
 import typer
 import requests
+import yaml
 
 # Click is part of typer.
 from click import MissingParameter, BadParameter
@@ -33,7 +34,10 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
-KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
+# KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
+KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "config.yml"
+
+# TODO: Change config to a yml file.
 
 
 # pylint: disable=invalid-name
@@ -53,14 +57,68 @@ class Model(str, Enum):
 # pylint: enable=invalid-name
 
 
-def get_api_key():
+# def get_api_key():
+#     # yaml
+#     if not KEY_FILE.exists():
+#         api_key = getpass(prompt="Please enter your API secret key")
+#         KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+#         KEY_FILE.write_text(api_key)
+#     else:
+#         api_key = KEY_FILE.read_text().strip()
+#     return api_key
+
+def create_config():
+    openai_api_key = getpass(prompt="Please enter your OpenAI API secret key: ")
+    KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    KEY_FILE.write_text(f"openai_api_key: {openai_api_key}")
+
+
+def get_config(key):
     if not KEY_FILE.exists():
-        api_key = getpass(prompt="Please enter your API secret key")
-        KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-        KEY_FILE.write_text(api_key)
-    else:
-        api_key = KEY_FILE.read_text().strip()
-    return api_key
+        create_config()
+    with KEY_FILE.open(mode='r') as file:
+        data = yaml.safe_load(file)
+        try:
+            return data[key]
+        except KeyError:
+            print(f"Key '{key}' not found in config file. Please check your config file.")
+            exit(1)
+        
+    #     api_key = getpass(prompt="Please enter your API secret key")
+    #     KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    #     KEY_FILE.write_text(api_key)
+    #     return {"api_key": api_key}
+    # else:
+    #     with open(KEY_FILE, "r") as file:
+    #         config = yaml.load(file, Loader=yaml.FullLoader)
+    #     return config
+
+def update_config(key, value):
+    if not KEY_FILE.exists():
+        create_config()
+
+    with KEY_FILE.open(mode='r') as file:
+        data = yaml.safe_load(file)
+    
+    data[key] = value
+    
+    with KEY_FILE.open(mode='w') as file:
+        file.write(yaml.dump(data, default_flow_style=False))
+    return value
+
+    #     # return data[key]
+
+    # fname = "some.yaml"
+
+    # stream = open(fname, 'r')
+    # data = yaml.load(stream)
+
+    # data['instances'][0]['host'] = '1.2.3.4'
+    # data['instances'][0]['username'] = 'Username'
+    # data['instances'][0]['password'] = 'Password'
+
+    # with KEY_FILE.open(mode='w') as yaml_file:
+    #     yaml_file.write(yaml.dump(data, default_flow_style=False))
 
 
 def loading_spinner(func):
@@ -132,43 +190,66 @@ def main(
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
+
+    set_history: int = typer.Option(lambda: 500, min=0, max=10000, help="Set the history length to be saved."), # TODO: Add this with naming
+    set_api_key: int = typer.Option(None, show_default=False, help="Set the history length to be saved."), # TODO: Add this with naming
+    
+    favorite: bool = typer.Option(False, help="Mark the command as a favorite command that can be searched through and won't be deleted."), # TODO: Add this with naming
+    ls_common: bool = typer.Option(False, help="List all common commands."), # TODO: Add this with naming using some model
+    ls_history: bool = typer.Option(False, help="List all history."), # TODO: Add this with naming
 ):
-    api_key = get_api_key()
+    api_key = get_config("openai_api_key")
     if not prompt and not editor:
-        raise MissingParameter(param_hint="PROMPT", param_type="string")
-    if shell:
-        # If default values where not changed, make it more accurate.
-        if temperature == 1.0 == top_probability:
-            temperature, top_probability = 0.2, 0.9
-        prompt = f"{prompt}. Provide only shell command as output."
-    elif code:
-        # If default values where not changed, make it more creative (diverse).
-        if temperature == 1.0 == top_probability:
-            temperature, top_probability = 0.8, 0.2
-        prompt = f"{prompt}. Provide only code as output."
-    # Curie has hard cap 2048 + prompt.
-    if model == "text-curie-001" and max_tokens == 2048:
-        max_tokens = 1024
-    if editor:
-        prompt = get_edited_prompt()
-    response_text = openai_request(prompt, model, max_tokens, api_key, temperature, top_probability, spinner=spinner)
-    # For some reason OpenAI returns several leading/trailing white spaces.
-    response_text = response_text.strip()
-    typer_writer(response_text, code, shell, animation)
-    
-    
-    
-    if shell and execute and typer.confirm("Execute shell command?"):
-        write_to_memory(prompt,response_text,"bro")
-        os.system(response_text)
+        if not set_history == 500:
+            update_config("history_length", set_history)
+            typer_writer(f"History length set to {set_history}.", False, False, animation)
+            
+        elif not set_api_key == None:
+            update_config("openai_api_key", set_api_key)
+            typer_writer(f"OpenAI API key set to {set_api_key}.", False, False, animation)
+        
+        elif ls_common:
+            pass
+
+        elif ls_history:
+            pass
+        
+        else:
+            raise MissingParameter(param_hint="PROMPT", param_type="string")
+        
+    else:
+        if shell:
+            # If default values where not changed, make it more accurate.
+            if temperature == 1.0 == top_probability:
+                temperature, top_probability = 0.2, 0.9
+            prompt = f"{prompt}. Provide only shell command as output."
+        elif code:
+            # If default values where not changed, make it more creative (diverse).
+            if temperature == 1.0 == top_probability:
+                temperature, top_probability = 0.8, 0.2
+            prompt = f"{prompt}. Provide only code as output."
+        # Curie has hard cap 2048 + prompt.
+        if model == "text-curie-001" and max_tokens == 2048:
+            max_tokens = 1024
+        if editor:
+            prompt = get_edited_prompt()
+        response_text = openai_request(prompt, model, max_tokens, api_key, temperature, top_probability, spinner=spinner)
+        # For some reason OpenAI returns several leading/trailing white spaces.
+        response_text = response_text.strip()
+        typer_writer(response_text, code, shell, animation)
+        
+        if shell and execute and typer.confirm("Execute shell command?"):
+            write_to_memory(prompt, response_text, "bro", favorite)
+            os.system(response_text)
 
 
-def write_to_memory(input_text,output_text,name):
+def write_to_memory(input_text, output_text, name, favorite):
     dictionary = {
         "input": input_text,
         "output": output_text,
         "name": name,
-        "saved": False
+        "favorite": favorite,
+        "uid": False,
     }
    
     with open(".inst_memory.json", "r+") as jsonFile:
