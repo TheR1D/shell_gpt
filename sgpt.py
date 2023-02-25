@@ -173,6 +173,9 @@ def main(
     ls_history: bool = typer.Option(
         False, help="List all history."
     ),  # TODO: Add this with naming
+    ls_memory: bool = typer.Option(
+        False, '-lsm', '--list_memory', help="List all memory."
+    ),  # TODO: Add this with naming
 ):
     openai_api_key = get_config("openai_api_key")
 
@@ -234,6 +237,10 @@ def main(
 
         elif ls_history:
             pass
+
+        elif ls_memory:
+            all_facts = FACT_MEMORY_FILE.read_text()
+            print(all_facts)
 
         else:
             raise MissingParameter(param_hint="PROMPT", param_type="string")
