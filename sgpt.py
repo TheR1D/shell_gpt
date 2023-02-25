@@ -22,12 +22,13 @@ import json
 import typer
 import requests
 import yaml
+import re
 
 # Click is part of typer.
 from click import MissingParameter, BadParameter, UsageError
 
-from utils import hugging_face
 from utils.terminal_functions import *
+from utils.hugging_face import hugging_face_api
 from utils.memory import filter_facts
 
 # TODO: Add hugging face api call function and hugging face api key into config
@@ -59,7 +60,7 @@ class Model(str, Enum):
 def create_config():
     openai_api_key = getpass(prompt="Please enter your OpenAI API secret key: ")
     KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    KEY_FILE.write_text(f"openai_api_key: {openai_api_key}")
+    KEY_FILE.write_text(f"openai_api_key: {openai_api_key}\nhugging_face_naming: false")
 
 
 def get_config(key):
@@ -184,6 +185,9 @@ def main(
     set_hugging_face_api_key: str = typer.Option(
         None, show_default=False, help="Set Hugging Face API key."
     ),  # TODO: Add this with naming
+    toggle_hugging_face_naming: bool = typer.Option(
+        False, show_default=False, help="Use or don't use hugging face naming."
+    ),  # TODO: Add this with naming
     favorite: bool = typer.Option(
         False,
         help="Mark the command as a favorite command that can be searched through and won't be deleted.",
@@ -254,6 +258,18 @@ def main(
                 f"Hugging Face API key set.", False, False, animation
             )
 
+        elif toggle_hugging_face_naming:
+            if get_config("hugging_face_naming") == True:
+                update_config("hugging_face_naming", False)
+                typer_writer(
+                    f"Hugging Face naming toggled to False.", False, False, animation
+                )
+            else:
+                update_config("hugging_face_naming", True)
+                typer_writer(
+                    f"Hugging Face naming toggled to True.", False, False, animation
+                )
+
         elif ls_common:
             pass
 
@@ -312,7 +328,15 @@ def main(
     typer_writer(response_text, code, shell, animation)
 
     if shell:
-        write_to_memory(prompt, response_text, "bro", favorite)
+        if get_config("hugging_face_naming") == True:
+            hugging_face_api_key = get_config("hugging_face_api_key")
+            command_name = hugging_face_api("naming", {"inputs": "prompt", "max_length": 8, "min_length":3},  hugging_face_api_key)["summary_text"]
+            # Make command_name lowercase and remove all special characters
+            command_name = re.sub(r"[^a-zA-Z0-9]+", "", command_name).lower()
+            print(command_name)
+        else:
+            pass # TODO: Implement naming
+        write_to_memory(prompt, response_text, command_name, favorite)
 
     if shell and execute and typer.confirm("Execute shell command?"):
         os.system(response_text)
