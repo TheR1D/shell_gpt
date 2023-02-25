@@ -10,6 +10,9 @@ shell commands directly from the interface.
 API Key is stored locally for easy use in future runs.
 """
 
+#TODO: enforce size
+
+
 
 import os
 from enum import Enum
@@ -164,16 +167,14 @@ def write_to_memory(input_text,output_text,name):
     dictionary = {
         "input": input_text,
         "output": output_text,
-        "name": name
+        "name": name,
+        "saved": False
     }
    
     with open(".inst_memory.json", "r+") as jsonFile:
         data = json.load(jsonFile)
     
-    
     data.append(dictionary)
-    
-    
     
     jsonFile = open(".inst_memory.json", "w+")
     jsonFile.write(json.dumps(data))
