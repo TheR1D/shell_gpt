@@ -8,7 +8,6 @@ def filter_facts(query, all_facts, filter="hf", hf_api_key=None, MAX_FACTS=50):
         all_facts = all_facts.splitlines()
         #the date is the first two words of a line
         all_facts_without_dates = [fact.split(" ", 2)[2] for fact in all_facts]
-        print(all_facts_without_dates)
         
         huggingface_request_json =  {
             "source_sentence": query,
