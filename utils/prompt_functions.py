@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 from click import MissingParameter, BadParameter, UsageError
-
+import os
 
 def get_edited_prompt():
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
