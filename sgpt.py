@@ -221,9 +221,7 @@ def main(
             retrieval_prompt = Path(fact_retrieval_prompt_path).read_text()
 
             full_prompt = f"{retrieval_prompt}\n{filtered_facts}\n What is {prompt}?"
-
-            print(full_prompt)
-
+            
             response_text = openai_request(
                 full_prompt,
                 model,
