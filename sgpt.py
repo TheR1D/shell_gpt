@@ -10,10 +10,6 @@ shell commands directly from the interface.
 API Key is stored locally for easy use in future runs.
 """
 
-#TODO: enforce size
-
-
-
 import os
 from enum import Enum
 from time import sleep
@@ -28,16 +24,13 @@ import requests
 import yaml
 
 # Click is part of typer.
-from click import MissingParameter, BadParameter
+from click import MissingParameter, BadParameter, UsageError
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 
 API_URL = "https://api.openai.com/v1/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
-# KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
 KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "config.yml"
-
-# TODO: Change config to a yml file.
 
 
 # pylint: disable=invalid-name
@@ -55,18 +48,6 @@ class Model(str, Enum):
 
 
 # pylint: enable=invalid-name
-
-
-# def get_api_key():
-#     # yaml
-#     if not KEY_FILE.exists():
-#         api_key = getpass(prompt="Please enter your API secret key")
-#         KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-#         KEY_FILE.write_text(api_key)
-#     else:
-#         api_key = KEY_FILE.read_text().strip()
-#     return api_key
-
 def create_config():
     openai_api_key = getpass(prompt="Please enter your OpenAI API secret key: ")
     KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -81,17 +62,8 @@ def get_config(key):
         try:
             return data[key]
         except KeyError:
-            print(f"Key '{key}' not found in config file. Please check your config file.")
-            exit(1)
+            raise UsageError(f"Key '{key}' not found in config file. Please check your config file.")
         
-    #     api_key = getpass(prompt="Please enter your API secret key")
-    #     KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    #     KEY_FILE.write_text(api_key)
-    #     return {"api_key": api_key}
-    # else:
-    #     with open(KEY_FILE, "r") as file:
-    #         config = yaml.load(file, Loader=yaml.FullLoader)
-    #     return config
 
 def update_config(key, value):
     if not KEY_FILE.exists():
@@ -105,20 +77,6 @@ def update_config(key, value):
     with KEY_FILE.open(mode='w') as file:
         file.write(yaml.dump(data, default_flow_style=False))
     return value
-
-    #     # return data[key]
-
-    # fname = "some.yaml"
-
-    # stream = open(fname, 'r')
-    # data = yaml.load(stream)
-
-    # data['instances'][0]['host'] = '1.2.3.4'
-    # data['instances'][0]['username'] = 'Username'
-    # data['instances'][0]['password'] = 'Password'
-
-    # with KEY_FILE.open(mode='w') as yaml_file:
-    #     yaml_file.write(yaml.dump(data, default_flow_style=False))
 
 
 def loading_spinner(func):
