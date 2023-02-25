@@ -143,7 +143,7 @@ def main(
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
     memorize_fact: bool = typer.Option(False, "--memorize", "-m", help="Will memorize the following fact you gave to ShellGPT."),
-    clear_facts: bool = typer.Option(False, "--memorize", "-cf", help="Will clear facts you gave to ShellGPT."),
+    clear_facts: bool = typer.Option(False, "--clear_facts", "-cf", help="Will clear facts you gave to ShellGPT."),
     retrieve_fact: bool = typer.Option(False, "--retrieve", "-r", help="Will retrieve the desired fact."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
