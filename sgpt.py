@@ -60,11 +60,22 @@ def get_api_key():
     return api_key
 
 def save_fact(fact):
-    if not KEY_FILE.exists():
+    if not FACT_MEMORY_FILE.exists():
         FACT_MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    FACT_MEMORY_FILE.write_text(fact)
-        
+    #write fact onto the file as a new line
+    with open(FACT_MEMORY_FILE, "a") as file:
+        file.write(fact + "\n")
 
+def clear_fact_memory():
+    if FACT_MEMORY_FILE.exists():
+        FACT_MEMORY_FILE.unlink()
+                   
+
+def filter_facts(fact, filter="nofilter"):
+    if filter == "nofilter":
+        return fact
+    else: 
+        raise NotImplementedError
 
 def loading_spinner(func):
     def wrapper(*args, **kwargs):
@@ -131,20 +142,44 @@ def main(
     top_probability: float = typer.Option(lambda: 1.0, min=0.1, max=1.0, help="Limits highest probable tokens."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
-    memorize: bool = typer.Option(False, "--memorize", "-m", help="Will memorize the following fact you gave to ShellGPT."),
+    memorize_fact: bool = typer.Option(False, "--memorize", "-m", help="Will memorize the following fact you gave to ShellGPT."),
+    clear_facts: bool = typer.Option(False, "--memorize", "-cf", help="Will clear facts you gave to ShellGPT."),
+    retrieve_fact: bool = typer.Option(False, "--retrieve", "-r", help="Will retrieve the desired fact."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ):
-    if memorize:
-        #get current time in hours:minutes:seconds day/month/year
+    api_key = get_api_key()
+
+    if clear_facts:
+        clear_fact_memory()
+        return
+    
+    if memorize_fact:
         curr_time = strftime("%H:%M:%S %d/%m/%Y", gmtime())
         save_fact(curr_time + " " + prompt)
         return 
+    
+    if retrieve_fact:
+        if not FACT_MEMORY_FILE.exists():
+            typer.secho("No facts have been memorized yet.", fg="red")
+            return
+        else:
+            all_facts = FACT_MEMORY_FILE.read_text()
+            filtered_facts = filter_facts(all_facts)
+
+            #query GPT-3 to get the desired fact
+            retrieval_prompt = f"Here are some facts in the form [timestamp, fact]:\n{filtered_facts}\n Using the facts above that I have said in the past, and looking at the most recent fact, answer the following question: what is {prompt}?"
+            
+            print(retrieval_prompt)
+
+            response_text = openai_request(retrieval_prompt, model, max_tokens, api_key, 0, top_probability, spinner=spinner)
+            response_text = response_text.strip()
+            typer_writer(response_text, code, shell, animation)
+        return 
 
 
-    api_key = get_api_key()
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
     if shell:
