@@ -70,7 +70,7 @@ class TestCliApp(TestCase):
                 "accepts two integer positional command line arguments "
                 "and prints the result of multiplying them."
             ),
-            "--max-tokens": 64,
+            "--max-tokens": 128,
             "--model": "davinci",
             "--code": True,
         }

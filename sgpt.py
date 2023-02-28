@@ -12,6 +12,7 @@ API Key is stored locally for easy use in future runs.
 
 
 import os
+import platform
 from enum import Enum
 from time import sleep
 from pathlib import Path
@@ -115,7 +116,7 @@ def typer_writer(text, code, shell, animate):
     typer.secho(text, fg=color, bold=shell_or_code)
 
 
-# Using lambda to pass a function to default value, which make it apper as "dynamic" in help.
+# Using lambda to pass a function to default value, which make it appear as "dynamic" in help.
 def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     model: Model = typer.Option("davinci", help="GPT-3 model name.", show_choices=True),
@@ -135,13 +136,22 @@ def main(
     if shell:
         # If default values where not changed, make it more accurate.
         if temperature == 1.0 == top_probability:
-            temperature, top_probability = 0.2, 0.9
-        prompt = f"{prompt}. Provide only shell command as output."
+            temperature, top_probability = 0.2, 1.0
+        current_shell = "PowerShell" if platform.system() == "Windows" else "Bash"
+        prompt = f"""
+        Context: Provide only {current_shell} command as output.
+        Prompt: {prompt}
+        Command:
+        """
     elif code:
-        # If default values where not changed, make it more creative (diverse).
+        # If default values where not changed, make output more creative (diverse).
         if temperature == 1.0 == top_probability:
             temperature, top_probability = 0.8, 0.2
-        prompt = f"{prompt}. Provide only code as output."
+        prompt = f"""
+        Context: Provide only code as output.
+        Prompt: {prompt}
+        Code:
+        """
     # Curie has hard cap 2048 + prompt.
     if model == "text-curie-001" and max_tokens == 2048:
         max_tokens = 1024
