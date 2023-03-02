@@ -1,16 +1,16 @@
+.
+
 import json
 import os
-import requests
+import datetime
 
 #returns a list of strings
-my_favorite_animal = json.loads(os.popen("python3 sgpt.py -r \"my favorite animal\" ").read())[0]
-my_school_directory = json.loads(os.popen("python3 sgpt.py -r \"my school directory\" ").read())[0]
+birthday = json.loads(os.popen("python3 sgpt.py -r \"my birthday\" ").read())[0]
+birthday_date = datetime.datetime.strptime(birthday, "%Y-%m-%d")
+age = datetime.datetime.now().year - birthday_date.year
 
-#download the wikipedia article
-url = f"https://en.wikipedia.org/wiki/{my_favorite_animal}"
-response = requests.get(url)
-
-#write the article to a file
-file_path = os.path.join(my_school_directory, f"{my_favorite_animal}.html")
+# create the file
+file_name = "birthday.txt"
+file_path = os.path.join(os.getcwd(), file_name)
 with open(file_path, "w") as f:
-    f.write(response.text)
+    f.write(f"Happy Birthday! You are turning {age} today. Have a great day!")
