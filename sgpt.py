@@ -1,7 +1,7 @@
 """
-shell-gpt: An interface to OpenAI's GPT-3 API
+shell-gpt: An interface to OpenAI's ChatGPT (GPT-3.5) API
 
-This module provides a simple interface for OpenAI's GPT-3 API using Typer
+This module provides a simple interface for OpenAI's ChatGPT API using Typer
 as the command line interface. It supports different modes of output including
 shell commands and code, and allows users to specify the desired OpenAI model
 and length and other options of the output. Additionally, it supports executing
@@ -13,11 +13,9 @@ API Key is stored locally for easy use in future runs.
 
 import os
 import platform
-from enum import Enum
 from time import sleep
 from pathlib import Path
 from getpass import getpass
-from types import DynamicClassAttribute
 from tempfile import NamedTemporaryFile
 
 import typer
@@ -28,26 +26,9 @@ from click import MissingParameter, BadParameter
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 
-API_URL = "https://api.openai.com/v1/completions"
+API_URL = "https://api.openai.com/v1/chat/completions"
 DATA_FOLDER = os.path.expanduser("~/.config")
 KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
-
-
-# pylint: disable=invalid-name
-class Model(str, Enum):
-    davinci = "text-davinci-003"
-    curie = "text-curie-001"
-    codex = "code-davinci-002"
-
-    def __str__(self):
-        return self.name
-
-    @DynamicClassAttribute
-    def value(self):
-        return self.name
-
-
-# pylint: enable=invalid-name
 
 
 def get_api_key():
@@ -64,7 +45,7 @@ def loading_spinner(func):
     def wrapper(*args, **kwargs):
         if not kwargs.pop("spinner"):
             return func(*args, **kwargs)
-        text = TextColumn("[green]Requesting OpenAI...")
+        text = TextColumn("[green]Consulting with robots...")
         with Progress(SpinnerColumn(), text, transient=True) as progress:
             progress.add_task("request")
             return func(*args, **kwargs)
@@ -89,18 +70,17 @@ def get_edited_prompt():
 
 
 @loading_spinner
-def openai_request(prompt, model, max_tokens, api_key, temperature, top_p):
+def openai_request(prompt, api_key, temperature, top_p):
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}
     data = {
-        "prompt": prompt,
-        "model": model,
-        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+        "model": "gpt-3.5-turbo",
         "temperature": temperature,
         "top_p": top_p,
     }
-    response = requests.post(API_URL, headers=headers, json=data, timeout=180)
+    response = requests.post(API_URL, headers=headers, json=data, timeout=30)
     response.raise_for_status()
-    return response.json()["choices"][0]["text"]
+    return response.json()["choices"][0]["message"]["content"]
 
 
 def typer_writer(text, code, shell, animate):
@@ -119,10 +99,8 @@ def typer_writer(text, code, shell, animate):
 # Using lambda to pass a function to default value, which make it appear as "dynamic" in help.
 def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
-    model: Model = typer.Option("davinci", help="GPT-3 model name.", show_choices=True),
-    max_tokens: int = typer.Option(lambda: 2048, help="Strict length of output (words)."),
-    temperature: float = typer.Option(lambda: 1.0, min=0.0, max=1.0, help="Randomness of generated output."),
-    top_probability: float = typer.Option(lambda: 1.0, min=0.1, max=1.0, help="Limits highest probable tokens."),
+    temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
+    top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
@@ -134,32 +112,28 @@ def main(
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
     if shell:
-        # If default values where not changed, make it more accurate.
-        if temperature == 1.0 == top_probability:
-            temperature, top_probability = 0.2, 1.0
+        # If probability and temperature were not changed (default), make response more accurate.
+        if top_probability == 1 == temperature:
+            temperature = 0.4
         current_shell = "PowerShell" if platform.system() == "Windows" else "Bash"
-        prompt = f"""
-        Context: Provide only {current_shell} command as output.
-        Prompt: {prompt}
-        Command:
-        """
+        prompt = f"""Provide only {current_shell} command as output, without any additional text or prompt.
+        {prompt}"""
     elif code:
-        # If default values where not changed, make output more creative (diverse).
-        if temperature == 1.0 == top_probability:
-            temperature, top_probability = 0.8, 0.2
-        prompt = f"""
-        Context: Provide only code as output.
-        Prompt: {prompt}
-        Code:
-        """
-    # Curie has hard cap 2048 + prompt.
-    if model == "text-curie-001" and max_tokens == 2048:
-        max_tokens = 1024
+        prompt = f"""Provide code and only code as output without any additional text, prompt or note.
+        {prompt}"""
     if editor:
         prompt = get_edited_prompt()
-    response_text = openai_request(prompt, model, max_tokens, api_key, temperature, top_probability, spinner=spinner)
+    response_text = openai_request(prompt, api_key, temperature, top_probability, spinner=spinner)
     # For some reason OpenAI returns several leading/trailing white spaces.
     response_text = response_text.strip()
+    if code:
+        # Responses from GPT-3.5 wrapped into Markdown code block.
+        lines = response_text.split("\n")
+        if lines[0].startswith("```"):
+            del lines[0]
+        if lines[-1].startswith("```"):
+            del lines[-1]
+        response_text = "\n".join(lines)
     typer_writer(response_text, code, shell, animation)
     if shell and execute and typer.confirm("Execute shell command?"):
         os.system(response_text)

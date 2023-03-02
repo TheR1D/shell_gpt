@@ -33,33 +33,23 @@ class TestCliApp(TestCase):
             if isinstance(value, bool):
                 continue
             arguments.append(value)
-        # arguments.extend([kv for kv in kwargs.items() for kv in kv])
         return arguments
 
     def test_simple_queries(self):
-        dict_arguments = {
-            "prompt": "What is the capital of the Czech Republic?",
-            "--max-tokens": 32,
-            "--model": "curie",
-        }
+        dict_arguments = {"prompt": "What is the capital of the Czech Republic?"}
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "Prague" in result.stdout
 
     def test_shell_queries(self):
-        dict_arguments = {
-            "prompt": "make a commit using git",
-            "--max-tokens": 32,
-            "--model": "davinci",
-            "--shell": True,
-        }
+        dict_arguments = {"prompt": "make a commit using git", "--shell": True}
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "git commit" in result.stdout
 
     def test_code_queries(self):
         """
-        This test will request from GPT-3 a python code to make CLI app,
+        This test will request from ChatGPT a python code to make CLI app,
         which will be written to a temp file, and then it will be executed
         in shell with two positional int arguments. As the output we are
         expecting the result of multiplying them.
@@ -70,8 +60,6 @@ class TestCliApp(TestCase):
                 "accepts two integer positional command line arguments "
                 "and prints the result of multiplying them."
             ),
-            "--max-tokens": 128,
-            "--model": "davinci",
             "--code": True,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))

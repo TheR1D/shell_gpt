@@ -1,14 +1,9 @@
 # Shell GPT
-A command-line interface (CLI) productivity tool powered by OpenAI's Davinci model, that will help you accomplish your tasks faster and more efficiently.
+A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As developers, we can leverage ChatGPT capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
 
 <div align="center">
-    <img src="https://i.ibb.co/QX236hx/sgpt-5-0-0.gif" width="800"/>
+    <img src="https://i.ibb.co/cNLN99f/output-rescaled.gif" width="800"/>
 </div>
-
-## Description
-`text-davinci-003` is a powerful language model developed by OpenAI that can generate human-like text. It can be used by us developers, to generate code snippets, comments, documentation and more, helping us increase our productivity and efficiency while coding.
-
-Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
 
 ## Installation
 ```shell
@@ -19,17 +14,35 @@ On first start you would need to generate and provide your API key, get one [her
 ## Usage
 `sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
 ### Simple queries
-We can use it pretty much as normal search engine, asking about anything, for example:
+We can use it as normal search engine, asking about anything:
 ```shell
 sgpt "nginx default config file location"
-# -> The default Nginx config location is /etc/nginx/nginx.conf
+# -> The default configuration file for Nginx is located at /etc/nginx/nginx.conf.
+```
+```shell
 sgpt "docker show all local images"
 # -> You can view all locally available Docker images by running: `docker images`
+```
+```shell
 sgpt "mass of sun"
 # -> = 1.99 × 10^30 kg
 ```
-### Shell queries
-Usually we are forgetting commands like `chmod 444` and we want quickly find the answer in google, but now we "google" and execute it right in the terminal using `--shell` flag `sgpt` will provide only shell commands:
+### Conversion
+Convert various units and measurements without having to search for the conversion formula or use a separate conversion website. You can convert units such as time, distance, weight, temperature, and more.
+```shell
+sgpt "1 hour and 30 minutes to seconds"
+# -> 5,400 seconds
+```
+```shell
+sgpt "1 kilometer to mile"
+# -> 1 kilometer is equal to 0.62137 miles.
+```
+```shell
+sgpt "$(date) to Unix timestamp"
+# -> The Unix timestamp for Thu Mar 2 00:13:11 CET 2023 is 1677327191.
+```
+### Shell commands
+Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` option, you can quickly find and execute the commands you need right in the terminal.
 ```shell
 sgpt --shell "make all files in current directory read only"
 # -> chmod 444 *
@@ -64,9 +77,9 @@ sgpt -se "using ffmpeg combine multiple videos into one without audio. Video fil
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Since GPT-3 models can also do summarization and analyzing of input text, we can ask `text-davinci-003` to generate commit message:
+Since ChatGPT can also do summarization and analyzing of input text, we can ask it to generate commit message:
 ```shell
-sgpt "Generate git commit message with details, my changes: $(git diff)"
+sgpt "Generate git commit message, my changes: $(git diff)"
 # -> Commit message: Implement Model enum and get_edited_prompt() func, add temperature, top_p and editor args for OpenAI request.
 ```
 Or ask it to find error in logs and provide more details:
@@ -74,7 +87,7 @@ Or ask it to find error in logs and provide more details:
 sgpt "check these logs, find errors, and explain what the error is about: ${docker logs -n 20 container_name}"
 # ...
 ```
-### Code queries
+### Generating code
 With `--code` parameters we can query only code as output, for example:
 ```shell
 sgpt --code "Solve classic fizz buzz problem using Python"
@@ -102,26 +115,30 @@ python fizz_buzz.py
 # Fizz
 # ...
 ```
-This is, just some examples of what we can do using GPT-3 models, I'm sure you will find it useful for your specific use cases.
+This is, just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
 
 ### Full list of arguments
 ```shell
-╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                                                 │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model                                  [davinci|curie|codex]      GPT-3 model name. [default: davinci]                        │
-│ --max-tokens                             INTEGER                    Strict length of output (words). [default: (dynamic)]       │
-│ --temperature                            FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: (dynamic)]        │
-│ --top-probability                        FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens. [default: (dynamic)]        │
-│ --shell            -s                                               Provide shell command as output.                            │
-│ --execute          -e                                               Will execute --shell command.                               │
-│ --code                 --no-code                                    Provide code as output. [default: no-code]                  │
-│ --editor               --no-editor                                  Open $EDITOR to provide a prompt. [default: no-editor]      │
-│ --animation            --no-animation                               Typewriter animation. [default: animation]                  │
-│ --spinner              --no-spinner                                 Show loading spinner during API request. [default: spinner] │
-│ --help                                                              Show this message and exit.                                 │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --temperature                            FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output.          │
+│                                                                     [default: 1.0]                           │
+│ --top-probability                        FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words).  │
+│                                                                     [default: 1.0]                           │
+│ --shell            -s                                               Provide shell command as output.         │
+│ --execute          -e                                               Will execute --shell command.            │
+│ --code                 --no-code                                    Provide code as output.                  │
+│                                                                     [default: no-code]                       │
+│ --editor               --no-editor                                  Open $EDITOR to provide a prompt.        │
+│                                                                     [default: no-editor]                     │
+│ --animation            --no-animation                               Typewriter animation.                    │
+│                                                                     [default: animation]                     │
+│ --spinner              --no-spinner                                 Show loading spinner during API request. │
+│                                                                     [default: spinner]                       │
+│ --help                                                              Show this message and exit.              │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Docker

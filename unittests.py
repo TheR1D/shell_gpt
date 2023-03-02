@@ -7,8 +7,6 @@ import sgpt
 class TestMain(unittest.TestCase):
     def setUp(self):
         self.prompt = "What is the capital of France?"
-        self.model = "text-davinci-003"
-        self.max_tokens = 2048
         self.shell = False
         self.execute = False
         self.code = False
@@ -21,15 +19,13 @@ class TestMain(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_openai_request(self, mock):
-        mock.post(sgpt.API_URL, json={"choices": [{"text": self.response_text}]}, status_code=200)
-        result = sgpt.openai_request(
-            self.prompt, self.model, self.max_tokens, self.api_key, self.temperature, self.top_p, spinner=self.spinner
-        )
+        mocked_json = {"choices": [{"message": {"content": self.response_text}}]}
+        mock.post(sgpt.API_URL, json=mocked_json, status_code=200)
+        result = sgpt.openai_request(self.prompt, self.api_key, self.temperature, self.top_p, spinner=self.spinner)
         self.assertEqual(result, self.response_text)
         expected_json = {
-            "prompt": self.prompt,
-            "model": self.model,
-            "max_tokens": self.max_tokens,
+            "messages": [{"role": "user", "content": self.prompt}],
+            "model": "gpt-3.5-turbo",
             "temperature": self.temperature,
             "top_p": self.top_p,
         }
@@ -45,8 +41,6 @@ class TestMain(unittest.TestCase):
         with self.assertRaises(requests.exceptions.HTTPError):
             sgpt.openai_request(
                 self.prompt,
-                self.model,
-                self.max_tokens,
                 self.api_key,
                 self.temperature,
                 self.top_p,
