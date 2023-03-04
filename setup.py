@@ -3,18 +3,15 @@ from setuptools import setup, find_packages
 # pylint: disable=consider-using-with
 setup(
     name="shell_gpt",
-    version="0.6.0",
+    version="0.7.0",
     packages=find_packages(),
-    py_modules=[
-        "sgpt",
-    ],
     install_requires=[
         "typer~=0.7.0",
         "requests~=2.28.2",
         "rich==13.3.1",
     ],
     entry_points={
-        "console_scripts": ["sgpt = sgpt:entry_point"],
+        "console_scripts": ["sgpt = sgpt:cli"],
     },
     author="Farkhod Sadykov",
     author_email="farkhod@sadykov.dev",

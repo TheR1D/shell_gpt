@@ -1,10 +1,12 @@
 import unittest
 import requests_mock
 import requests
-import sgpt
+from sgpt import ChatGPT
 
 
 class TestMain(unittest.TestCase):
+    API_URL = ChatGPT.API_URL
+
     def setUp(self):
         self.prompt = "What is the capital of France?"
         self.shell = False
@@ -16,12 +18,16 @@ class TestMain(unittest.TestCase):
         self.temperature = 1.0
         self.top_p = 1.0
         self.response_text = "Paris"
+        self.model = "gpt-3.5-turbo"
+        self.chat_gpt = ChatGPT(self.api_key)
 
     @requests_mock.Mocker()
     def test_openai_request(self, mock):
         mocked_json = {"choices": [{"message": {"content": self.response_text}}]}
-        mock.post(sgpt.API_URL, json=mocked_json, status_code=200)
-        result = sgpt.openai_request(self.prompt, self.api_key, self.temperature, self.top_p, spinner=self.spinner)
+        mock.post(self.API_URL, json=mocked_json, status_code=200)
+        result = self.chat_gpt.get_completion(
+            self.prompt, self.model, self.temperature, self.top_p, caching=False
+        )
         self.assertEqual(result, self.response_text)
         expected_json = {
             "messages": [{"role": "user", "content": self.prompt}],
@@ -37,14 +43,10 @@ class TestMain(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_openai_request_fail(self, mock):
-        mock.post(sgpt.API_URL, status_code=400)
+        mock.post(self.API_URL, status_code=400)
         with self.assertRaises(requests.exceptions.HTTPError):
-            sgpt.openai_request(
-                self.prompt,
-                self.api_key,
-                self.temperature,
-                self.top_p,
-                spinner=self.spinner,
+            self.chat_gpt.get_completion(
+                self.prompt, self.model, self.temperature, self.top_p, caching=False
             )
 
 
