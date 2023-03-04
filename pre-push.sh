@@ -49,7 +49,7 @@ else
     exit 1
 fi
 
-if python -m unittest unittests.py
+if python -m unittest tests/unittests.py
 then
   echo 'Unittests passed ✅'
 else

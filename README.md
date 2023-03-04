@@ -115,30 +115,86 @@ python fizz_buzz.py
 # Fizz
 # ...
 ```
+
+### Chat
+To start a chat session, use the `--chat` option followed by a unique session name and a prompt:
+```shell
+sgpt --chat number "please remember my favorite number: 4"
+# -> I will remember that your favorite number is 4.
+sgpt --chat number "what would be my favorite number + 4?"
+# -> Your favorite number is 4, so if we add 4 to it, the result would be 8.
+```
+You can also use chat sessions to iteratively improve ChatGPT's suggestions by providing additional clues.
+```shell
+sgpt --chat python_requst --code "make an example request to localhost using Python"
+```
+```python
+import requests
+
+response = requests.get('http://localhost')
+print(response.text)
+```
+Asking ChatGPT to add a cache to our request.
+```shell
+sgpt --chat python_request --code "add caching"
+```
+```python
+import requests
+from cachecontrol import CacheControl
+
+sess = requests.session()
+cached_sess = CacheControl(sess)
+
+response = cached_sess.get('http://localhost')
+print(response.text)
+```
+### Chat sessions
+To list all the current chat sessions, use the `--list-chat` option:
+```shell
+sgpt --list-chat
+# .../shell_gpt/chat_cache/number
+# .../shell_gpt/chat_cache/python_request
+```
+To show all the messages related to a specific chat session, use the `--show-chat` option followed by the session name:
+```shell
+sgpt --show-chat number
+# user: please remember my favorite number: 4
+# assistant: I will remember that your favorite number is 4.
+# user: what would be my favorite number + 4?
+# assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
+```
+
+### Request cache
+Control cache using `--cache` (default) and `--no-cache` options. This caching applies for all `sgpt` requests to OpenAI API:
+```shell
+sgpt "what are the colors of a rainbow"
+# -> The colors of a rainbow are red, orange, yellow, green, blue, indigo, and violet.
+```
+Next time, same exact query will get results from local cache instantly. Note that `sgpt "what are the colors of a rainbow" --temperature 0.5` will make a new request, since we didn't provide `--temperature` (same applies to `--top-probability`) on previous request.
+
 This is, just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
+
 
 ### Full list of arguments
 ```shell
-╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                              │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --temperature                            FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output.          │
-│                                                                     [default: 1.0]                           │
-│ --top-probability                        FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words).  │
-│                                                                     [default: 1.0]                           │
-│ --shell            -s                                               Provide shell command as output.         │
-│ --execute          -e                                               Will execute --shell command.            │
-│ --code                 --no-code                                    Provide code as output.                  │
-│                                                                     [default: no-code]                       │
-│ --editor               --no-editor                                  Open $EDITOR to provide a prompt.        │
-│                                                                     [default: no-editor]                     │
-│ --animation            --no-animation                               Typewriter animation.                    │
-│                                                                     [default: animation]                     │
-│ --spinner              --no-spinner                                 Show loading spinner during API request. │
-│                                                                     [default: spinner]                       │
-│ --help                                                              Show this message and exit.              │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                           │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --temperature      FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: 1.0]              │
+│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]      │
+│ --chat             TEXT                       Follow conversation with id (chat mode). [default: None]    │
+│ --show-chat        TEXT                       Show all messages from provided chat id. [default: None]    │
+│ --list-chat                                   List all existing chat ids. [default: no-list-chat]         │
+│ --shell                                       Provide shell command as output.                            │
+│ --execute                                     Will execute --shell command.                               │
+│ --code                                        Provide code as output. [default: no-code]                  │
+│ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]      │
+│ --cache                                       Cache completion results. [default: cache]                  │
+│ --animation                                   Typewriter animation. [default: animation]                  │
+│ --spinner                                     Show loading spinner during API request. [default: spinner] │
+│ --help                                        Show this message and exit.                                 │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Docker
