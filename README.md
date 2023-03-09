@@ -193,7 +193,7 @@ This is, just some examples of what we can do using ChatGPT model, I'm sure you 
 │ --cache                                       Cache completion results. [default: cache]                  │
 │ --animation                                   Typewriter animation. [default: animation]                  │
 │ --spinner                                     Show loading spinner during API request. [default: spinner] │
-│ --api-host                                Set other proxy API host. [default: https://api.openai.com] │
+│ --api-host         TEXT                       Set other proxy API host. [default: https://api.openai.com] │
 │ --help                                        Show this message and exit.                                 │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
