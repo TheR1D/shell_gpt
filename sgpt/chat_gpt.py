@@ -137,18 +137,19 @@ class ChatGPT:
     OpenAI ChatGPT API interface.
     """
 
-    API_URL = "https://api.openai.com/v1/chat/completions"
+    # API_URL = API_HOST+"/v1/chat/completions"
     TEMP_FILE = Path(gettempdir()) / "shell_gpt_cache.json"
     chat_cache = ChatCache(length=50)
     cache = Cache(length=200)
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, api_host: str):
         """
         Initialize ChatGPT.
 
         :param api_key: OpenAI API key.
         """
         self.api_key = api_key
+        self.api_url = api_host + "/v1/chat/completions"
 
     @cache
     def __request(
@@ -175,7 +176,7 @@ class ChatGPT:
             "temperature": temperature,
             "top_p": top_probability,
         }
-        response = requests.post(self.API_URL, headers=headers, json=data, timeout=30)
+        response = requests.post(self.api_url, headers=headers, json=data, timeout=30)
         response.raise_for_status()
         return response.json()
 

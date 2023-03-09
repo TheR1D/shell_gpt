@@ -96,6 +96,7 @@ def get_completion(
     top_p: float,
     caching: bool,
     chat: str,
+    api_host: str,
 ) -> str:
     """
     Generates completions for a given prompt using the OpenAI API.
@@ -108,7 +109,7 @@ def get_completion(
     :param chat: Enable/Disable conversation (chat mode).
     :return: GPT-3.5 generated completion.
     """
-    chat_gpt = ChatGPT(api_key)
+    chat_gpt = ChatGPT(api_key, api_host)
     model = "gpt-3.5-turbo"
     if not chat:
         return chat_gpt.get_completion(prompt, model, temperature, top_p, caching)
@@ -176,6 +177,7 @@ def main(
     cache: bool = typer.Option(True, help="Cache completion results."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
+    api_host: str = typer.Option("https://api.openai.com", help="Set other proxy API host."),
 ) -> None:
     if list_chat:
         echo_chat_ids()
@@ -199,7 +201,7 @@ def main(
 
     api_key = get_api_key()
     response_text = get_completion(
-        prompt, api_key, temperature, top_probability, cache, chat, spinner=spinner
+        prompt, api_key, temperature, top_probability, cache, chat, api_host, spinner=spinner
     )
 
     if code:
