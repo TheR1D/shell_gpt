@@ -10,11 +10,15 @@ RUN pip install --no-cache --upgrade pip \
  && pip install --no-cache /app \
  && addgroup --system app && adduser --system --group app \
  && mkdir -p /home/app/.config/shell-gpt \
+             /tmp/shell_gpt\
  && echo "api_key.txt should be here" > /home/app/.config/shell-gpt/readme.txt \
- && chown -R app:app /home/app
+ && chown -R app:app /home/app \
+                     /tmp/shell_gpt
 
 USER app
 
 VOLUME /home/app/.config/shell-gpt
-ENTRYPOINT ["/usr/local/bin/sgpt"]
+VOLUME /tmp/shell_gpt
+
+ENTRYPOINT ["sgpt"]
 

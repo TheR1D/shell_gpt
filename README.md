@@ -203,8 +203,19 @@ Use the provided `Dockerfile` to build a container:
 docker build -t sgpt .
 ```
 
-You may use a named volume (therefore sgpt will ask your API key only once) to run the container:
+You may use named volumes (sgpt will then ask your API key only once, and the cache will be reused for `--chat`) to run the container:
 ```shell
-docker run --rm -ti -v gpt-config:/home/app/.config/shell-gpt sgpt "what are the colors of a rainbow"
+docker run --rm \
+           --volume gpt-config:/home/app/.config/shell-gpt \
+           --volume gpt-cache:/tmp/shell_gpt \
+       sgpt --chat rainbow "what are the colors of a rainbow"
+```
+
+Example using an alias:
+```shell
+alias sgpt="docker run --rm --volume gpt-config:/home/app/.config/shell-gpt --volume gpt-cache:/tmp/shell_gpt sgpt"
+sgpt --chat rainbow "what are the colors of a rainbow"
+sgpt --chat rainbow "inverse the list of your last answer"
+sgpt --chat rainbow "translate your last answer in french"
 ```
 
