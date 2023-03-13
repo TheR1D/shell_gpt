@@ -40,6 +40,10 @@ def get_api_key() -> str:
 
     :return: String API key for OpenAI API requests.
     """
+
+    if "OPENAI_API_KEY" in os.environ:
+        return os.environ["OPENAI_API_KEY"]
+
     if not KEY_FILE.exists():
         api_key = getpass(prompt="Please enter your API secret key")
         KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
