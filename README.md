@@ -210,8 +210,8 @@ You may use named volumes (sgpt will then ask your API key only once and store i
 Using two volumes:
 ```shell
 docker run  --rm \
-            --volume gpt-config:/home/app/.config/shell-gpt    `# store your API key in a volume`            \
-            --volume gpt-cache:/tmp/shell_gpt                  `# store your chat history in another volume` \
+            --volume gpt-config:/home/app/.config/shell-gpt  `# store your API key in a volume`            \
+            --volume gpt-cache:/tmp/shell_gpt                `# store your chat history in another volume` \
        sgpt --chat rainbow "what are the colors of a rainbow"
 ```
 
