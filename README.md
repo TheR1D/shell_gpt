@@ -205,7 +205,7 @@ Use the provided `Dockerfile` to build a container:
 docker build -t sgpt .
 ```
 
-Run the container using the OPENAI_API_KEY environment variable, and a docker volume to store cache:
+Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
 ```shell
 docker run  --rm \
             --env OPENAI_API_KEY="your OPENAI API key" \
