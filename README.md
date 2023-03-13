@@ -205,21 +205,35 @@ Use the provided `Dockerfile` to build a container:
 docker build -t sgpt .
 ```
 
-You may use named volumes (sgpt will then ask your API key only once, and the cache will be reused for `--chat`) to run the container, or use the `OPENAI_API_KEY` environment variable if set:
+You may use named volumes (sgpt will then ask your API key only once, and the cache will be reused for `--chat`) or use the `OPENAI_API_KEY` environment variable if set to run the container:
 ```shell
-docker run --rm \
-           --env OPENAI_API_KEY \
-           --volume gpt-config:/home/app/.config/shell-gpt \
-           --volume gpt-cache:/tmp/shell_gpt \
+docker run  --rm \
+            --volume gpt-config:/home/app/.config/shell-gpt    `# store your API key in a volume`            \
+            --volume gpt-cache:/tmp/shell_gpt                  `# store your chat history in another volume` \
        sgpt --chat rainbow "what are the colors of a rainbow"
 ```
 
-Example using an alias:
 ```shell
-alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-config:/home/app/.config/shell-gpt --volume gpt-cache:/tmp/shell_gpt sgpt"
+export OPENAI_API_KEY="your OPENAI API key"
+docker run  --rm \
+            --env OPENAI_API_KEY \
+            --volume gpt-cache:/tmp/shell_gpt                  `# store your chat history in this volume` \
+       sgpt --chat rainbow "what are the colors of a rainbow"
+```
+
+Examples using an alias and the `OPENAI_API_KEY` environment variable:
+```shell
+alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt sgpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
 ```
 
+Examples using an alias but without the `OPENAI_API_KEY` set:
+```shell
+alias sgpt="docker run --rm --volume gpt-config:/home/app/.config/shell-gpt --volume gpt-cache:/tmp/shell_gpt sgpt"
+sgpt --chat rainbow "what are the colors of a rainbow"
+sgpt --chat rainbow "inverse the list of your last answer"
+sgpt --chat rainbow "translate your last answer in french"
+```
