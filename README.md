@@ -205,7 +205,9 @@ Use the provided `Dockerfile` to build a container:
 docker build -t sgpt .
 ```
 
-You may use named volumes (sgpt will then ask your API key only once, and the cache will be reused for `--chat`) or use the `OPENAI_API_KEY` environment variable if set to run the container:
+You may use named volumes (sgpt will then ask your API key only once and store it in a volume, and the cache will be stored in another volume to be reused using the `--chat` option) or use the `OPENAI_API_KEY` environment variable, if set, to run the container.
+
+Using two volumes:
 ```shell
 docker run  --rm \
             --volume gpt-config:/home/app/.config/shell-gpt    `# store your API key in a volume`            \
@@ -213,6 +215,7 @@ docker run  --rm \
        sgpt --chat rainbow "what are the colors of a rainbow"
 ```
 
+Using the OPENAI_API_KEY environment variable:
 ```shell
 export OPENAI_API_KEY="your OPENAI API key"
 docker run  --rm \
@@ -221,18 +224,18 @@ docker run  --rm \
        sgpt --chat rainbow "what are the colors of a rainbow"
 ```
 
-Examples using an alias and the `OPENAI_API_KEY` environment variable:
+```shell
+docker run  --rm \
+            --env OPENAI_API_KEY="your OPENAI API key" \
+            --volume gpt-cache:/tmp/shell_gpt \
+       sgpt --chat rainbow "what are the colors of a rainbow"
+```
+
+
+Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
 alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt sgpt"
 export OPENAI_API_KEY="your OPENAI API key"
-sgpt --chat rainbow "what are the colors of a rainbow"
-sgpt --chat rainbow "inverse the list of your last answer"
-sgpt --chat rainbow "translate your last answer in french"
-```
-
-Examples using an alias but without the `OPENAI_API_KEY` set:
-```shell
-alias sgpt="docker run --rm --volume gpt-config:/home/app/.config/shell-gpt --volume gpt-cache:/tmp/shell_gpt sgpt"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
