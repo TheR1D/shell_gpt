@@ -205,32 +205,13 @@ Use the provided `Dockerfile` to build a container:
 docker build -t sgpt .
 ```
 
-You may use named volumes (sgpt will then ask your API key only once and store it in a volume, and the cache will be stored in another volume to be reused using the `--chat` option) or use the `OPENAI_API_KEY` environment variable, if set, to run the container.
-
-Using two volumes:
-```shell
-docker run  --rm \
-            --volume gpt-config:/home/app/.config/shell-gpt  `# store your API key in a volume`            \
-            --volume gpt-cache:/tmp/shell_gpt                `# store your chat history in another volume` \
-       sgpt --chat rainbow "what are the colors of a rainbow"
-```
-
-Using the OPENAI_API_KEY environment variable:
-```shell
-export OPENAI_API_KEY="your OPENAI API key"
-docker run  --rm \
-            --env OPENAI_API_KEY \
-            --volume gpt-cache:/tmp/shell_gpt                  `# store your chat history in this volume` \
-       sgpt --chat rainbow "what are the colors of a rainbow"
-```
-
+Run the container using the OPENAI_API_KEY environment variable:
 ```shell
 docker run  --rm \
             --env OPENAI_API_KEY="your OPENAI API key" \
-            --volume gpt-cache:/tmp/shell_gpt \
+            --volume gpt-cache:/tmp/shell_gpt \                `# where to store your chat history` \
        sgpt --chat rainbow "what are the colors of a rainbow"
 ```
-
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
