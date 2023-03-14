@@ -207,9 +207,9 @@ docker build -t sgpt .
 
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
 ```shell
-docker run  --rm \
-            --env OPENAI_API_KEY="your OPENAI API key" \
-            --volume gpt-cache:/tmp/shell_gpt                 `# where to store your chat history` \
+docker run --rm \
+           --env OPENAI_API_KEY="your OPENAI API key" \
+           --volume gpt-cache:/tmp/shell_gpt \
        sgpt --chat rainbow "what are the colors of a rainbow"
 ```
 
