@@ -11,7 +11,7 @@ pip install shell-gpt
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
-If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell-gpt/api-key.txt`.
+If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell-gpt/api_key.txt`.
 
 ## Usage
 `sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
@@ -64,7 +64,7 @@ sgpt -se "update my system"
 The same prompt, when used on Ubuntu, will generate a different suggestion:
 ```shell
 sgpt -se "update my system"
-# -> sudo apt update && sudo apt upgrade -y && sudo apt dist-upgrade
+# -> sudo apt update && sudo apt upgrade -y
 ```
 
 Let's try some docker containers:
