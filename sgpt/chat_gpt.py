@@ -197,6 +197,7 @@ class ChatGPT:
         :param caching: Boolean value to enable/disable caching.
         :return: String generated completion.
         """
+        # TODO: Move prompt context to system role when GPT-4 will be available over API.
         message = {"role": "user", "content": message}
         return self.__request(
             [message], model, temperature, top_probability, caching=caching

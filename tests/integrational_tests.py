@@ -57,7 +57,7 @@ class TestCliApp(TestCase):
         dict_arguments = {
             "prompt": (
                 "Create a command line application using Python that "
-                "accepts two integer positional command line arguments "
+                "accepts two positional arguments "
                 "and prints the result of multiplying them."
             ),
             "--code": True,

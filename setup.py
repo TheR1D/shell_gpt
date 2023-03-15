@@ -3,12 +3,13 @@ from setuptools import setup, find_packages
 # pylint: disable=consider-using-with
 setup(
     name="shell_gpt",
-    version="0.7.0",
+    version="0.7.1",
     packages=find_packages(),
     install_requires=[
         "typer~=0.7.0",
         "requests~=2.28.2",
         "rich==13.3.1",
+        "distro~=1.8.0",
     ],
     entry_points={
         "console_scripts": ["sgpt = sgpt:cli"],
