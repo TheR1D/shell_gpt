@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As devel
 
 ## Installation
 ```shell
-pip install shell-gpt --user
+pip install shell-gpt
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -56,6 +56,17 @@ sgpt --shell --execute "make all files in current directory read only"
 # -> Execute shell command? [y/N]: y
 # ...
 ```
+Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
+```shell
+sgpt -se "update my system"
+# -> sudo softwareupdate -i -a
+```
+The same prompt, when used on Ubuntu, will generate a different suggestion:
+```shell
+sgpt -se "update my system"
+# -> sudo apt update && sudo apt upgrade -y && sudo apt dist-upgrade
+```
+
 Let's try some docker containers:
 ```shell
 sgpt -se "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
@@ -150,6 +161,18 @@ cached_sess = CacheControl(sess)
 response = cached_sess.get('http://localhost')
 print(response.text)
 ```
+We can use `--code` or `--shell` options to initiate `--chat`, so you can keep refining the results:
+```shell
+sgpt --chat sh --shell "What are the files in this directory?"
+# -> ls
+sgpt --chat sh "Sort them by name"
+# -> ls | sort
+sgpt --chat sh "Concatenate them using FFMPEG"
+# -> ffmpeg -i "concat:$(ls | sort | tr '\n' '|')" -codec copy output.mp4
+sgpt --chat sh "Convert the resulting file into an MP3"
+# -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
+```
+
 ### Chat sessions
 To list all the current chat sessions, use the `--list-chat` option:
 ```shell
@@ -174,7 +197,7 @@ sgpt "what are the colors of a rainbow"
 ```
 Next time, same exact query will get results from local cache instantly. Note that `sgpt "what are the colors of a rainbow" --temperature 0.5` will make a new request, since we didn't provide `--temperature` (same applies to `--top-probability`) on previous request.
 
-This is, just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
+This is just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
 
 
 ### Full list of arguments

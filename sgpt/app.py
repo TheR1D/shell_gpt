@@ -25,6 +25,7 @@ import typer
 from click import MissingParameter, BadParameter
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from sgpt import ChatGPT
+from sgpt import make_prompt
 
 DATA_FOLDER = os.path.expanduser("~/.config")
 KEY_FILE = Path(DATA_FOLDER) / "shell-gpt" / "api_key.txt"
@@ -197,23 +198,14 @@ def main(
         # If probability and temperature were not changed (default), make response more accurate.
         if top_probability == 1 == temperature:
             temperature = 0.4
-        prompt = f"{SHELL_PROMPT} {prompt}"
+        prompt = make_prompt.shell(prompt)
     elif code:
-        prompt = f"{CODE_PROMPT} {prompt}"
+        prompt = make_prompt.code(prompt)
 
     api_key = get_api_key()
     response_text = get_completion(
         prompt, api_key, temperature, top_probability, cache, chat, spinner=spinner
     )
-
-    if code:
-        # Responses from GPT-3.5 wrapped into Markdown code block.
-        lines = response_text.split("\n")
-        if lines[0].startswith("```"):
-            del lines[0]
-        if lines[-1].startswith("```"):
-            del lines[-1]
-        response_text = "\n".join(lines)
 
     typer_writer(response_text, code, shell, animation)
     if shell and execute and typer.confirm("Execute shell command?"):
