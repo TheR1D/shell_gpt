@@ -17,7 +17,7 @@ from time import sleep
 from pathlib import Path
 from getpass import getpass
 from tempfile import NamedTemporaryFile
-from typing import Callable
+from typing import Callable, List
 
 import typer
 
@@ -168,7 +168,7 @@ def echo_chat_ids() -> None:
 
 # Using lambda to pass a function to default value, which make it appear as "dynamic" in help.
 def main(
-    prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
+    prompt: List[str] = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
@@ -182,6 +182,7 @@ def main(
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ) -> None:
+    prompt = " ".join(prompt)
     if list_chat:
         echo_chat_ids()
         return
