@@ -18,7 +18,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository }}
+            ghcr.io/${{ github.event.repository.name }}
           # generate Docker tags based on the following events/attributes
           tags: |
             # set latest tag for main branch
