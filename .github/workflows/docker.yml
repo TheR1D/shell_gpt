@@ -1,6 +1,9 @@
 name: Docker Image CI
 
-on: push
+on:
+  push:
+    tags:
+      - *
   
 jobs:
 
@@ -22,7 +25,6 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             # set latest tag for main branch
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=ref,event=branch
             type=sha
       - name: Set up QEMU
@@ -43,6 +45,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
