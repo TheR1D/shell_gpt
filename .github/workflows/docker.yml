@@ -25,7 +25,7 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             # set latest tag for main branch
-            type=ref,event=branch
+            type=ref,event=tag
             type=sha
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
