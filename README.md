@@ -11,7 +11,7 @@ pip install shell-gpt
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
-If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell-gpt/api_key.txt`.
+If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`.
 
 ## Usage
 `sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
@@ -199,6 +199,24 @@ Next time, same exact query will get results from local cache instantly. Note th
 
 This is just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
 
+### Runtime configuration file
+You can setup some parameters in runtime configuration file `~/.config/shell_gpt/.sgptrc`:
+```text
+# API key, also it is possible to define OPENAI_API_KEY env.
+OPENAI_API_KEY=your_api_key
+# OpenAI host, useful if you would like to use proxy.
+OPENAI_API_HOST=https://api.openai.com
+# Max amount of cached message per chat session.
+CHAT_CACHE_LENGTH=100
+# Chat cache folder.
+CHAT_CACHE_PATH=/tmp/shell_gpt/chat_cache
+# Request cache length (amount).
+CACHE_LENGTH=100
+# Request cache folder.
+CACHE_PATH=/tmp/shell_gpt/cache
+# Request timeout in seconds.
+REQUEST_TIMEOUT=60
+```
 
 ### Full list of arguments
 ```shell

@@ -1,6 +1,12 @@
 name: Run linters and unittests
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   lint_test:
@@ -39,4 +45,5 @@ jobs:
         black --target-version py310 -l 120 *.py
     - name: Run unittests
       run: |
+        export OPENAI_API_KEY=test_api_key
         python -m unittest tests/unittests.py
