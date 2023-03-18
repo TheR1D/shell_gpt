@@ -228,12 +228,12 @@ Run the container using the `OPENAI_API_KEY` environment variable, and a docker 
 docker run --rm \
            --env OPENAI_API_KEY="your OPENAI API key" \
            --volume gpt-cache:/tmp/shell_gpt \
-       ghcr.io/TheR1D/shell_gpt --chat rainbow "what are the colors of a rainbow"
+       ghcr.io/ther1d/shell_gpt --chat rainbow "what are the colors of a rainbow"
 ```
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt ghcr.io/TheR1D/shell_gpt"
+alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
