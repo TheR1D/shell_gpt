@@ -223,24 +223,24 @@ This is just some examples of what we can do using ChatGPT model, I'm sure you w
 ```
 
 ## Docker
-Use the provided `Dockerfile` to build a container:
-```shell
-docker build -t sgpt .
-```
-
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
 ```shell
 docker run --rm \
            --env OPENAI_API_KEY="your OPENAI API key" \
            --volume gpt-cache:/tmp/shell_gpt \
-       sgpt --chat rainbow "what are the colors of a rainbow"
+       ghcr.io/TheR1D/shell_gpt --chat rainbow "what are the colors of a rainbow"
 ```
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt sgpt"
+alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt ghcr.io/TheR1D/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
+```
+
+You also can use the provided `Dockerfile` to build your own image:
+```shell
+docker build -t sgpt .
 ```
