@@ -36,12 +36,8 @@ sgpt "1 hour and 30 minutes to seconds"
 # -> 5,400 seconds
 ```
 ```shell
-sgpt "1 kilometer to mile"
+sgpt "1 kilometer to miles"
 # -> 1 kilometer is equal to 0.62137 miles.
-```
-```shell
-sgpt "$(date) to Unix timestamp"
-# -> The Unix timestamp for Thu Mar 2 00:13:11 CET 2023 is 1677327191.
 ```
 ### Shell commands
 Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` option, you can quickly find and execute the commands you need right in the terminal.
