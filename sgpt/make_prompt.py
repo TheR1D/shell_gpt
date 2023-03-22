@@ -70,6 +70,7 @@ def shell(question: str) -> str:
             "Linux": "Linux/" + distro_name(pretty=True),
             "Windows": "Windows " + platform.release(),
             "Darwin": "Darwin/MacOS " + platform.mac_ver()[0],
+            "FreeBSD": "FreeBSD " + platform.release()
         }
         return operating_systems.get(platform.system(), "Unknown")
 
