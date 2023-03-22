@@ -2,6 +2,7 @@ import json
 from hashlib import md5
 from pathlib import Path
 from typing import List, Dict, Callable
+from uuid import uuid4
 
 
 class Cache:
@@ -84,15 +85,22 @@ class ChatCache:
         """
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
+            followup = kwargs.pop("followup", False)
+            if followup and not chat_id:
+                chat_id = self._read_current_chatid()
+                #print("Resuming chat: " + chat_id)
             message = {"role": "user", "content": kwargs.pop("message")}
             if not chat_id:
-                kwargs["message"] = [message]
-                return func(*args, **kwargs)
+                #kwargs["message"] = [message]
+                #return func(*args, **kwargs)
+                # Every query now gets a chat id
+                chat_id = str(uuid4())[:16]
             kwargs["message"] = self._read(chat_id)
             kwargs["message"].append(message)
             response_text = func(*args, **kwargs)
             kwargs["message"].append({"role": "assistant", "content": response_text})
             self._write(kwargs["message"], chat_id)
+            self._write_current_chatid(chat_id)
             return response_text
         return wrapper
 
@@ -106,6 +114,18 @@ class ChatCache:
     def _write(self, messages: List[Dict], chat_id: str):
         file_path = self.storage_path / chat_id
         json.dump(messages[-self.length:], file_path.open("w"))
+
+    def _write_current_chatid(self, chat_id: str):
+        file_path = self.storage_path / "CURRENT"
+        # Technically we could skip the json-encoding and decoding, since chat_id is just one string
+        json.dump(chat_id, file_path.open("w"))
+
+    def _read_current_chatid(self):
+        file_path = self.storage_path / "CURRENT"
+        if not file_path.exists():
+            return ""
+        parsed_current = json.loads(file_path.read_text())
+        return parsed_current
 
     def invalidate(self, chat_id: str):
         file_path = self.storage_path / chat_id
