@@ -84,8 +84,8 @@ class ChatCache:
         :return: Wrapped function with chat caching.
         """
         def wrapper(*args, **kwargs):
-            chat_id = kwargs.pop("chat_id", None)
             resume = kwargs.pop("resume", False)
+            chat_id = kwargs.pop("chat_id", None)
             if resume and not chat_id:
                 chat_id = self._read_current_chatid()
                 #print("Resuming chat: " + chat_id)

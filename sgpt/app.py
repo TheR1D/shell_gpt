@@ -33,8 +33,8 @@ def get_completion(
     temperature: float,
     top_p: float,
     caching: bool,
-    chat: str,
     resume: bool,
+    chat: str,
 ):
     api_host = config.get("OPENAI_API_HOST")
     api_key = config.get("OPENAI_API_KEY")
@@ -45,8 +45,8 @@ def get_completion(
         temperature=temperature,
         top_probability=top_p,
         caching=caching,
-        chat_id=chat,
         resume=resume,
+        chat_id=chat,
     )
 
 
@@ -88,7 +88,7 @@ def main(
         prompt = make_prompt.code(prompt)
 
     completion = get_completion(
-        prompt, temperature, top_probability, cache, chat, resume, spinner=spinner
+        prompt, temperature, top_probability, cache, resume, chat, spinner=spinner
     )
 
     typer_writer(completion, code, shell, animation)
