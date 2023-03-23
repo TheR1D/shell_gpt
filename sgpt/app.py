@@ -32,6 +32,7 @@ def get_completion(
     prompt: str,
     temperature: float,
     top_p: float,
+    model: str,
     caching: bool,
     chat: str,
 ):
@@ -40,7 +41,7 @@ def get_completion(
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
         message=prompt,
-        model="gpt-3.5-turbo",
+        model=model,
         temperature=temperature,
         top_probability=top_p,
         caching=caching,
@@ -52,6 +53,7 @@ def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
+    model: str = typer.Option(config.get("DEFAULT_MODEL"), help="Specify what model to use."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
@@ -85,7 +87,7 @@ def main(
         prompt = make_prompt.code(prompt)
 
     completion = get_completion(
-        prompt, temperature, top_probability, cache, chat, spinner=spinner
+        prompt, temperature, top_probability, model, cache, chat, spinner=spinner
     )
 
     typer_writer(completion, code, shell, animation)
