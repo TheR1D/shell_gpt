@@ -12,7 +12,7 @@ API Key is stored locally for easy use in future runs.
 
 
 import os
-
+import sys
 import typer
 
 # Click is part of typer.
@@ -73,7 +73,13 @@ def main(
         return
 
     if not prompt and not editor:
-        raise MissingParameter(param_hint="PROMPT", param_type="string")
+        if not sys.stdin.isatty():
+            prompt = sys.stdin.read()
+        else:
+            raise MissingParameter(param_hint="PROMPT", param_type="string")
+    elif prompt and not sys.stdin.isatty():
+        stdin_data = sys.stdin.read()
+        prompt = f"{stdin_data.strip()}\n{prompt}"
 
     if editor:
         prompt = get_edited_prompt()
