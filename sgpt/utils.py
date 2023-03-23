@@ -9,6 +9,9 @@ from click import BadParameter
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from sgpt import OpenAIClient
 
+from shutil import which
+from subprocess import Popen, PIPE
+
 
 def loading_spinner(func: Callable) -> Callable:
     """
@@ -68,6 +71,15 @@ def typer_writer(text: str, code: bool, shell: bool, animate: bool) -> None:
         # Add new line at the end, to prevent % from appearing.
         typer.echo("")
         return
+    if not shell_or_code:
+        if execute_command('bat --style=plain --language=markdown', text):
+            return
+    if shell_or_code:
+        # vimcat is preferable to bat, because bat cannot guess the language. It needs either the name of the language, or a file extension.
+        if execute_command('vimcat', text):
+            return
+        if execute_command('bat --style=plain', text):
+            return
     typer.secho(text, fg=color, bold=shell_or_code)
 
 
@@ -82,3 +94,13 @@ def echo_chat_ids() -> None:
     # Prints all existing chat IDs to the console.
     for chat_id in OpenAIClient.chat_cache.list():
         typer.echo(chat_id)
+
+def execute_command(command, input_text):
+    if which(command.split()[0]):
+        try:
+            p = Popen(command, stdin=PIPE, shell=True)
+            p.communicate(input=input_text.encode())
+            return True
+        except Exception as e:
+            print(f"Error {e} while piping input to {command}")
+    return False
