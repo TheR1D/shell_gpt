@@ -258,3 +258,19 @@ You also can use the provided `Dockerfile` to build your own image:
 ```shell
 docker build -t sgpt .
 ```
+
+## Development
+Install dependencies:
+```shell
+python setup.py install --user
+```
+We need to tell shell_gpt to import files from the local `sgpt/` folder, instead of from the installed `sgpt` package. So edit `app.py` and add these lines after `import os`:
+```python
+# Put shell_gpt folder at the front of the import path
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+```
+Run the app:
+```shell
+python sgpt/app.py --help
+```
