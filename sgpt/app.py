@@ -97,6 +97,7 @@ def get_edited_prompt() -> str:
 def get_completion(
     prompt: str,
     api_key: str,
+    model: str,
     temperature: float,
     top_p: float,
     caching: bool,
@@ -114,7 +115,6 @@ def get_completion(
     :return: GPT-3.5 generated completion.
     """
     chat_gpt = ChatGPT(api_key)
-    model = "gpt-3.5-turbo"
     if not chat:
         return chat_gpt.get_completion(prompt, model, temperature, top_p, caching)
     return chat_gpt.get_chat_completion(
@@ -171,6 +171,7 @@ def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
+    model: str = typer.Option("gpt-3.5-turbo", help="Model to use for completion."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
@@ -204,7 +205,7 @@ def main(
 
     api_key = get_api_key()
     response_text = get_completion(
-        prompt, api_key, temperature, top_probability, cache, chat, spinner=spinner
+        prompt, api_key, model, temperature, top_probability, cache, chat, spinner=spinner
     )
 
     typer_writer(response_text, code, shell, animation)
