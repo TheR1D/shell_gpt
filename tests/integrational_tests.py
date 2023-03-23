@@ -1,7 +1,8 @@
 """
 This test module will execute real commands using shell.
 This means it will call sgpt.py with command line arguments.
-Make sure you have your API key in place ~/.config/shell-gpt/api_key.txt
+Make sure you have your API key in place ~/.config/shell_gpt/.sgptrc
+or ENV variable OPENAI_API_KEY.
 It is useful for quick tests, saves a bit time.
 """
 

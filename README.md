@@ -11,7 +11,7 @@ pip install shell-gpt
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
-If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell-gpt/api_key.txt`.
+If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`.
 
 ## Usage
 `sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
@@ -36,12 +36,8 @@ sgpt "1 hour and 30 minutes to seconds"
 # -> 5,400 seconds
 ```
 ```shell
-sgpt "1 kilometer to mile"
+sgpt "1 kilometer to miles"
 # -> 1 kilometer is equal to 0.62137 miles.
-```
-```shell
-sgpt "$(date) to Unix timestamp"
-# -> The Unix timestamp for Thu Mar 2 00:13:11 CET 2023 is 1677327191.
 ```
 ### Shell commands
 Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` option, you can quickly find and execute the commands you need right in the terminal.
@@ -199,6 +195,24 @@ Next time, same exact query will get results from local cache instantly. Note th
 
 This is just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
 
+### Runtime configuration file
+You can setup some parameters in runtime configuration file `~/.config/shell_gpt/.sgptrc`:
+```text
+# API key, also it is possible to define OPENAI_API_KEY env.
+OPENAI_API_KEY=your_api_key
+# OpenAI host, useful if you would like to use proxy.
+OPENAI_API_HOST=https://api.openai.com
+# Max amount of cached message per chat session.
+CHAT_CACHE_LENGTH=100
+# Chat cache folder.
+CHAT_CACHE_PATH=/tmp/shell_gpt/chat_cache
+# Request cache length (amount).
+CACHE_LENGTH=100
+# Request cache folder.
+CACHE_PATH=/tmp/shell_gpt/cache
+# Request timeout in seconds.
+REQUEST_TIMEOUT=60
+```
 
 ### Full list of arguments
 ```shell
@@ -223,24 +237,24 @@ This is just some examples of what we can do using ChatGPT model, I'm sure you w
 ```
 
 ## Docker
-Use the provided `Dockerfile` to build a container:
-```shell
-docker build -t sgpt .
-```
-
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
 ```shell
 docker run --rm \
            --env OPENAI_API_KEY="your OPENAI API key" \
            --volume gpt-cache:/tmp/shell_gpt \
-       sgpt --chat rainbow "what are the colors of a rainbow"
+       ghcr.io/ther1d/shell_gpt --chat rainbow "what are the colors of a rainbow"
 ```
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt sgpt"
+alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
+```
+
+You also can use the provided `Dockerfile` to build your own image:
+```shell
+docker build -t sgpt .
 ```
