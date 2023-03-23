@@ -78,8 +78,7 @@ def shell(question: str) -> str:
     question = question.strip()
     if not question.endswith("?"):
         question += "?"
-    # TODO: Can be optimised.
-    return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os) + question
+    return SHELL_PROMPT.format(shell=shell, os=os) + question
 
 
 def code(question: str) -> str:
