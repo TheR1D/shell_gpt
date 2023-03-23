@@ -34,7 +34,7 @@ def get_completion(
     top_p: float,
     caching: bool,
     chat: str,
-    followup: bool,
+    resume: bool,
 ):
     api_host = config.get("OPENAI_API_HOST")
     api_key = config.get("OPENAI_API_KEY")
@@ -46,7 +46,7 @@ def get_completion(
         top_probability=top_p,
         caching=caching,
         chat_id=chat,
-        followup=followup,
+        resume=resume,
     )
 
 
@@ -54,8 +54,8 @@ def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
+    resume: bool = typer.Option(False, "--resume", "-r", help="Follow most recent conversation (chat mode)."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
-    followup: bool = typer.Option(False, "--followup", "-f", help="Follow current conversation."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
@@ -88,7 +88,7 @@ def main(
         prompt = make_prompt.code(prompt)
 
     completion = get_completion(
-        prompt, temperature, top_probability, cache, chat, followup, spinner=spinner
+        prompt, temperature, top_probability, cache, chat, resume, spinner=spinner
     )
 
     typer_writer(completion, code, shell, animation)

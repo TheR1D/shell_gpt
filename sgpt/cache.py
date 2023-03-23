@@ -85,8 +85,8 @@ class ChatCache:
         """
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
-            followup = kwargs.pop("followup", False)
-            if followup and not chat_id:
+            resume = kwargs.pop("resume", False)
+            if resume and not chat_id:
                 chat_id = self._read_current_chatid()
                 #print("Resuming chat: " + chat_id)
             message = {"role": "user", "content": kwargs.pop("message")}
