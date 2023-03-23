@@ -97,10 +97,8 @@ def echo_chat_ids() -> None:
 
 def execute_command(command, input_text):
     if which(command.split()[0]):
-        try:
-            p = Popen(command, stdin=PIPE, shell=True)
-            p.communicate(input=input_text.encode())
-            return True
-        except Exception as e:
-            print(f"Error {e} while piping input to {command}")
-    return False
+        p = Popen(command, stdin=PIPE, shell=True)
+        p.communicate(input=input_text.encode())
+        return True
+    else:
+        return False
