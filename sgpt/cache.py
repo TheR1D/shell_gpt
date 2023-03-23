@@ -116,12 +116,12 @@ class ChatCache:
         json.dump(messages[-self.length:], file_path.open("w"))
 
     def _write_current_chatid(self, chat_id: str):
-        file_path = self.storage_path / "CURRENT"
+        file_path = self.storage_path / ".." / "current_chat_id"
         # Technically we could skip the json-encoding and decoding, since chat_id is just one string
         json.dump(chat_id, file_path.open("w"))
 
     def _read_current_chatid(self):
-        file_path = self.storage_path / "CURRENT"
+        file_path = self.storage_path / ".." / "current_chat_id"
         if not file_path.exists():
             return ""
         parsed_current = json.loads(file_path.read_text())
