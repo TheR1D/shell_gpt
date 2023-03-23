@@ -12,6 +12,7 @@ API Key is stored locally for easy use in future runs.
 
 
 import os
+import sys 
 
 import typer
 
@@ -74,7 +75,10 @@ def main(
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
     if editor:
-        prompt = get_edited_prompt()
+        if not prompt:
+            prompt = sys.stdin.read()
+            if not prompt:
+             prompt = get_edited_prompt()
 
     if shell:
         # If default values, make response more accurate.
