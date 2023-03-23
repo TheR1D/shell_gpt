@@ -126,6 +126,14 @@ python fizz_buzz.py
 ```
 
 ### Chat
+You can ask followup queries to the current chat using the `--resume` option:
+```shell
+sgpt 'Which letter comes after K in the alphabet?'
+# -> The letter that comes after K in the alphabet is L.
+sgpt -r "And the next?'
+# -> The letter that comes after L in the alphabet is M.
+```
+You can also maintain multiple chat sessions in parallel.
 To start a chat session, use the `--chat` option followed by a unique session name and a prompt:
 ```shell
 sgpt --chat number "please remember my favorite number: 4"
