@@ -96,6 +96,34 @@ Or ask it to find error in logs and provide more details:
 sgpt "check these logs, find errors, and explain what the error is about: ${docker logs -n 20 container_name}"
 # ...
 ```
+
+### Commands with input or output
+We can also provide input or output to commands using stdin (pipes), for example, we can ask `sgpt` to generate a list of all files in current directory:
+```shell
+sgpt "Act as a csv file generation engine. Only output valid csv style output. No exceptions. Please generate some data with 4 columns and 20 rows" > sample.csv
+```
+A section of sample.csv:
+```csv
+Firstname,Lastname,Email,Age
+John,Doe,johndoe@example.com,25
+Jane,Smith,janesmith@example.com,30
+Bob,Johnson,bobjohnson@example.com,45
+```
+Piping the csv back into sgpt for analysis:
+```shell
+cat sample.csv | sgpt "What does this .csv file contain?"
+# This .csv file contains a list of 20 individuals' first name, last name, email address, and age.
+```
+When `sgpt` receives input from stdin (from a pipe) *and* a prompt, it will construct the prompt delivered to the model as follows:
+```
+<stdin>\n<prompt>
+```
+But, you can also pipe in without any context; however, the model will likey get confused and generate nonsense:
+```shell
+cat sample.csv | sgpt
+# Sophie,Yang,sophieyang@example.com,24
+```
+
 ### Generating code
 With `--code` parameters we can query only code as output, for example:
 ```shell
