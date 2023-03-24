@@ -51,7 +51,7 @@ def get_completion(
 
 def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
-    stdin_before: bool = typer.Option(False, help="Place stdin before after prompt argument, default is to place it after."),
+    stdin_before: bool = typer.Option(False, "--stdin-before", "-b", help="Place stdin prompt before argument prompt, default is after."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),

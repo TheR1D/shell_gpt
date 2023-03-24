@@ -29,6 +29,11 @@ sgpt "docker show all local images"
 sgpt "mass of sun"
 # -> = 1.99 × 10^30 kg
 ```
+Prompts can also be provided via stdin, and combined with prompt arguments
+```shell
+echo "what is the sun made of" | sgpt
+git diff | sgpt "create a commit message for this diff:"
+```
 ### Conversion
 Convert various units and measurements without having to search for the conversion formula or use a separate conversion website. You can convert units such as time, distance, weight, temperature, and more.
 ```shell
@@ -228,7 +233,8 @@ REQUEST_TIMEOUT=60
 │ --shell                                       Provide shell command as output.                            │
 │ --execute                                     Will execute --shell command.                               │
 │ --code                                        Provide code as output. [default: no-code]                  │
-│ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]      │
+│ --stdin-before                                Place stdin prompt before prompt argument instead of after  │
+│ --editor                                      Open $EDITOR to edit the prompt. [default: no-editor]       │
 │ --cache                                       Cache completion results. [default: cache]                  │
 │ --animation                                   Typewriter animation. [default: animation]                  │
 │ --spinner                                     Show loading spinner during API request. [default: spinner] │
