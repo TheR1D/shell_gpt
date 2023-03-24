@@ -58,7 +58,7 @@ class OpenAIClient:
     @chat_cache
     def get_completion(
         self,
-        message: List[str],
+        messages: List[str],
         model: str = "gpt-3.5-turbo",
         temperature: float = 1,
         top_probability: float = 1,
@@ -67,14 +67,13 @@ class OpenAIClient:
         """
         Generates single completion for prompt (message).
 
-        :param message: String prompt to generate completion for.
+        :param messages: List of messages to request completion for.
         :param model: String gpt-3.5-turbo or gpt-3.5-turbo-0301.
         :param temperature: Float in 0.0 - 1.0 range.
         :param top_probability: Float in 0.0 - 1.0 range.
         :param caching: Boolean value to enable/disable caching.
         :return: String generated completion.
         """
-        # TODO: Move prompt context to system role when GPT-4 will be available over API.
         return self._request(
-            message, model, temperature, top_probability, caching=caching
+            messages, model, temperature, top_probability, caching=caching
         )["choices"][0]["message"]["content"].strip()

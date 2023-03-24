@@ -29,6 +29,7 @@ from sgpt.utils import (
 
 @loading_spinner
 def get_completion(
+    system: str,
     prompt: str,
     temperature: float,
     top_p: float,
@@ -39,7 +40,8 @@ def get_completion(
     api_key = config.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
-        message=prompt,
+        system=system,
+        messages=prompt,
         model="gpt-3.5-turbo",
         temperature=temperature,
         top_probability=top_p,
@@ -52,6 +54,7 @@ def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
+    system: str = typer.Option(None, help="Prompt portion for system role."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
@@ -77,15 +80,19 @@ def main(
         prompt = get_edited_prompt()
 
     if shell:
+        if system is not None:
+            raise typer.BadParameter("Cannot use --system with --shell.")
         # If default values, make response more accurate.
         if top_probability == 1 == temperature:
             temperature = 0.4
-        prompt = make_prompt.shell(prompt)
+        system, prompt = make_prompt.shell(prompt)
     elif code:
-        prompt = make_prompt.code(prompt)
+        if system is not None:
+            raise typer.BadParameter("Cannot use --system with --code.")
+        system, prompt = make_prompt.code(prompt)
 
     completion = get_completion(
-        prompt, temperature, top_probability, cache, chat, spinner=spinner
+        system, prompt, temperature, top_probability, cache, chat, spinner=spinner
     )
 
     typer_writer(completion, code, shell, animation)

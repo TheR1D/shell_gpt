@@ -125,6 +125,15 @@ python fizz_buzz.py
 # ...
 ```
 
+### Custom System Roles
+You can use the `--system` option to specify a custom system role. This is useful to tell the model how it should act
+along with what rules you want it to follow.
+
+```shell
+sgpt --system "You are a json file generator. Only ever return valid json syntax." "What are your rules?"
+# As a JSON file generator, my primary rule is to always produce valid JSON syntax. In addition to this, I ensure that:...
+```
+
 ### Chat
 To start a chat session, use the `--chat` option followed by a unique session name and a prompt:
 ```shell
@@ -222,6 +231,7 @@ REQUEST_TIMEOUT=60
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --temperature      FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: 1.0]              │
 │ --top-probability  FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]      │
+│ --system           TEXT                       Prompt portion for system role. [default: None]             │
 │ --chat             TEXT                       Follow conversation with id (chat mode). [default: None]    │
 │ --show-chat        TEXT                       Show all messages from provided chat id. [default: None]    │
 │ --list-chat                                   List all existing chat ids. [default: no-list-chat]         │
@@ -232,7 +242,7 @@ REQUEST_TIMEOUT=60
 │ --cache                                       Cache completion results. [default: cache]                  │
 │ --animation                                   Typewriter animation. [default: animation]                  │
 │ --spinner                                     Show loading spinner during API request. [default: spinner] │
-│ --help                                        Show this message and exit.                                 │
+│ --help                                        Show this messages and exit.                                 │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 

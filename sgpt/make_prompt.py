@@ -4,13 +4,11 @@ from os.path import basename
 
 from distro import name as distro_name
 
-
 """
 This module makes a prompt for OpenAI requests with some context.
 Some of the following lines were inspired by similar open source project yolo-ai-cmdbot.
 Credits: @demux79 @wunderwuzzi23
 """
-
 
 SHELL_PROMPT = """
 Act as a natural language to {shell} command translation engine on {os}.
@@ -42,8 +40,7 @@ Follow all of the above rules.
 This is important you MUST follow the above rules.
 There are no exceptions to these rules.
 You must always follow them. No exceptions.
-
-Request: """
+"""
 
 CODE_PROMPT = """
 Act as a natural language to code translation engine.
@@ -60,11 +57,17 @@ Follow all of the above rules.
 This is important you MUST follow the above rules.
 There are no exceptions to these rules.
 You must always follow them. No exceptions.
+"""
 
-Request: """
 
+def shell(question: str) -> {str, str}:
+    """
+    Makes a system statement to configure an OpenAI model to return shell statements.
+    :param question: Question to ask the model.
+    :return: System statement and question.
+    :return type: tuple
+    """
 
-def shell(question: str) -> str:
     def os_name() -> str:
         operating_systems = {
             "Linux": "Linux/" + distro_name(pretty=True),
@@ -79,8 +82,14 @@ def shell(question: str) -> str:
     if not question.endswith("?"):
         question += "?"
     # TODO: Can be optimised.
-    return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os) + question
+    return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os), question
 
 
-def code(question: str) -> str:
-    return CODE_PROMPT + question
+def code(question: str) -> {str, str}:
+    """
+    Makes a system statement to configure an OpenAI model to return code statements.
+    :param question: Question to ask the model.
+    :return: System statement and question.
+    :return type: tuple
+    """
+    return CODE_PROMPT, question
