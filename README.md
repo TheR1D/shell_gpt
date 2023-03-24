@@ -260,17 +260,23 @@ docker build -t sgpt .
 ```
 
 ## Development
-Install dependencies:
+You can install a link to your local repo as a python package:
 ```shell
-python setup.py install --user
+pip install -e .
+
+sgpt --help
 ```
-We need to tell shell_gpt to import files from the local `sgpt/` folder, instead of from the installed `sgpt` package. So edit `app.py` and add these lines after `import os`:
-```python
-# Put shell_gpt folder at the front of the import path
-import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-```
-Run the app:
+This will use your repo files, but appear similar to the final release package.
+
+However, if you want to use a debugger, you may need to run the files from your repo more explicitly.
+First, install dependencies:
 ```shell
-python sgpt/app.py --help
+pip install -r requirements.txt
+```
+Then run the app, telling python where to find the source files:
+```shell
+export PYTHONPATH="/full/path/to/this/repo"
+python -m sgpt --help
+# or
+env PYTHONPATH="/full/path/to/this/repo" python -m sgpt --help
 ```
