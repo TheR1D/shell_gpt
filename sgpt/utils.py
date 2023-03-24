@@ -87,7 +87,7 @@ def echo_chat_ids() -> None:
     for chat_id in OpenAIClient.chat_cache.list():
         typer.echo(chat_id)
 
-def combine_with_stdin_prompt(prompt):
+def combine_with_stdin_prompt(prompt:str|None, stdin_before:bool):
     stdinprompt:None|str = None
     if select.select([sys.stdin], [], [], 0) != ([], [], []):
         stdinprompt= sys.stdin.read().rstrip()
@@ -101,5 +101,5 @@ def combine_with_stdin_prompt(prompt):
     elif stdinprompt is None:
         combined = prompt
     else:
-        combined = f"{stdinprompt}\n{prompt}"
+        combined = f"{stdinprompt}\n{prompt}"  if stdin_before else f"{prompt}\n{stdinprompt}" 
     return combined
