@@ -30,7 +30,8 @@ class TestMain(unittest.TestCase):
         mocked_json = {"choices": [{"message": {"content": self.response_text}}]}
         mock.post(self.API_URL, json=mocked_json, status_code=200)
         result = self.client.get_completion(
-            message=self.prompt,
+            system=None,
+            messages=self.prompt,
             model=self.model,
             temperature=self.temperature,
             top_probability=self.top_p,
@@ -39,7 +40,9 @@ class TestMain(unittest.TestCase):
         )
         self.assertEqual(result, self.response_text)
         expected_json = {
-            "messages": [{"role": "user", "content": self.prompt}],
+            "messages": [{'role': 'system',
+                          'content': "You are shell-gpt, a helpful programming and system administration assistant."},
+                         {'role': 'user', 'content': 'What is the capital of France?'}],
             "model": "gpt-3.5-turbo",
             "temperature": self.temperature,
             "top_p": self.top_p,
@@ -58,7 +61,8 @@ class TestMain(unittest.TestCase):
         mock.post(self.API_URL, status_code=400)
         with self.assertRaises(requests.exceptions.HTTPError):
             self.client.get_completion(
-                message=self.prompt,
+                system=None,
+                messages=self.prompt,
                 model=self.model,
                 temperature=self.temperature,
                 top_probability=self.top_p,

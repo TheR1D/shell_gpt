@@ -2,6 +2,7 @@ import json
 from hashlib import md5
 from pathlib import Path
 from typing import List, Dict, Callable
+from sgpt import config
 
 
 class Cache:
@@ -84,16 +85,24 @@ class ChatCache:
         """
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
-            message = {"role": "user", "content": kwargs.pop("message")}
+            # system messages stuff
+            system_kwarg = kwargs.pop("system", None)
+            if system_kwarg is not None:
+                system_message = {"role": "system", "content": system_kwarg}
+            else:
+                system_message = {"role": "system", "content": config.get("DEFAULT_SYSTEM_MESSAGE")}
+            message = {"role": "user", "content": kwargs.pop("messages")}
             if not chat_id:
-                kwargs["message"] = [message]
+                kwargs["messages"] = [system_message, message]
                 return func(*args, **kwargs)
-            kwargs["message"] = self._read(chat_id)
-            kwargs["message"].append(message)
-            response_text = func(*args, **kwargs)
-            kwargs["message"].append({"role": "assistant", "content": response_text})
-            self._write(kwargs["message"], chat_id)
-            return response_text
+            else:
+                kwargs["messages"] = self._read(chat_id)
+                kwargs["messages"].append(system_message)
+                kwargs["messages"].append(message)
+                response_text = func(*args, **kwargs)
+                kwargs["messages"].append({"role": "assistant", "content": response_text})
+                self._write(kwargs["messages"], chat_id)
+                return response_text
         return wrapper
 
     def _read(self, chat_id: str) -> List[Dict]:
