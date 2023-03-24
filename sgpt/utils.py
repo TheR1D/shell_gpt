@@ -1,4 +1,6 @@
 import os
+import sys 
+import select
 from time import sleep
 from typing import Callable
 from tempfile import NamedTemporaryFile
@@ -84,3 +86,20 @@ def echo_chat_ids() -> None:
     # Prints all existing chat IDs to the console.
     for chat_id in OpenAIClient.chat_cache.list():
         typer.echo(chat_id)
+
+def combine_with_stdin_prompt(prompt):
+    stdinprompt:None|str = None
+    if select.select([sys.stdin], [], [], 0) != ([], [], []):
+        stdinprompt= sys.stdin.read().rstrip()
+    
+
+    combined:None|str = None
+    if prompt is None and stdinprompt is None:
+        combined = None
+    elif prompt is None:
+        combined = stdinprompt
+    elif stdinprompt is None:
+        combined = prompt
+    else:
+        combined = f"{stdinprompt}\n{prompt}"
+    return combined
