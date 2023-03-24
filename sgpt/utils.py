@@ -27,7 +27,7 @@ def loading_spinner(func: Callable) -> Callable:
     return wrapper
 
 
-def get_edited_prompt() -> str:
+def get_edited_prompt(input:str='') -> str:
     """
     Opens the user's default editor to let them
     input a prompt, and returns the edited text.
@@ -37,6 +37,8 @@ def get_edited_prompt() -> str:
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
         # Create file and store path.
         file_path = file.name
+        # Write input to file.
+        file.write(input.encode())
     editor = os.environ.get("EDITOR", "vim")
     # This will write text to file using $EDITOR.
     os.system(f"{editor} {file_path}")

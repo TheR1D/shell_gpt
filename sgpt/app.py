@@ -13,6 +13,7 @@ API Key is stored locally for easy use in future runs.
 
 import os
 import sys 
+import select
 
 import typer
 
@@ -70,15 +71,28 @@ def main(
     if show_chat:
         echo_chat_messages(show_chat)
         return
+    
+    stdinprompt:None|str = None
+    if select.select([sys.stdin], [], [], 0) != ([], [], []):
+        stdinprompt= sys.stdin.read().rstrip()
+    
+
+    combined:None|str = None
+    if prompt is None and stdinprompt is None:
+        combined = None
+    elif prompt is None:
+        combined = stdinprompt
+    elif stdinprompt is None:
+        combined = prompt
+    else:
+        combined = f"{stdinprompt}\n{prompt}"
+    prompt = combined
 
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
     if editor:
-        if not prompt:
-            prompt = sys.stdin.read()
-            if not prompt:
-             prompt = get_edited_prompt()
+        prompt = get_edited_prompt(stdinprompt)
 
     if shell:
         # If default values, make response more accurate.
