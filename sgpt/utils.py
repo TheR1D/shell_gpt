@@ -39,8 +39,9 @@ def get_edited_prompt(input: Optional[str]) -> str:
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
         # Create file and store path.
         file_path = file.name
-        # Write input to file.
-        file.write(input.encode())
+        # If input is present, write it to the temp file
+        if input:
+            file.write(input.encode())
     editor = os.environ.get("EDITOR", "vim")
     # This will write text to file using $EDITOR.
     os.system(f"{editor} {file_path}")
@@ -94,11 +95,11 @@ def combine_with_stdin_prompt(prompt: Optional[str], stdin_before: bool) -> Opti
         stdinprompt = sys.stdin.read().rstrip()
 
     combined: Optional[str] = None
-    if prompt is None and stdinprompt is None:
+    if not prompt and not stdinprompt:
         combined = None
-    elif prompt is None:
+    elif not prompt:
         combined = stdinprompt
-    elif stdinprompt is None:
+    elif not stdinprompt:
         combined = prompt
     else:
         combined = f"{stdinprompt}\n{prompt}" if stdin_before else f"{prompt}\n{stdinprompt}"
