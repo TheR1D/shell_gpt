@@ -2,7 +2,8 @@ import json
 from hashlib import md5
 from pathlib import Path
 from typing import List, Dict, Callable
-from uuid import uuid4
+from secrets import choice
+from string import hexdigits
 
 
 class Cache:
@@ -98,7 +99,7 @@ class ChatCache:
                     chat_id = self._read_current_chatid()
                     if chat_id == "unnamed":
                         read_chat_id = "unnamed"
-                        write_chat_id = str(uuid4())[:16]
+                        write_chat_id = "".join(choice(hexdigits) for _ in range(32))
                         #print("Converting " + read_chat_id + " chat into: " + write_chat_id)
                     else:
                         read_chat_id = chat_id
