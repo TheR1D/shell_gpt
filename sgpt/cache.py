@@ -93,15 +93,18 @@ class ChatCache:
             write_chat_id = chat_id
             if not chat_id:
                 if not refine:
+                    # Starting a new unnamed chat
                     read_chat_id = None
                     write_chat_id = "unnamed"
                 else:
                     chat_id = self._read_current_chatid()
                     if chat_id == "unnamed":
+                        # First reply to the unnamed chat
                         read_chat_id = "unnamed"
                         write_chat_id = "".join(choice(hexdigits) for _ in range(32))
                         #print("Converting " + read_chat_id + " chat into: " + write_chat_id)
                     else:
+                        # Replying to a named chat
                         read_chat_id = chat_id
                         write_chat_id = chat_id
 
