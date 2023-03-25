@@ -85,14 +85,14 @@ class ChatCache:
         :return: Wrapped function with chat caching.
         """
         def wrapper(*args, **kwargs):
-            resume = kwargs.pop("resume", False)
+            refine = kwargs.pop("refine", False)
             chat_id = kwargs.pop("chat_id", None)
 
             # Decide which cache file to read from, and which to write to
             read_chat_id = chat_id
             write_chat_id = chat_id
             if not chat_id:
-                if not resume:
+                if not refine:
                     read_chat_id = None
                     write_chat_id = "unnamed"
                 else:

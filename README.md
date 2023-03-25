@@ -126,7 +126,7 @@ python fizz_buzz.py
 ```
 
 ### Chat
-You can ask followup queries to the current chat using the `--resume` option:
+You can ask followup queries to the current chat using the `--refine` option:
 ```shell
 sgpt 'Which letter comes after K in the alphabet?'
 # -> The letter that comes after K in the alphabet is L.
