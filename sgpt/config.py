@@ -9,14 +9,14 @@ CONFIG_FOLDER = os.path.expanduser("~/.config")
 CONFIG_PATH = Path(CONFIG_FOLDER) / "shell_gpt" / ".sgptrc"
 CHAT_CACHE_PATH = Path(gettempdir()) / "shell_gpt" / "chat_cache"
 CACHE_PATH = Path(gettempdir()) / "shell_gpt" / "cache"
-DEFAULT_SYSTEM_MESSAGE = "You are shell-gpt, a helpful programming and system administration assistant."
+DEFAULT_SYSTEM_ROLE = "You are shell-gpt, a helpful programming and system administration assistant."
 CHAT_CACHE_LENGTH = 100
 CACHE_LENGTH = 100
 REQUEST_TIMEOUT = 60
 EXPECTED_KEYS = (
     "OPENAI_API_HOST",
     "OPENAI_API_KEY",
-    "DEFAULT_SYSTEM_MESSAGE",
+    "DEFAULT_SYSTEM_ROLE",
     "CHAT_CACHE_LENGTH",
     "CHAT_CACHE_PATH",
     "CACHE_LENGTH",
@@ -33,7 +33,7 @@ def init() -> None:
         api_key = os.getenv("OPENAI_API_KEY") or getpass(prompt="Please enter your OpenAI API key: ")
         config["OPENAI_API_KEY"] = api_key
         config["OPENAI_API_HOST"] = os.getenv("OPENAI_API_HOST", "https://api.openai.com")
-        config["DEFAULT_SYSTEM_MESSAGE"] = os.getenv("DEFAULT_SYSTEM_MESSAGE", DEFAULT_SYSTEM_MESSAGE)
+        config["DEFAULT_SYSTEM_ROLE"] = os.getenv("DEFAULT_SYSTEM_ROLE", DEFAULT_SYSTEM_ROLE)
         config["CHAT_CACHE_LENGTH"] = os.getenv("CHAT_CACHE_LENGTH", str(CHAT_CACHE_LENGTH))
         config["CHAT_CACHE_PATH"] = os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH))
         config["CACHE_LENGTH"] = os.getenv("CACHE_LENGTH", str(CACHE_LENGTH))

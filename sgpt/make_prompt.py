@@ -1,6 +1,7 @@
 import platform
 from os import getenv
 from os.path import basename
+from typing import Tuple
 
 from distro import name as distro_name
 
@@ -60,7 +61,7 @@ You must always follow them. No exceptions.
 """
 
 
-def shell(question: str) -> {str, str}:
+def shell(question: str) -> Tuple[str, str]:
     """
     Makes a system statement to configure an OpenAI model to return shell statements.
     :param question: Question to ask the model.
@@ -78,9 +79,6 @@ def shell(question: str) -> {str, str}:
 
     shell = basename(getenv("SHELL", "PowerShell"))
     os = os_name()
-    question = question.strip()
-    if not question.endswith("?"):
-        question += "?"
     # TODO: Can be optimised.
     return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os), question
 
