@@ -2,6 +2,7 @@ import os
 import unittest
 import requests_mock
 import requests
+import sgpt.config as config
 
 from sgpt import OpenAIClient
 
@@ -30,7 +31,7 @@ class TestMain(unittest.TestCase):
         mocked_json = {"choices": [{"message": {"content": self.response_text}}]}
         mock.post(self.API_URL, json=mocked_json, status_code=200)
         result = self.client.get_completion(
-            system=None,
+            role=None,
             messages=self.prompt,
             model=self.model,
             temperature=self.temperature,
@@ -41,7 +42,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(result, self.response_text)
         expected_json = {
             "messages": [{'role': 'system',
-                          'content': "You are shell-gpt, a helpful programming and system administration assistant."},
+                          'content': config.DEFAULT_SYSTEM_ROLE},
                          {'role': 'user', 'content': 'What is the capital of France?'}],
             "model": "gpt-3.5-turbo",
             "temperature": self.temperature,
@@ -61,7 +62,7 @@ class TestMain(unittest.TestCase):
         mock.post(self.API_URL, status_code=400)
         with self.assertRaises(requests.exceptions.HTTPError):
             self.client.get_completion(
-                system=None,
+                role=None,
                 messages=self.prompt,
                 model=self.model,
                 temperature=self.temperature,
