@@ -86,21 +86,31 @@ class ChatCache:
         def wrapper(*args, **kwargs):
             resume = kwargs.pop("resume", False)
             chat_id = kwargs.pop("chat_id", None)
-            if resume and not chat_id:
-                chat_id = self._read_current_chatid()
-                #print("Resuming chat: " + chat_id)
-            message = {"role": "user", "content": kwargs.pop("message")}
+
+            # Decide which cache file to read from, and which to write to
+            read_chat_id = chat_id
+            write_chat_id = chat_id
             if not chat_id:
-                #kwargs["message"] = [message]
-                #return func(*args, **kwargs)
-                # Every query now gets a chat id
-                chat_id = str(uuid4())[:16]
-            kwargs["message"] = self._read(chat_id)
+                if not resume:
+                    read_chat_id = None
+                    write_chat_id = "unnamed"
+                else:
+                    chat_id = self._read_current_chatid()
+                    if chat_id == "unnamed":
+                        read_chat_id = "unnamed"
+                        write_chat_id = str(uuid4())[:16]
+                        #print("Converting " + read_chat_id + " chat into: " + write_chat_id)
+                    else:
+                        read_chat_id = chat_id
+                        write_chat_id = chat_id
+
+            message = {"role": "user", "content": kwargs.pop("message")}
+            kwargs["message"] = self._read(read_chat_id) if read_chat_id else []
             kwargs["message"].append(message)
             response_text = func(*args, **kwargs)
             kwargs["message"].append({"role": "assistant", "content": response_text})
-            self._write(kwargs["message"], chat_id)
-            self._write_current_chatid(chat_id)
+            self._write(kwargs["message"], write_chat_id)
+            self._write_current_chatid(write_chat_id)
             return response_text
         return wrapper
 
@@ -123,7 +133,7 @@ class ChatCache:
     def _read_current_chatid(self):
         file_path = self.storage_path / ".." / "current_chat_id"
         if not file_path.exists():
-            return ""
+            return "unnamed"
         parsed_current = json.loads(file_path.read_text())
         return parsed_current
 
