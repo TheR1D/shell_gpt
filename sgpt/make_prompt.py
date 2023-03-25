@@ -85,7 +85,7 @@ def shell(question: str) -> {str, str}:
     return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os), question
 
 
-def code(question: str) -> {str, str}:
+def code(question: str) -> Tuple[str, str]:
     """
     Makes a system statement to configure an OpenAI model to return code statements.
     :param question: Question to ask the model.
