@@ -88,10 +88,7 @@ class ChatCache:
         """
 
         def wrapper(*args, **kwargs):
-            # role stuff
-            role = kwargs.pop("role", None)
-            if not role:
-                role = config.get("DEFAULT_SYSTEM_ROLE")
+            role = kwargs.pop("role", None) or config.get("DEFAULT_SYSTEM_ROLE")
             system_message = {"role": "system", "content": role}
             message = {"role": "user", "content": kwargs.pop("messages")}
 
