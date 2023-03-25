@@ -12,7 +12,7 @@ API Key is stored locally for easy use in future runs.
 
 
 import os
-
+from typing import Optional
 import typer
 
 # Click is part of typer.
@@ -50,7 +50,7 @@ def get_completion(
 
 
 def main(
-    prompt: str | None = typer.Argument(
+    prompt: Optional[str] = typer.Argument(
         None, show_default=False, help="The prompt to generate completions for."),
     stdin_before: bool = typer.Option(False, "--stdin-before", "-b", help="Place stdin prompt before argument prompt, default is after."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
@@ -72,8 +72,8 @@ def main(
     if show_chat:
         echo_chat_messages(show_chat)
         return
-    
-    prompt = combine_with_stdin_prompt(prompt,stdin_before)
+
+    prompt = combine_with_stdin_prompt(prompt, stdin_before)
 
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")

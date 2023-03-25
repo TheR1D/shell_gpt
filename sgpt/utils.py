@@ -1,8 +1,8 @@
 import os
-import sys 
+import sys
 import select
 from time import sleep
-from typing import Callable
+from typing import Callable, Optional
 from tempfile import NamedTemporaryFile
 
 import typer
@@ -29,7 +29,7 @@ def loading_spinner(func: Callable) -> Callable:
     return wrapper
 
 
-def get_edited_prompt(input:str='') -> str:
+def get_edited_prompt(input: Optional[str]) -> str:
     """
     Opens the user's default editor to let them
     input a prompt, and returns the edited text.
@@ -88,12 +88,12 @@ def echo_chat_ids() -> None:
         typer.echo(chat_id)
 
 
-def combine_with_stdin_prompt(prompt: str | None, stdin_before: bool) -> str | None:
-    stdinprompt: None | str = None
+def combine_with_stdin_prompt(prompt: Optional[str], stdin_before: bool) -> Optional[str]:
+    stdinprompt: Optional[str] = None
     if select.select([sys.stdin], [], [], 0) != ([], [], []):
         stdinprompt = sys.stdin.read().rstrip()
 
-    combined: None | str = None
+    combined: Optional[str] = None
     if prompt is None and stdinprompt is None:
         combined = None
     elif prompt is None:
