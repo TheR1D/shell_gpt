@@ -32,7 +32,10 @@ class Cache:
             # Exclude self instance from hashing.
             cache_key = md5(json.dumps((args[1:], kwargs)).encode('utf-8')).hexdigest()
             cache_file = self.cache_path / cache_key
-            if cache_file.exists():
+            latest_file = self.cache_path / "_latest"
+            latest_key = latest_file.read_text() if latest_file.exists() else None
+            latest_file.write_text(cache_key)
+            if cache_key != latest_key and cache_file.exists():
                 return json.loads(cache_file.read_text())
             result = func(*args, **kwargs)
             cache_file.write_text(json.dumps(result))
