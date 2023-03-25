@@ -3,6 +3,7 @@ from hashlib import md5
 from pathlib import Path
 from typing import List, Dict, Callable
 from sgpt import config
+import typer
 
 
 class Cache:
@@ -27,6 +28,7 @@ class Cache:
         :param func: The function to cache.
         :return: Wrapped function with caching.
         """
+
         def wrapper(*args, **kwargs):
             if not kwargs.pop("caching", True):
                 return func(*args, **kwargs)
@@ -39,6 +41,7 @@ class Cache:
             cache_file.write_text(json.dumps(result))
             self._delete_oldest_files(self.length)
             return result
+
         return wrapper
 
     def _delete_oldest_files(self, max_files) -> None:
@@ -83,26 +86,32 @@ class ChatCache:
         :param func: The chat function to cache.
         :return: Wrapped function with chat caching.
         """
+
         def wrapper(*args, **kwargs):
-            chat_id = kwargs.pop("chat_id", None)
-            # system messages stuff
-            system_kwarg = kwargs.pop("system", None)
-            if system_kwarg is not None:
-                system_message = {"role": "system", "content": system_kwarg}
-            else:
-                system_message = {"role": "system", "content": config.get("DEFAULT_SYSTEM_MESSAGE")}
+            # role stuff
+            role = kwargs.pop("role", None)
+            if not role:
+                role = config.get("DEFAULT_SYSTEM_ROLE")
+            system_message = {"role": "system", "content": role}
             message = {"role": "user", "content": kwargs.pop("messages")}
+
+            # chat_id stuff
+            chat_id = kwargs.pop("chat_id", None)
             if not chat_id:
                 kwargs["messages"] = [system_message, message]
                 return func(*args, **kwargs)
-            else:
-                kwargs["messages"] = self._read(chat_id)
+            # else
+            kwargs["messages"] = self._read(chat_id)
+            if not kwargs["messages"]:
                 kwargs["messages"].append(system_message)
-                kwargs["messages"].append(message)
-                response_text = func(*args, **kwargs)
-                kwargs["messages"].append({"role": "assistant", "content": response_text})
-                self._write(kwargs["messages"], chat_id)
-                return response_text
+            elif role != config.get("DEFAULT_SYSTEM_ROLE"):
+                raise typer.BadParameter("Cannot use new role (--role, --shell, --code) with initiated chat session.")
+            kwargs["messages"].append(message)
+            response_text = func(*args, **kwargs)
+            kwargs["messages"].append({"role": "assistant", "content": response_text})
+            self._write(kwargs["messages"], chat_id)
+            return response_text
+
         return wrapper
 
     def _read(self, chat_id: str) -> List[Dict]:
