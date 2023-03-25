@@ -85,12 +85,8 @@ class ChatCache:
         """
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
-            # system messages stuff
-            system_kwarg = kwargs.pop("system", None)
-            if system_kwarg is not None:
-                system_message = {"role": "system", "content": system_kwarg}
-            else:
-                system_message = {"role": "system", "content": config.get("DEFAULT_SYSTEM_MESSAGE")}
+            role = kwargs.pop("system", config.get("DEFAULT_SYSTEM_MESSAGE"))
+            system_message = {"role": "system", "content": role}
             message = {"role": "user", "content": kwargs.pop("messages")}
             if not chat_id:
                 kwargs["messages"] = [system_message, message]
