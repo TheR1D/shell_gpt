@@ -76,8 +76,11 @@ Follow these rules to request a command execution and receive the result:
 
 1. You may request to run one command per response to the user.
 2. When requesting a command execution, wrap the command in triple backticks (```) for easy identification and parsing. For example: ```ls```.
-3. When receiving an input with the "Result: " prefix, treat it as the result of the command execution you previously requested.
+3. When receiving an input with the "Result stdout: " prefix, treat it as the result of the command execution you previously requested.
 4. Do not use the "Result: " prefix for any other purpose.
+
+You may also receive "Command executed: " prefix, which is used to indicate what command was executed.
+You may also receive "Result stderr: " prefix, which is used to indicate what error was returned by the command execution.
 
 By following these rules consistently, you can ensure a smooth and unambiguous interaction with the user while requesting command execution and receiving the results.
 Consider using this for:
