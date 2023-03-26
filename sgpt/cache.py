@@ -33,11 +33,14 @@ class Cache:
             cache_key = md5(json.dumps((args[1:], kwargs)).encode('utf-8')).hexdigest()
             cache_file = self.cache_path / cache_key
             if cache_file.exists():
-                return json.loads(cache_file.read_text())
-            result = func(*args, **kwargs)
-            cache_file.write_text(json.dumps(result))
+                yield cache_file.read_text()
+                return
+            result = ''
+            for i in func(*args, **kwargs):
+                result += i
+                yield i
+            cache_file.write_text(result)
             self._delete_oldest_files(self.length)
-            return result
         return wrapper
 
     def _delete_oldest_files(self, max_files) -> None:
@@ -86,17 +89,20 @@ class ChatCache:
             chat_id = kwargs.pop("chat_id", None)
             message = kwargs["message"]
             if not chat_id:
-                return func(*args, **kwargs)
+                yield from func(*args, **kwargs)
+                return
             old_message = self._read(chat_id)
             for i in message:
                 if i["role"] == 'system':
                     continue
                 old_message.append(i)
             kwargs["message"] = old_message
-            response_text = func(*args, **kwargs)
+            response_text = ''
+            for i in func(*args, **kwargs):
+                response_text += i
+                yield i
             old_message.append({"role": "assistant", "content": response_text})
             self._write(kwargs["message"], chat_id)
-            return response_text
 
         return wrapper
 

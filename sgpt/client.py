@@ -1,6 +1,7 @@
 import requests
 from pathlib import Path
 from typing import List, Dict, Mapping
+import json
 
 from sgpt import config, Cache, ChatCache
 
@@ -47,13 +48,24 @@ class OpenAIClient:
             "model": model,
             "temperature": temperature,
             "top_p": top_probability,
+            'stream': True,
         }
         endpoint = f"{self.api_host}/v1/chat/completions"
         response = requests.post(
-            endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT
+            endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT, stream=True
         )
         response.raise_for_status()
-        return response.json()
+        for line in response.iter_lines():
+            data = line.lstrip(b'data: ').decode('utf-8')
+            if data == '[DONE]':
+                break
+            if not data:
+                continue
+            data = json.loads(data)
+            delta = data['choices'][0]['delta']
+            if 'content' not in delta:
+                continue
+            yield delta['content']
 
     @chat_cache
     def get_completion(
@@ -74,7 +86,6 @@ class OpenAIClient:
         :param caching: Boolean value to enable/disable caching.
         :return: String generated completion.
         """
-        # TODO: Move prompt context to system role when GPT-4 will be available over API.
-        return self._request(
-            message, model, temperature, top_probability, caching=caching
-        )["choices"][0]["message"]["content"].strip()
+        yield from self._request(
+            message, model, temperature, top_probability, caching=caching,
+        )

@@ -1,30 +1,10 @@
 import os
-from time import sleep
-from typing import Callable
 from tempfile import NamedTemporaryFile
 
 import typer
 
 from click import BadParameter
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from sgpt import OpenAIClient
-
-
-def loading_spinner(func: Callable) -> Callable:
-    """
-    Decorator that adds a loading spinner animation to a function that uses the OpenAI API.
-
-    :param func: Function to wrap.
-    :return: Wrapped function with loading.
-    """
-    def wrapper(*args, **kwargs):
-        if not kwargs.pop("spinner"):
-            return func(*args, **kwargs)
-        text = TextColumn("[green]Consulting with robots...")
-        with Progress(SpinnerColumn(), text, transient=True) as progress:
-            progress.add_task("request")
-            return func(*args, **kwargs)
-    return wrapper
 
 
 def get_edited_prompt() -> str:
@@ -49,26 +29,16 @@ def get_edited_prompt() -> str:
     return output
 
 
-def typer_writer(text: str, code: bool, shell: bool, animate: bool) -> None:
+def typer_writer(text: str, color: bool) -> None:
     """
     Writes output to the console, with optional typewriter animation and color.
 
     :param text: Text to output.
-    :param code: If content of text is code.
-    :param shell: if content of text is shell command.
-    :param animate: Enable/Disable typewriter animation.
+    :param color: Print colored text.
     :return: None
     """
-    shell_or_code = shell or code
-    color = "magenta" if shell_or_code else None
-    if animate and not shell_or_code:
-        for char in text:
-            typer.secho(char, nl=False, fg=color, bold=shell_or_code)
-            sleep(0.015)
-        # Add new line at the end, to prevent % from appearing.
-        typer.echo("")
-        return
-    typer.secho(text, fg=color, bold=shell_or_code)
+    color = "magenta" if color else None
+    typer.secho(text, fg=color, bold=color, nl=False)
 
 
 def echo_chat_messages(chat_id: str) -> None:

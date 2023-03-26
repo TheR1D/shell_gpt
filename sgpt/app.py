@@ -20,7 +20,6 @@ import typer
 from click import MissingParameter
 from sgpt import config, make_prompt, OpenAIClient
 from sgpt.utils import (
-    loading_spinner,
     echo_chat_ids,
     echo_chat_messages,
     typer_writer,
@@ -28,7 +27,6 @@ from sgpt.utils import (
 )
 
 
-@loading_spinner
 def get_completion(
     message: List[Mapping[str, str]],
     temperature: float,
@@ -56,13 +54,10 @@ def main(
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
-    shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),
-    animation: bool = typer.Option(True, help="Typewriter animation."),
-    spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ) -> None:
     if list_chat:
         echo_chat_ids()
@@ -87,12 +82,16 @@ def main(
             {'role': 'system', 'content': result['system']},
             {'role': 'user', 'content': result['user']},
         ],
-        temperature, top_probability, cache, chat, spinner=spinner
+        temperature, top_probability, cache, chat
     )
 
-    typer_writer(completion, code, shell, animation)
-    if shell and execute and typer.confirm("Execute shell command?"):
-        os.system(completion)
+    full_completion = ''
+    for i in completion:
+        typer_writer(i, True)
+        full_completion += i
+    print()
+    if not code and execute and typer.confirm("Execute shell command?"):
+        os.system(full_completion)
 
 
 def entry_point() -> None:
