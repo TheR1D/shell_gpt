@@ -127,6 +127,9 @@ def execute_core(prompt, temperature=1.0, top_probability=1.0, role=None, model=
             raise typer.BadParameter("Cannot use --role with --interactive-execute.")
         role, prompt = make_prompt.interactive_execute(prompt)
 
+        if not chat:
+            chat = "interactive_execute" + str(os.getpid())
+
     completion = get_completion(
         role, prompt, temperature, top_probability, model, cache, chat, spinner=spinner
     )
