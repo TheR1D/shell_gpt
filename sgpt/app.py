@@ -62,6 +62,7 @@ def main(
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
+    interactive_execute: bool = typer.Option(False, help="Experimental interactive shell execution."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),
@@ -98,6 +99,17 @@ def main(
         if role:
             raise typer.BadParameter("Cannot use --role with --code.")
         role, prompt = make_prompt.code(prompt)
+
+    if interactive_execute:
+        if shell:
+            raise typer.BadParameter("Cannot use --interactive-execute without --shell.")
+        if execute:
+            raise typer.BadParameter("Cannot use --interactive-execute without --execute.")
+        if code:
+            raise typer.BadParameter("Cannot use --interactive-execute without --code.")
+        if role:
+            raise typer.BadParameter("Cannot use --role with --interactive-execute.")
+        role, prompt = make_prompt.interactive_execute(prompt)
 
     completion = get_completion(
         role, prompt, temperature, top_probability, model, cache, chat, spinner=spinner
