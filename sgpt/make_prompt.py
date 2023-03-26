@@ -64,7 +64,7 @@ You must always follow them. No exceptions.
 Request: """
 
 
-def shell(question: str) -> str:
+def shell(question: str) -> dict:
     def os_name() -> str:
         operating_systems = {
             "Linux": "Linux/" + distro_name(pretty=True),
@@ -76,11 +76,14 @@ def shell(question: str) -> str:
     shell = basename(getenv("SHELL", "PowerShell"))
     os = os_name()
     question = question.strip()
-    if not question.endswith("?"):
-        question += "?"
-    # TODO: Can be optimised.
-    return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os) + question
+    return dict(
+        system=SHELL_PROMPT.format(shell=shell, os=os),
+        user=question
+    )
 
 
-def code(question: str) -> str:
-    return CODE_PROMPT + question
+def code(question: str) -> dict:
+    return dict(
+        system=CODE_PROMPT,
+        user=question
+    )

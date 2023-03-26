@@ -1,6 +1,6 @@
 import requests
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Mapping
 
 from sgpt import config, Cache, ChatCache
 
@@ -23,7 +23,7 @@ class OpenAIClient:
     @cache
     def _request(
         self,
-        messages: List,
+        messages: List[Mapping[str, str]],
         model: str = "gpt-3.5-turbo",
         temperature: float = 1,
         top_probability: float = 1,
@@ -58,7 +58,7 @@ class OpenAIClient:
     @chat_cache
     def get_completion(
         self,
-        message: List[str],
+        message: List[Mapping[str, str]],
         model: str = "gpt-3.5-turbo",
         temperature: float = 1,
         top_probability: float = 1,

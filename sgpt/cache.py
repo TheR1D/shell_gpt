@@ -84,16 +84,20 @@ class ChatCache:
         """
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
-            message = {"role": "user", "content": kwargs.pop("message")}
+            message = kwargs["message"]
             if not chat_id:
-                kwargs["message"] = [message]
                 return func(*args, **kwargs)
-            kwargs["message"] = self._read(chat_id)
-            kwargs["message"].append(message)
+            old_message = self._read(chat_id)
+            for i in message:
+                if i["role"] == 'system':
+                    continue
+                old_message.append(i)
+            kwargs["message"] = old_message
             response_text = func(*args, **kwargs)
-            kwargs["message"].append({"role": "assistant", "content": response_text})
+            old_message.append({"role": "assistant", "content": response_text})
             self._write(kwargs["message"], chat_id)
             return response_text
+
         return wrapper
 
     def _read(self, chat_id: str) -> List[Dict]:

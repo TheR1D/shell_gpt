@@ -12,6 +12,7 @@ API Key is stored locally for easy use in future runs.
 
 
 import os
+from typing import Mapping, List
 
 import typer
 
@@ -29,7 +30,7 @@ from sgpt.utils import (
 
 @loading_spinner
 def get_completion(
-    prompt: str,
+    message: List[Mapping[str, str]],
     temperature: float,
     top_p: float,
     caching: bool,
@@ -39,7 +40,7 @@ def get_completion(
     api_key = config.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
-        message=prompt,
+        message=message,
         model="gpt-3.5-turbo",
         temperature=temperature,
         top_probability=top_p,
@@ -50,7 +51,7 @@ def get_completion(
 
 def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
-    temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
+    temperature: float = typer.Option(0.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
@@ -76,16 +77,17 @@ def main(
     if editor:
         prompt = get_edited_prompt()
 
-    if shell:
-        # If default values, make response more accurate.
-        if top_probability == 1 == temperature:
-            temperature = 0.4
-        prompt = make_prompt.shell(prompt)
-    elif code:
-        prompt = make_prompt.code(prompt)
+    if code:
+        result = make_prompt.code(prompt)
+    else:
+        result = make_prompt.shell(prompt)
 
     completion = get_completion(
-        prompt, temperature, top_probability, cache, chat, spinner=spinner
+        [
+            {'role': 'system', 'content': result['system']},
+            {'role': 'user', 'content': result['user']},
+        ],
+        temperature, top_probability, cache, chat, spinner=spinner
     )
 
     typer_writer(completion, code, shell, animation)
