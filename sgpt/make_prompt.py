@@ -69,7 +69,15 @@ This is important you MUST follow the above rules.
 There are no exceptions to these rules.
 You must always follow them. No exceptions.
 
-Request: """
+For example:
+
+Input: In Node.JS, force the app to close
+Output: process.exit(0);
+
+Now the request:
+
+Input: {question}
+Output: """
 
 
 def shell(question: str) -> str:
@@ -91,4 +99,4 @@ def shell(question: str) -> str:
 
 
 def code(question: str) -> str:
-    return CODE_PROMPT + question
+    return CODE_PROMPT.replace("{question}", question)
