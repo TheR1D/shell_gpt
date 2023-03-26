@@ -1,16 +1,22 @@
 from setuptools import setup, find_packages
 
+
+def get_requires():
+    requires = []
+    with open("requirements.txt") as requirements_file:
+        libs = requirements_file.readlines()
+        for lib in libs:
+            if not lib.startswith("setuptools"):
+                requires.append(lib.strip())
+    return requires
+
+
 # pylint: disable=consider-using-with
 setup(
     name="shell_gpt",
     version="0.7.3",
     packages=find_packages(),
-    install_requires=[
-        "typer~=0.7.0",
-        "requests~=2.28.2",
-        "rich==13.3.1",
-        "distro~=1.8.0",
-    ],
+    install_requires=get_requires(),
     entry_points={
         "console_scripts": ["sgpt = sgpt:cli"],
     },
