@@ -102,7 +102,18 @@ class ChatCache:
             if not kwargs["messages"]:
                 kwargs["messages"].append(system_message)
             elif role != config.get("DEFAULT_SYSTEM_ROLE"):
-                raise typer.BadParameter("Cannot use new role (--role, --shell, --code) with initiated chat session.")
+                malformed_chat_cache_check = kwargs["messages"][0]["role"]
+                if malformed_chat_cache_check != "system":
+                    raise typer.BadParameter(
+                        "Malformed chat cache. System role is not first message. \n"
+                        "Please delete the cache file and try again."
+                    )
+                existing_conversation_role = kwargs["messages"][0]["content"]
+                if existing_conversation_role != role:
+                    raise typer.BadParameter(
+                        f"Cannot use new role with initiated chat session. Requested Role: \n\n\"\"\"{role}\"\"\" \n\n"
+                        f"Existing conversation role is: \n\n\"\"\"{existing_conversation_role}\"\"\" \n"
+                    )
             kwargs["messages"].append(message)
             response_text = func(*args, **kwargs)
             kwargs["messages"].append({"role": "assistant", "content": response_text})
