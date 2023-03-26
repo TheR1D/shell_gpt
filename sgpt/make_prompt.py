@@ -43,7 +43,15 @@ This is important you MUST follow the above rules.
 There are no exceptions to these rules.
 You must always follow them. No exceptions.
 
-Request: """
+For example:
+
+Input: List the files in the root folder
+Output: ls /
+
+Now the request:
+
+Input: {question}
+Output: """
 
 CODE_PROMPT = """
 Act as a natural language to code translation engine.
@@ -79,7 +87,7 @@ def shell(question: str) -> str:
     if not question.endswith("?"):
         question += "?"
     # TODO: Can be optimised.
-    return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os) + question
+    return SHELL_PROMPT.replace("{shell}", shell).replace("{os}", os).replace("{question}", question)
 
 
 def code(question: str) -> str:
