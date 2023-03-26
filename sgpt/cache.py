@@ -89,32 +89,31 @@ class ChatCache:
             chat_id = kwargs.pop("chat_id", None)
 
             # Decide which cache file to read from, and which to write to
+            # This will set a chat_id, if none exists
             read_chat_id = chat_id
-            write_chat_id = chat_id
             if not chat_id:
                 if not refine:
                     # Starting a new unnamed chat
                     read_chat_id = None
-                    write_chat_id = "unnamed"
+                    chat_id = "unnamed"
                 else:
                     chat_id = self._read_current_chatid()
                     if chat_id == "unnamed":
                         # First reply to the unnamed chat
                         read_chat_id = "unnamed"
-                        write_chat_id = "".join(choice(hexdigits) for _ in range(32))
-                        #print("Converting " + read_chat_id + " chat into: " + write_chat_id)
+                        chat_id = "".join(choice(hexdigits) for _ in range(32))
+                        #print("Converting " + read_chat_id + " chat into: " + chat_id)
                     else:
                         # Replying to a named chat
                         read_chat_id = chat_id
-                        write_chat_id = chat_id
 
             message = {"role": "user", "content": kwargs.pop("message")}
             kwargs["message"] = self._read(read_chat_id) if read_chat_id else []
             kwargs["message"].append(message)
             response_text = func(*args, **kwargs)
             kwargs["message"].append({"role": "assistant", "content": response_text})
-            self._write(kwargs["message"], write_chat_id)
-            self._write_current_chatid(write_chat_id)
+            self._write(kwargs["message"], chat_id)
+            self._write_current_chatid(chat_id)
             return response_text
         return wrapper
 
