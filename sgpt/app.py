@@ -57,12 +57,18 @@ def main(
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
     execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
+    reset_key : bool = typer.Option(False, "--reset-key", help="Resets OpenaAI API key."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),
     animation: bool = typer.Option(True, help="Typewriter animation."),
     spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ) -> None:
+    
+    if reset_key:
+        os.remove("~/.config/shell_gpt/.sgptrc")
+        config.init()
+        
     if list_chat:
         echo_chat_ids()
         return
