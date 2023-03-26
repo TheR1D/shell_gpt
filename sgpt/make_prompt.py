@@ -1,7 +1,6 @@
 import platform
-from os import getenv
-from os.path import basename
-
+from os import getenv, name as os_name
+from os.path import basename, splitext
 from distro import name as distro_name
 
 
@@ -65,19 +64,21 @@ Request: """
 
 
 def shell(question: str) -> dict:
-    def os_name() -> str:
-        operating_systems = {
-            "Linux": "Linux/" + distro_name(pretty=True),
-            "Windows": "Windows " + platform.release(),
-            "Darwin": "Darwin/MacOS " + platform.mac_ver()[0],
-        }
-        return operating_systems.get(platform.system(), "Unknown")
-
-    shell = basename(getenv("SHELL", "PowerShell"))
-    os = os_name()
+    operating_systems = {
+        "Linux": "Linux/" + distro_name(pretty=True),
+        "Windows": "Windows " + platform.release(),
+        "Darwin": "Darwin/MacOS " + platform.mac_ver()[0],
+    }
+    os = operating_systems.get(platform.system(), "Unknown")
+    if os_name == 'nt':
+        shell_type = splitext(basename(getenv('COMSPEC', 'Powershell')))[0]
+    elif os_name == 'posix':
+        shell_type = basename(getenv("SHELL", "bash"))
+    else:
+        shell_type = 'Unknown'
     question = question.strip()
     return dict(
-        system=SHELL_PROMPT.format(shell=shell, os=os),
+        system=SHELL_PROMPT.format(shell=shell_type, os=os),
         user=question
     )
 
