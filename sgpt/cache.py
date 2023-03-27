@@ -29,13 +29,12 @@ class Cache:
 
         def wrapper(*args, **kwargs):
             # Exclude self instance from hashing.
-            # TODO: Fix caching, should get last user message, and hash only it (not entire history).
             cache_key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
             cache_file = self.cache_path / cache_key
+            # TODO: Fix caching for chat, should hash last user message, (not entire history).
             if kwargs.pop("caching", True) and cache_file.exists():
-                pass
-                # yield cache_file.read_text()
-                # return
+                yield cache_file.read_text()
+                return
             result = ""
             for i in func(*args, **kwargs):
                 result += i
