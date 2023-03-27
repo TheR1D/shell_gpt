@@ -41,7 +41,7 @@ class OpenAIClient:
         """
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}"
+            "Authorization": f"Bearer {self.api_key}",
         }
         data = {
             "messages": messages,
@@ -55,6 +55,8 @@ class OpenAIClient:
             endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT, stream=True
         )
         response.raise_for_status()
+        # TODO: Optimise.
+        # https://github.com/openai/openai-python/blob/237448dc072a2c062698da3f9f512fae38300c1c/openai/api_requestor.py#L98
         for line in response.iter_lines():
             data = line.lstrip(b"data: ").decode("utf-8")
             if data == "[DONE]":
@@ -87,5 +89,9 @@ class OpenAIClient:
         :return: String generated completion.
         """
         yield from self._request(
-            messages, model, temperature, top_probability, caching=caching,
+            messages,
+            model,
+            temperature,
+            top_probability,
+            caching=caching,
         )

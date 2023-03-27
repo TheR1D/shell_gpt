@@ -43,8 +43,8 @@ def initial(prompt: str, shell: bool, code: bool) -> str:
     current_platform = platform.system()
     os_name = operating_systems.get(current_platform, current_platform)
     shell_name = basename(getenv("SHELL", "PowerShell"))
-    if os_name == 'nt':
-        shell_name = splitext(basename(getenv('COMSPEC', 'Powershell')))[0]
+    if os_name == "nt":
+        shell_name = splitext(basename(getenv("COMSPEC", "Powershell")))[0]
     if shell:
         return SHELL_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
     elif code:

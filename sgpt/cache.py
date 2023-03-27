@@ -26,10 +26,11 @@ class Cache:
         :param func: The function to cache.
         :return: Wrapped function with caching.
         """
+
         def wrapper(*args, **kwargs):
             # Exclude self instance from hashing.
             # TODO: Fix caching, should get last user message, and hash only it (not entire history).
-            cache_key = md5(json.dumps((args[1:], kwargs)).encode('utf-8')).hexdigest()
+            cache_key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
             cache_file = self.cache_path / cache_key
             if kwargs.pop("caching", True) and cache_file.exists():
                 pass
@@ -41,6 +42,7 @@ class Cache:
                 yield i
             cache_file.write_text(result)
             self._delete_oldest_files(self.length)
+
         return wrapper
 
     def _delete_oldest_files(self, max_files) -> None:
@@ -50,7 +52,7 @@ class Cache:
         :param max_files: Integer, the maximum number of files to keep in the CACHE_DIR folder.
         """
         # Get all files in the folder.
-        files = self.cache_path.glob('*')
+        files = self.cache_path.glob("*")
         # Sort files by last modification time in ascending order.
         files = sorted(files, key=lambda f: f.stat().st_mtime)
         # Delete the oldest files if the number of files exceeds the limit.
@@ -85,6 +87,7 @@ class ChatCache:
         :param func: The chat function to cache.
         :return: Wrapped function with chat caching.
         """
+
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
             messages = kwargs["messages"]
@@ -95,7 +98,7 @@ class ChatCache:
             for message in messages:
                 old_messages.append(message)
             kwargs["messages"] = old_messages
-            response_text = ''
+            response_text = ""
             for word in func(*args, **kwargs):
                 response_text += word
                 yield word
@@ -125,6 +128,6 @@ class ChatCache:
 
     def list(self):
         # Get all files in the folder.
-        files = self.storage_path.glob('*')
+        files = self.storage_path.glob("*")
         # Sort files by last modification time in ascending order.
         return sorted(files, key=lambda f: f.stat().st_mtime)

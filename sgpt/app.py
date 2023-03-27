@@ -22,7 +22,6 @@ from sgpt import config, make_prompt, OpenAIClient
 from sgpt.utils import (
     echo_chat_ids,
     echo_chat_messages,
-    typer_writer,
     get_edited_prompt,
 )
 
@@ -54,7 +53,7 @@ def main(
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
-    shell: bool = typer.Option(False, "--shell", "-s", help="Will generate and execute shell command."),
+    shell: bool = typer.Option(False, "--shell", "-s", help="Generate and execute shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),

@@ -225,7 +225,7 @@ REQUEST_TIMEOUT=60
 │ --chat             TEXT                       Follow conversation with id (chat mode). [default: None]    │
 │ --show-chat        TEXT                       Show all messages from provided chat id. [default: None]    │
 │ --list-chat                                   List all existing chat ids. [default: no-list-chat]         │
-│ --shell                                       Provide shell command as output.                            │
+│ --shell                                       Generate and execute shell command.                         │
 │ --code                                        Provide code as output. [default: no-code]                  │
 │ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]      │
 │ --cache                                       Cache completion results. [default: cache]                  │
