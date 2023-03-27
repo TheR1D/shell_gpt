@@ -25,6 +25,8 @@ from sgpt.utils import (
     echo_chat_messages,
     typer_writer,
     get_edited_prompt,
+    run_command_with_realtime_output,
+    Colors,
 )
 
 
@@ -134,7 +136,7 @@ def execute_core(prompt, temperature=1.0, top_probability=1.0, role=None, model=
         role, prompt, temperature, top_probability, model, cache, chat, spinner=spinner
     )
 
-    typer_writer(completion, code, shell, animation)
+    typer_writer(completion, code, shell, interactive_execute, animation)
     if shell and execute and typer.confirm("Execute shell command?"):
         os.system(completion)
 
@@ -142,14 +144,18 @@ def execute_core(prompt, temperature=1.0, top_probability=1.0, role=None, model=
         # check if completion contains a shell command
         command = extract_command(completion)
         if command:
-            if typer.confirm(f"The assistant has requested to run the following command: ```{command}``` Run?"):
-                result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
-                output = result.stdout
-                errors = result.stderr
-                new_prompt = f"Command executed: {command}\n\nResult stdout: \n{output}\nResult stderr: \n{errors}"
+            if typer.confirm(f"The assistant has requested to run the following command: ```{command}``` \n (Respond n to enter another prompt) \n Run?"):
+                return_code, stdout, stderr = run_command_with_realtime_output(command)
+                new_prompt = f"Command executed: {command}\nReturn code: \n{return_code}\nResult stdout: \n{stdout}\nResult stderr: \n{stderr}"
                 if typer.confirm(
-                        f"Would you like to continue the conversation with the following prompt: \n\"\"\"\n{new_prompt}\"\"\"\n\nContinue?"):
-                    execute_core(new_prompt, model=model, interactive_execute=True, chat=chat, editor=editor, cache=cache,
+                        f"Would you like to continue the conversation with the following prompt (If you would like to edit input reply 'n' then 'y'): \n\"\"\"\n{new_prompt}\"\"\"\n\nContinue?"):
+                    execute_core(new_prompt, model=model, interactive_execute=True, chat=chat, editor=editor,
+                                 cache=cache,
+                                 animation=animation, spinner=spinner)
+                elif typer.confirm("Edit input?"):
+                    new_prompt = get_edited_prompt(new_prompt)
+                    execute_core(new_prompt, model=model, interactive_execute=True, chat=chat, editor=editor,
+                                 cache=cache,
                                  animation=animation, spinner=spinner)
 
 

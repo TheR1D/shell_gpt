@@ -2,12 +2,22 @@ import os
 from time import sleep
 from typing import Callable
 from tempfile import NamedTemporaryFile
+import subprocess
 
 import typer
+from typing import Tuple
 
 from click import BadParameter
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from sgpt import OpenAIClient
+
+
+# convert to a class
+class Colors:
+    red = "\033[31m"
+    green = "\033[32m"
+    cyan = "\033[36m"
+    reset = "\033[0m"
 
 
 def loading_spinner(func: Callable) -> Callable:
@@ -27,7 +37,7 @@ def loading_spinner(func: Callable) -> Callable:
     return wrapper
 
 
-def get_edited_prompt() -> str:
+def get_edited_prompt(edit_starting_text) -> str:
     """
     Opens the user's default editor to let them
     input a prompt, and returns the edited text.
@@ -37,6 +47,8 @@ def get_edited_prompt() -> str:
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
         # Create file and store path.
         file_path = file.name
+        # Write starting text to file.
+        file.write(edit_starting_text.encode())
     editor = os.environ.get("EDITOR", "vim")
     # This will write text to file using $EDITOR.
     os.system(f"{editor} {file_path}")
@@ -49,17 +61,18 @@ def get_edited_prompt() -> str:
     return output
 
 
-def typer_writer(text: str, code: bool, shell: bool, animate: bool) -> None:
+def typer_writer(text: str, code: bool, shell: bool, interactive_execute: bool, animate: bool) -> None:
     """
     Writes output to the console, with optional typewriter animation and color.
 
     :param text: Text to output.
     :param code: If content of text is code.
     :param shell: if content of text is shell command.
+    :param interactive_execute: If content of text is interactive execute.
     :param animate: Enable/Disable typewriter animation.
     :return: None
     """
-    shell_or_code = shell or code
+    shell_or_code = shell or code or interactive_execute
     color = "magenta" if shell_or_code else None
     if animate and not shell_or_code:
         for char in text:
@@ -82,3 +95,35 @@ def echo_chat_ids() -> None:
     # Prints all existing chat IDs to the console.
     for chat_id in OpenAIClient.chat_cache.list():
         typer.echo(chat_id)
+
+
+def run_command_with_realtime_output(command: str) -> Tuple[int, str, str]:
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True
+    )
+
+    # Initialize variables to store complete stdout and stderr
+    full_stdout = ""
+    full_stderr = ""
+
+    while True:
+        stdout_line = process.stdout.readline()
+        stderr_line = process.stderr.readline()
+
+        if stdout_line:
+            print(f"{Colors.cyan}{stdout_line.strip()}{Colors.reset}")
+            full_stdout += stdout_line
+        if stderr_line:
+            print(f"{Colors.red}{stderr_line.strip()}{Colors.reset}")
+            full_stderr += stderr_line
+
+        if not stdout_line and not stderr_line:
+            break
+
+        return_code = process.poll()
+        if return_code is not None:
+            break
+
+    # Return the exit code of the shell command along with the full stdout and stderr
+    return return_code, full_stdout, full_stderr
+
