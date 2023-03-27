@@ -133,8 +133,8 @@ sgpt 'Which letter comes after K in the alphabet?'
 sgpt -r "And the next?'
 # -> The letter that comes after L in the alphabet is M.
 ```
-You can also maintain multiple chat sessions in parallel.
-To start a chat session, use the `--chat` option followed by a unique session name and a prompt:
+You can also maintain multiple chat sessions in parallel, by naming them.
+To start a named chat session, use the `--chat` option followed by a unique session name and a prompt:
 ```shell
 sgpt --chat number "please remember my favorite number: 4"
 # -> I will remember that your favorite number is 4.
