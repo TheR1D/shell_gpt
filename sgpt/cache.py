@@ -27,15 +27,15 @@ class Cache:
         :return: Wrapped function with caching.
         """
         def wrapper(*args, **kwargs):
-            if not kwargs.pop("caching", True):
-                return func(*args, **kwargs)
             # Exclude self instance from hashing.
+            # TODO: Fix caching, should get last user message, and hash only it (not entire history).
             cache_key = md5(json.dumps((args[1:], kwargs)).encode('utf-8')).hexdigest()
             cache_file = self.cache_path / cache_key
-            if cache_file.exists():
-                yield cache_file.read_text()
-                return
-            result = ''
+            if kwargs.pop("caching", True) and cache_file.exists():
+                pass
+                # yield cache_file.read_text()
+                # return
+            result = ""
             for i in func(*args, **kwargs):
                 result += i
                 yield i
@@ -87,22 +87,20 @@ class ChatCache:
         """
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
-            message = kwargs["message"]
+            messages = kwargs["messages"]
             if not chat_id:
                 yield from func(*args, **kwargs)
                 return
-            old_message = self._read(chat_id)
-            for i in message:
-                if i["role"] == 'system':
-                    continue
-                old_message.append(i)
-            kwargs["message"] = old_message
+            old_messages = self._read(chat_id)
+            for message in messages:
+                old_messages.append(message)
+            kwargs["messages"] = old_messages
             response_text = ''
-            for i in func(*args, **kwargs):
-                response_text += i
-                yield i
-            old_message.append({"role": "assistant", "content": response_text})
-            self._write(kwargs["message"], chat_id)
+            for word in func(*args, **kwargs):
+                response_text += word
+                yield word
+            old_messages.append({"role": "assistant", "content": response_text})
+            self._write(kwargs["messages"], chat_id)
 
         return wrapper
 
@@ -121,7 +119,7 @@ class ChatCache:
         file_path = self.storage_path / chat_id
         file_path.unlink()
 
-    def show(self, chat_id):
+    def get_messages(self, chat_id):
         messages = self._read(self.storage_path / chat_id)
         return [f"{message['role']}: {message['content']}" for message in messages]
 

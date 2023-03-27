@@ -37,6 +37,7 @@ class TestMain(unittest.TestCase):
             caching=False,
             chat_id=None,
         )
+        # TODO: Fix tests with generators.
         self.assertEqual(result, self.response_text)
         expected_json = {
             "messages": [{"role": "user", "content": self.prompt}],

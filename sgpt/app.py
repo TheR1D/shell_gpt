@@ -17,7 +17,7 @@ from typing import Mapping, List
 import typer
 
 # Click is part of typer.
-from click import MissingParameter
+from click import MissingParameter, BadParameter
 from sgpt import config, make_prompt, OpenAIClient
 from sgpt.utils import (
     echo_chat_ids,
@@ -28,7 +28,7 @@ from sgpt.utils import (
 
 
 def get_completion(
-    message: List[Mapping[str, str]],
+    messages: List[Mapping[str, str]],
     temperature: float,
     top_p: float,
     caching: bool,
@@ -38,7 +38,7 @@ def get_completion(
     api_key = config.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
-        message=message,
+        messages=messages,
         model="gpt-3.5-turbo",
         temperature=temperature,
         top_probability=top_p,
@@ -49,12 +49,12 @@ def get_completion(
 
 def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
-    temperature: float = typer.Option(0.0, min=0.0, max=1.0, help="Randomness of generated output."),
+    temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
-    execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
+    shell: bool = typer.Option(False, "--shell", "-s", help="Will generate and execute shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),
@@ -72,25 +72,29 @@ def main(
     if editor:
         prompt = get_edited_prompt()
 
-    if code:
-        result = make_prompt.code(prompt)
-    else:
-        result = make_prompt.shell(prompt)
+    prompt = make_prompt.initial(prompt, shell, code)
+
+    if chat:
+        initiated = bool(OpenAIClient.chat_cache.get_messages(chat))
+        if initiated:
+            if shell or code:
+                raise BadParameter("Can't use --shell or --code for existing chat.")
+            prompt = make_prompt.chat_mode(prompt, shell, code)
 
     completion = get_completion(
-        [
-            {'role': 'system', 'content': result['system']},
-            {'role': 'user', 'content': result['user']},
-        ],
-        temperature, top_probability, cache, chat
+        messages=[{"role": "user", "content": prompt}],
+        temperature=temperature,
+        top_p=top_probability,
+        caching=cache,
+        chat=chat,
     )
 
-    full_completion = ''
-    for i in completion:
-        typer_writer(i, True)
-        full_completion += i
-    print()
-    if not code and execute and typer.confirm("Execute shell command?"):
+    full_completion = ""
+    for word in completion:
+        typer.secho(word, fg="magenta", bold=True, nl=False)
+        full_completion += word
+    typer.secho()
+    if not code and shell and typer.confirm("Execute shell command?"):
         os.system(full_completion)
 
 

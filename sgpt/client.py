@@ -48,7 +48,7 @@ class OpenAIClient:
             "model": model,
             "temperature": temperature,
             "top_p": top_probability,
-            'stream': True,
+            "stream": True,
         }
         endpoint = f"{self.api_host}/v1/chat/completions"
         response = requests.post(
@@ -56,21 +56,21 @@ class OpenAIClient:
         )
         response.raise_for_status()
         for line in response.iter_lines():
-            data = line.lstrip(b'data: ').decode('utf-8')
-            if data == '[DONE]':
+            data = line.lstrip(b"data: ").decode("utf-8")
+            if data == "[DONE]":
                 break
             if not data:
                 continue
             data = json.loads(data)
-            delta = data['choices'][0]['delta']
-            if 'content' not in delta:
+            delta = data["choices"][0]["delta"]
+            if "content" not in delta:
                 continue
-            yield delta['content']
+            yield delta["content"]
 
     @chat_cache
     def get_completion(
         self,
-        message: List[Mapping[str, str]],
+        messages: List[Mapping[str, str]],
         model: str = "gpt-3.5-turbo",
         temperature: float = 1,
         top_probability: float = 1,
@@ -79,7 +79,7 @@ class OpenAIClient:
         """
         Generates single completion for prompt (message).
 
-        :param message: String prompt to generate completion for.
+        :param messages: List of dict with messages and roles.
         :param model: String gpt-3.5-turbo or gpt-3.5-turbo-0301.
         :param temperature: Float in 0.0 - 1.0 range.
         :param top_probability: Float in 0.0 - 1.0 range.
@@ -87,5 +87,5 @@ class OpenAIClient:
         :return: String generated completion.
         """
         yield from self._request(
-            message, model, temperature, top_probability, caching=caching,
+            messages, model, temperature, top_probability, caching=caching,
         )

@@ -226,12 +226,9 @@ REQUEST_TIMEOUT=60
 │ --show-chat        TEXT                       Show all messages from provided chat id. [default: None]    │
 │ --list-chat                                   List all existing chat ids. [default: no-list-chat]         │
 │ --shell                                       Provide shell command as output.                            │
-│ --execute                                     Will execute --shell command.                               │
 │ --code                                        Provide code as output. [default: no-code]                  │
 │ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]      │
 │ --cache                                       Cache completion results. [default: cache]                  │
-│ --animation                                   Typewriter animation. [default: animation]                  │
-│ --spinner                                     Show loading spinner during API request. [default: spinner] │
 │ --help                                        Show this message and exit.                                 │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
