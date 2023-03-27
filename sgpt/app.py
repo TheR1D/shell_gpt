@@ -104,7 +104,7 @@ def execute_core(prompt, temperature=1.0, top_probability=1.0, role=None, model=
         prompt = f"{stdin_data.strip()}\n{prompt}"
 
     if editor:
-        prompt = get_edited_prompt()
+        prompt = get_edited_prompt(prompt)
 
     if shell:
         if role:
