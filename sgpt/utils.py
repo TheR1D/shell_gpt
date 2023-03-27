@@ -10,6 +10,7 @@ from typing import Tuple
 from click import BadParameter
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from sgpt import OpenAIClient
+import select
 
 
 # convert to a class
@@ -99,7 +100,7 @@ def echo_chat_ids() -> None:
 
 def run_command_with_realtime_output(command: str) -> Tuple[int, str, str]:
     process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True
+        command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True
     )
 
     # Initialize variables to store complete stdout and stderr
@@ -107,18 +108,20 @@ def run_command_with_realtime_output(command: str) -> Tuple[int, str, str]:
     full_stderr = ""
 
     while True:
-        stdout_line = process.stdout.readline()
-        stderr_line = process.stderr.readline()
+        # Check if either stdout or stderr has data available
+        ready_streams, _, _ = select.select([process.stdout, process.stderr], [], [])
 
-        if stdout_line:
-            print(f"{Colors.cyan}{stdout_line.strip()}{Colors.reset}")
-            full_stdout += stdout_line
-        if stderr_line:
-            print(f"{Colors.red}{stderr_line.strip()}{Colors.reset}")
-            full_stderr += stderr_line
-
-        if not stdout_line and not stderr_line:
-            break
+        for stream in ready_streams:
+            if stream == process.stdout:
+                stdout_line = process.stdout.readline()
+                if stdout_line:
+                    print(f"{Colors.cyan}{stdout_line.strip()}{Colors.reset}")
+                    full_stdout += stdout_line
+            elif stream == process.stderr:
+                stderr_line = process.stderr.readline()
+                if stderr_line:
+                    print(f"{Colors.red}{stderr_line.strip()}{Colors.reset}")
+                    full_stderr += stderr_line
 
         return_code = process.poll()
         if return_code is not None:
