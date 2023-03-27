@@ -128,7 +128,7 @@ def execute_core(prompt, temperature=1.0, top_probability=1.0, role=None, model=
         role, prompt = make_prompt.interactive_execute(prompt)
 
         if not chat:
-            chat = "interactive_execute" + str(os.getpid())
+            chat = "interactive-execute" + str(os.getpid())
 
     completion = get_completion(
         role, prompt, temperature, top_probability, model, cache, chat, spinner=spinner
@@ -149,7 +149,7 @@ def execute_core(prompt, temperature=1.0, top_probability=1.0, role=None, model=
                 new_prompt = f"Command executed: {command}\n\nResult stdout: \n{output}\nResult stderr: \n{errors}"
                 if typer.confirm(
                         f"Would you like to continue the conversation with the following prompt: \n\"\"\"\n{new_prompt}\"\"\"\n\nContinue?"):
-                    execute_core(new_prompt, interactive_execute=True, chat=chat, editor=editor, cache=cache,
+                    execute_core(new_prompt, model=model, interactive_execute=True, chat=chat, editor=editor, cache=cache,
                                  animation=animation, spinner=spinner)
 
 
