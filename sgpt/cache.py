@@ -3,7 +3,8 @@ from hashlib import md5
 from pathlib import Path
 from typing import List, Dict, Callable
 from secrets import choice
-from string import hexdigits
+from string import ascii_lowercase, digits
+from datetime import datetime
 
 
 class Cache:
@@ -101,7 +102,7 @@ class ChatCache:
                     if chat_id == "unnamed":
                         # First reply to the unnamed chat
                         read_chat_id = "unnamed"
-                        chat_id = "".join(choice(hexdigits) for _ in range(32))
+                        chat_id = datetime.now().strftime("%Y-%m-%d-%H%M") + "-" + "".join(choice(ascii_lowercase + digits) for _ in range(12))
                         #print("Converting " + read_chat_id + " chat into: " + chat_id)
                     else:
                         # Replying to a named chat
