@@ -29,18 +29,6 @@ def get_edited_prompt() -> str:
     return output
 
 
-def typer_writer(text: str, color: bool) -> None:
-    """
-    Writes output to the console, with optional typewriter animation and color.
-
-    :param text: Text to output.
-    :param color: Print colored text.
-    :return: None
-    """
-    color = "magenta" if color else None
-    typer.secho(text, fg=color, bold=color, nl=False)
-
-
 def echo_chat_messages(chat_id: str) -> None:
     # Prints all messages from a specified chat ID to the console.
     for index, message in enumerate(OpenAIClient.chat_cache.show(chat_id)):
