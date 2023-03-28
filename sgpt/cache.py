@@ -26,18 +26,22 @@ class Cache:
         :param func: The function to cache.
         :return: Wrapped function with caching.
         """
+
         def wrapper(*args, **kwargs):
-            if not kwargs.pop("caching", True):
-                return func(*args, **kwargs)
             # Exclude self instance from hashing.
-            cache_key = md5(json.dumps((args[1:], kwargs)).encode('utf-8')).hexdigest()
+            cache_key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
             cache_file = self.cache_path / cache_key
-            if cache_file.exists():
-                return json.loads(cache_file.read_text())
-            result = func(*args, **kwargs)
-            cache_file.write_text(json.dumps(result))
+            # TODO: Fix caching for chat, should hash last user message, (not entire history).
+            if kwargs.pop("caching", True) and cache_file.exists():
+                yield cache_file.read_text()
+                return
+            result = ""
+            for i in func(*args, **kwargs):
+                result += i
+                yield i
+            cache_file.write_text(result)
             self._delete_oldest_files(self.length)
-            return result
+
         return wrapper
 
     def _delete_oldest_files(self, max_files) -> None:
@@ -47,7 +51,7 @@ class Cache:
         :param max_files: Integer, the maximum number of files to keep in the CACHE_DIR folder.
         """
         # Get all files in the folder.
-        files = self.cache_path.glob('*')
+        files = self.cache_path.glob("*")
         # Sort files by last modification time in ascending order.
         files = sorted(files, key=lambda f: f.stat().st_mtime)
         # Delete the oldest files if the number of files exceeds the limit.
@@ -82,18 +86,24 @@ class ChatCache:
         :param func: The chat function to cache.
         :return: Wrapped function with chat caching.
         """
+
         def wrapper(*args, **kwargs):
             chat_id = kwargs.pop("chat_id", None)
-            message = {"role": "user", "content": kwargs.pop("message")}
+            messages = kwargs["messages"]
             if not chat_id:
-                kwargs["message"] = [message]
-                return func(*args, **kwargs)
-            kwargs["message"] = self._read(chat_id)
-            kwargs["message"].append(message)
-            response_text = func(*args, **kwargs)
-            kwargs["message"].append({"role": "assistant", "content": response_text})
-            self._write(kwargs["message"], chat_id)
-            return response_text
+                yield from func(*args, **kwargs)
+                return
+            old_messages = self._read(chat_id)
+            for message in messages:
+                old_messages.append(message)
+            kwargs["messages"] = old_messages
+            response_text = ""
+            for word in func(*args, **kwargs):
+                response_text += word
+                yield word
+            old_messages.append({"role": "assistant", "content": response_text})
+            self._write(kwargs["messages"], chat_id)
+
         return wrapper
 
     def _read(self, chat_id: str) -> List[Dict]:
@@ -111,12 +121,12 @@ class ChatCache:
         file_path = self.storage_path / chat_id
         file_path.unlink()
 
-    def show(self, chat_id):
+    def get_messages(self, chat_id):
         messages = self._read(self.storage_path / chat_id)
         return [f"{message['role']}: {message['content']}" for message in messages]
 
     def list(self):
         # Get all files in the folder.
-        files = self.storage_path.glob('*')
+        files = self.storage_path.glob("*")
         # Sort files by last modification time in ascending order.
         return sorted(files, key=lambda f: f.stat().st_mtime)

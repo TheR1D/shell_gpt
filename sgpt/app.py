@@ -12,24 +12,22 @@ API Key is stored locally for easy use in future runs.
 
 
 import os
+from typing import Mapping, List
 
 import typer
 
 # Click is part of typer.
-from click import MissingParameter
+from click import MissingParameter, BadParameter
 from sgpt import config, make_prompt, OpenAIClient
 from sgpt.utils import (
-    loading_spinner,
     echo_chat_ids,
     echo_chat_messages,
-    typer_writer,
     get_edited_prompt,
 )
 
 
-@loading_spinner
 def get_completion(
-    prompt: str,
+    messages: List[Mapping[str, str]],
     temperature: float,
     top_p: float,
     caching: bool,
@@ -39,7 +37,7 @@ def get_completion(
     api_key = config.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
-        message=prompt,
+        messages=messages,
         model="gpt-3.5-turbo",
         temperature=temperature,
         top_probability=top_p,
@@ -55,13 +53,10 @@ def main(
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
-    shell: bool = typer.Option(False, "--shell", "-s", help="Provide shell command as output."),
-    execute: bool = typer.Option(False, "--execute", "-e", help="Will execute --shell command."),
+    shell: bool = typer.Option(False, "--shell", "-s", help="Generate and execute shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),
-    animation: bool = typer.Option(True, help="Typewriter animation."),
-    spinner: bool = typer.Option(True, help="Show loading spinner during API request."),
 ) -> None:
     if list_chat:
         echo_chat_ids()
@@ -76,21 +71,30 @@ def main(
     if editor:
         prompt = get_edited_prompt()
 
-    if shell:
-        # If default values, make response more accurate.
-        if top_probability == 1 == temperature:
-            temperature = 0.4
-        prompt = make_prompt.shell(prompt)
-    elif code:
-        prompt = make_prompt.code(prompt)
+    prompt = make_prompt.initial(prompt, shell, code)
+
+    if chat:
+        initiated = bool(OpenAIClient.chat_cache.get_messages(chat))
+        if initiated:
+            if shell or code:
+                raise BadParameter("Can't use --shell or --code for existing chat.")
+            prompt = make_prompt.chat_mode(prompt, shell, code)
 
     completion = get_completion(
-        prompt, temperature, top_probability, cache, chat, spinner=spinner
+        messages=[{"role": "user", "content": prompt}],
+        temperature=temperature,
+        top_p=top_probability,
+        caching=cache,
+        chat=chat,
     )
 
-    typer_writer(completion, code, shell, animation)
-    if shell and execute and typer.confirm("Execute shell command?"):
-        os.system(completion)
+    full_completion = ""
+    for word in completion:
+        typer.secho(word, fg="magenta", bold=True, nl=False)
+        full_completion += word
+    typer.secho()
+    if not code and shell and typer.confirm("Execute shell command?"):
+        os.system(full_completion)
 
 
 def entry_point() -> None:

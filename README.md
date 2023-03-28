@@ -40,39 +40,34 @@ sgpt "1 kilometer to miles"
 # -> 1 kilometer is equal to 0.62137 miles.
 ```
 ### Shell commands
-Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` option, you can quickly find and execute the commands you need right in the terminal.
+Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal.
 ```shell
 sgpt --shell "make all files in current directory read only"
-# -> chmod 444 *
-```
-Since we are receiving valid shell command, we can execute it using `eval $(sgpt --shell "make all files in current directory read only")` but this is not very convenient, instead we can use `--execute` (or shortcut `-se` for `--shell` `--execute`) parameter:
-```shell
-sgpt --shell --execute "make all files in current directory read only"
 # -> chmod 444 *
 # -> Execute shell command? [y/N]: y
 # ...
 ```
 Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
 ```shell
-sgpt -se "update my system"
+sgpt -s "update my system"
 # -> sudo softwareupdate -i -a
 ```
 The same prompt, when used on Ubuntu, will generate a different suggestion:
 ```shell
-sgpt -se "update my system"
+sgpt -s "update my system"
 # -> sudo apt update && sudo apt upgrade -y
 ```
 
 Let's try some docker containers:
 ```shell
-sgpt -se "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
+sgpt -s "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
 # -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
 # -> Execute shell command? [y/N]: y
 # ...
 ```
 Also, we can provide some parameters name in our prompt, for example, passing output file name to ffmpeg:
 ```shell
-sgpt -se "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
+sgpt -s "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
 # -> ffmpeg -i input.mp4 -filter:v "setpts=2.0*PTS" output.mp4
 # -> Execute shell command? [y/N]: y
 # ...
@@ -81,7 +76,7 @@ We can apply additional shell magic in our prompt, in this example passing file 
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
-sgpt -se "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
+sgpt -s "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
 # -> Execute shell command? [y/N]: y
 # ...
@@ -225,13 +220,10 @@ REQUEST_TIMEOUT=60
 │ --chat             TEXT                       Follow conversation with id (chat mode). [default: None]    │
 │ --show-chat        TEXT                       Show all messages from provided chat id. [default: None]    │
 │ --list-chat                                   List all existing chat ids. [default: no-list-chat]         │
-│ --shell                                       Provide shell command as output.                            │
-│ --execute                                     Will execute --shell command.                               │
+│ --shell                                       Generate and execute shell command.                         │
 │ --code                                        Provide code as output. [default: no-code]                  │
 │ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]      │
 │ --cache                                       Cache completion results. [default: cache]                  │
-│ --animation                                   Typewriter animation. [default: animation]                  │
-│ --spinner                                     Show loading spinner during API request. [default: spinner] │
 │ --help                                        Show this message and exit.                                 │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```

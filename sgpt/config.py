@@ -28,10 +28,16 @@ def init() -> None:
     if not CONFIG_PATH.exists():
         CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
         # If user has ENV API key, don't write it to config file.
-        api_key = os.getenv("OPENAI_API_KEY") or getpass(prompt="Please enter your OpenAI API key: ")
+        api_key = os.getenv("OPENAI_API_KEY") or getpass(
+            prompt="Please enter your OpenAI API key: "
+        )
         config["OPENAI_API_KEY"] = api_key
-        config["OPENAI_API_HOST"] = os.getenv("OPENAI_API_HOST", "https://api.openai.com")
-        config["CHAT_CACHE_LENGTH"] = os.getenv("CHAT_CACHE_LENGTH", str(CHAT_CACHE_LENGTH))
+        config["OPENAI_API_HOST"] = os.getenv(
+            "OPENAI_API_HOST", "https://api.openai.com"
+        )
+        config["CHAT_CACHE_LENGTH"] = os.getenv(
+            "CHAT_CACHE_LENGTH", str(CHAT_CACHE_LENGTH)
+        )
         config["CHAT_CACHE_PATH"] = os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH))
         config["CACHE_LENGTH"] = os.getenv("CACHE_LENGTH", str(CACHE_LENGTH))
         config["CACHE_PATH"] = os.getenv("CACHE_PATH", str(CACHE_PATH))
