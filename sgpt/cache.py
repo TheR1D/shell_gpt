@@ -1,7 +1,7 @@
 import json
 from hashlib import md5
 from pathlib import Path
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Optional
 
 
 class Cache:
@@ -122,8 +122,11 @@ class ChatCache:
         file_path.unlink()
 
     def get_messages(self, chat_id):
-        messages = self._read(self.storage_path / chat_id)
+        messages = self._read(chat_id)
         return [f"{message['role']}: {message['content']}" for message in messages]
+
+    def exists(self, chat_id: Optional[str]) -> bool:
+        return chat_id and bool(self._read(chat_id))
 
     def list(self):
         # Get all files in the folder.

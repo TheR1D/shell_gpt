@@ -71,14 +71,22 @@ def main(
     if editor:
         prompt = get_edited_prompt()
 
-    prompt = make_prompt.initial(prompt, shell, code)
+    if chat and OpenAIClient.chat_cache.exists(chat):
+        chat_history = OpenAIClient.chat_cache.get_messages(chat)
+        is_shell_chat = chat_history[0].endswith("###\nCommand:")
+        is_code_chat = chat_history[0].endswith("###\nCode:")
+        if is_shell_chat and code:
+            raise BadParameter(
+                f"Chat id:{chat} was initiated as shell assistant, can be used with --shell only"
+            )
+        if is_code_chat and shell:
+            raise BadParameter(
+                f"Chat id:{chat} was initiated as code assistant, can be used with --code only"
+            )
 
-    if chat:
-        initiated = bool(OpenAIClient.chat_cache.get_messages(chat))
-        if initiated:
-            if shell or code:
-                raise BadParameter("Can't use --shell or --code for existing chat.")
-            prompt = make_prompt.chat_mode(prompt, shell, code)
+        prompt = make_prompt.chat_mode(prompt, is_shell_chat, is_code_chat)
+    else:
+        prompt = make_prompt.initial(prompt, shell, code)
 
     completion = get_completion(
         messages=[{"role": "user", "content": prompt}],

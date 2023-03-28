@@ -31,7 +31,7 @@ def get_edited_prompt() -> str:
 
 def echo_chat_messages(chat_id: str) -> None:
     # Prints all messages from a specified chat ID to the console.
-    for index, message in enumerate(OpenAIClient.chat_cache.show(chat_id)):
+    for index, message in enumerate(OpenAIClient.chat_cache.get_messages(chat_id)):
         color = "cyan" if index % 2 == 0 else "green"
         typer.secho(message, fg=color)
 
