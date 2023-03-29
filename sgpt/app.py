@@ -104,7 +104,13 @@ def main(
     if not code and shell and typer.confirm("Execute shell command?"):
         os.system(full_completion)
 
+    if code:
+        filename = input("\nFilename (enter to cancel): ")
+        if filename:
+            with open(filename, 'w') as f:
+                f.write(full_completion)
 
+             
 def entry_point() -> None:
     # Python package entry point defined in setup.py
     typer.run(main)
