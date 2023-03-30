@@ -30,6 +30,7 @@ def get_completion(
     messages: List[Mapping[str, str]],
     temperature: float,
     top_p: float,
+    model: str,
     caching: bool,
     chat: str,
 ):
@@ -37,8 +38,8 @@ def get_completion(
     api_key = config.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
-        messages=messages,
-        model="gpt-3.5-turbo",
+        message=messages,
+        model=model,
         temperature=temperature,
         top_probability=top_p,
         caching=caching,
@@ -50,6 +51,7 @@ def main(
     prompt: str = typer.Argument(None, show_default=False, help="The prompt to generate completions for."),
     temperature: float = typer.Option(1.0, min=0.0, max=1.0, help="Randomness of generated output."),
     top_probability: float = typer.Option(1.0, min=0.1, max=1.0, help="Limits highest probable tokens (words)."),
+    model: str = typer.Option(config.get("DEFAULT_MODEL"), help="Specify what model to use."),
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
@@ -90,6 +92,7 @@ def main(
 
     completion = get_completion(
         messages=[{"role": "user", "content": prompt}],
+        model=model,
         temperature=temperature,
         top_p=top_probability,
         caching=cache,
