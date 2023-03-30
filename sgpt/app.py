@@ -38,7 +38,7 @@ def get_completion(
     api_key = config.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
     return client.get_completion(
-        message=messages,
+        messages=messages,
         model=model,
         temperature=temperature,
         top_probability=top_p,
