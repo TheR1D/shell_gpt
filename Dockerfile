@@ -9,7 +9,7 @@ USER app
 WORKDIR /home/app
 
 # Copy all files into the container
-COPY . /tmp/test
+COPY . /home/app
 
 # Set up Environment parameters
 # These are overriden if any of the variables are
