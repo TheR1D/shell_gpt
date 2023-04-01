@@ -43,4 +43,6 @@ jobs:
     - name: Analysing the code with black
       run: black ./sgpt ./tests --check --target-version py310
     - name: Run unittests
-      run: python -m unittest tests/unittests.py
+      run: |
+        export OPENAI_API_KEY=test_api_key
+        python -m unittest tests/unittests.py
