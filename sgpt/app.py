@@ -78,11 +78,7 @@ def main(  # pylint: disable=too-many-arguments
         help="Cache completion results.",
     ),
 ) -> None:
-    """
-    Main entry point for the CLI. This function is called by Typer when the
-    sgpt command is run. It handles the command line arguments and calls the
-    appropriate handler to generate the completion.
-    """
+    # TODO: Move this validation into typer callbacks.
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 

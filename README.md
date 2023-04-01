@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As devel
 
 ## Installation
 ```shell
-pip install shell-gpt
+pip install shell-gpt==0.8.1
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -211,21 +211,25 @@ REQUEST_TIMEOUT=60
 
 ### Full list of arguments
 ```shell
-╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                           │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --temperature      FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: 1.0]              │
-│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]      │
-│ --chat             TEXT                       Follow conversation with id (chat mode). [default: None]    │
-│ --show-chat        TEXT                       Show all messages from provided chat id. [default: None]    │
-│ --list-chat                                   List all existing chat ids. [default: no-list-chat]         │
-│ --shell                                       Generate and execute shell command.                         │
-│ --code                                        Provide code as output. [default: no-code]                  │
-│ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]      │
-│ --cache                                       Cache completion results. [default: cache]                  │
-│ --help                                        Show this message and exit.                                 │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                         │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --temperature       FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: 0.1]           │
+│ --top-probability   FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]   │
+│ --editor                                       Open $EDITOR to provide a prompt. [default: no-editor]   │
+│ --cache                                        Cache completion results. [default: cache]               │
+│ --help                                         Show this message and exit.                              │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Chat ──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --chat           TEXT  Follow conversation with id (chat mode). [default: None]                         │
+│ --show-chat      TEXT  Show all messages from provided chat id. [default: None]                         │
+│ --list-chat            List all existing chat ids. [default: no-list-chat]                              │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Assistance Modes ──────────────────────────────────────────────────────────────────────────────────────╮
+│ --shell  -s  Generate and execute shell commands.                                                       │
+│ --code       Generate only code. [default: no-code]                                                     │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Docker
