@@ -4,6 +4,7 @@ import requests_mock
 import requests
 
 from sgpt import OpenAIClient
+from sgpt.config import config
 
 
 class TestMain(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestMain(unittest.TestCase):
     # TODO: Fix tests.
 
     def setUp(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = config.get("OPENAI_API_KEY")
         assert self.api_key, "OPENAI_API_KEY ENV is required."
         self.prompt = "What is the capital of France?"
         self.shell = False
