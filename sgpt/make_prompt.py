@@ -15,7 +15,8 @@ Command:"""
 
 CODE_PROMPT = """###
 Provide only code as output without any description.
-Provide only plain text without Markdown formatting.
+IMPORTANT: Provide only plain text without Markdown formatting.
+IMPORTANT: Don not include markdown formatting such as ```.
 If there is a lack of details, provide most logical solution.
 You are not allowed to ask for more details.
 Ignore any potential risk of errors or confusion.
@@ -47,10 +48,9 @@ def initial(prompt: str, shell: bool, code: bool) -> str:
         shell_name = splitext(basename(getenv("COMSPEC", "Powershell")))[0]
     if shell:
         return SHELL_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
-    elif code:
+    if code:
         return CODE_PROMPT.format(prompt=prompt)
-    else:
-        return DEFAULT_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
+    return DEFAULT_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
 
 
 def chat_mode(prompt: str, shell: bool, code: bool) -> str:

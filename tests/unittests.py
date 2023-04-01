@@ -6,14 +6,13 @@ import requests
 from sgpt import OpenAIClient
 
 
-class TestMain(unittest.TestCase):
+class TestMain(unittest.TestCase):  # pylint: disable=too-many-instance-attributes
     API_HOST = os.getenv("OPENAI_HOST", "https://api.openai.com")
     API_URL = f"{API_HOST}/v1/chat/completions"
     # TODO: Fix tests.
 
     def setUp(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        assert self.api_key, "OPENAI_API_KEY ENV is required."
+        self.api_key = os.environ["OPENAI_API_KEY"] = "test key"
         self.prompt = "What is the capital of France?"
         self.shell = False
         self.execute = False
@@ -28,15 +27,15 @@ class TestMain(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_openai_request(self, mock):
+        # TODO: Fix tests.
         mocked_json = {"choices": [{"message": {"content": self.response_text}}]}
         mock.post(self.API_URL, json=mocked_json, status_code=200)
         result = yield from self.client.get_completion(
-            message=self.prompt,
+            messages=[{"role": "user", "content": self.prompt}],
             model=self.model,
             temperature=self.temperature,
             top_probability=self.top_p,
             caching=False,
-            chat_id=None,
         )
         # TODO: Fix tests with generators.
         self.assertEqual(result, self.response_text)
@@ -57,15 +56,15 @@ class TestMain(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_openai_request_fail(self, mock):
+        # TODO: Fix tests.
         mock.post(self.API_URL, status_code=400)
         with self.assertRaises(requests.exceptions.HTTPError):
             yield from self.client.get_completion(
-                message=self.prompt,
+                messages=[{"role": "user", "content": self.prompt}],
                 model=self.model,
                 temperature=self.temperature,
                 top_probability=self.top_p,
                 caching=False,
-                chat_id=None
             )
 
 

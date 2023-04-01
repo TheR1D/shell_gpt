@@ -1,13 +1,13 @@
-import requests
+import json
 from pathlib import Path
 from typing import List, Dict, Mapping
-import json
 
-from sgpt import config, Cache, ChatCache
+import requests
+
+from sgpt import config, Cache
 
 
-CHAT_CACHE_LENGTH = int(config.get("CHAT_CACHE_LENGTH"))
-CHAT_CACHE_PATH = Path(config.get("CHAT_CACHE_PATH"))
+# pylint: skip-file
 CACHE_LENGTH = int(config.get("CACHE_LENGTH"))
 CACHE_PATH = Path(config.get("CACHE_PATH"))
 REQUEST_TIMEOUT = int(config.get("REQUEST_TIMEOUT"))
@@ -15,7 +15,7 @@ REQUEST_TIMEOUT = int(config.get("REQUEST_TIMEOUT"))
 
 class OpenAIClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
-    chat_cache = ChatCache(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
+    # chat_cache = ChatCache(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
     def __init__(self, api_host: str, api_key: str) -> None:
         self.api_key = api_key
@@ -69,7 +69,6 @@ class OpenAIClient:
                 continue
             yield delta["content"]
 
-    @chat_cache
     def get_completion(
         self,
         messages: List[Mapping[str, str]],
