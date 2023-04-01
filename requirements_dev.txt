@@ -1,0 +1,3 @@
+black
+pylint
+requests_mock
