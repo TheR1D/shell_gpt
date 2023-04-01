@@ -53,11 +53,19 @@ def main(
     chat: str = typer.Option(None, help="Follow conversation with id (chat mode)."),
     show_chat: str = typer.Option(None, help="Show all messages from provided chat id."),
     list_chat: bool = typer.Option(False, help="List all existing chat ids."),
+    delete_chat: bool = typer.Option(False, help="Delete provided chat id."),
     shell: bool = typer.Option(False, "--shell", "-s", help="Generate and execute shell command."),
     code: bool = typer.Option(False, help="Provide code as output."),
     editor: bool = typer.Option(False, help="Open $EDITOR to provide a prompt."),
     cache: bool = typer.Option(True, help="Cache completion results."),
 ) -> None:
+    if delete_chat:
+        if any((list_chat, show_chat)):
+            raise BadParameter(message="Ambigious: delete-chat, can't be used with other chat flags.")
+        if not chat or not OpenAIClient.chat_cache.exists(chat):
+            raise BadParameter(message="invalid or non existing", param_hint="chat")
+        OpenAIClient.chat_cache.invalidate(chat)
+        return
     if list_chat:
         echo_chat_ids()
         return
