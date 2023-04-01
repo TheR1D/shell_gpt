@@ -43,31 +43,31 @@ def main(  # pylint: disable=too-many-arguments
     chat: str = typer.Option(
         None,
         help="Follow conversation with id (chat mode).",
-        rich_help_panel="Chat",
+        rich_help_panel="Chat Options",
     ),
     show_chat: str = typer.Option(  # pylint: disable=W0613
         None,
         help="Show all messages from provided chat id.",
         callback=ChatHandler.show_messages,
-        rich_help_panel="Chat",
+        rich_help_panel="Chat Options",
     ),  # Pylint: disable=W0613
     list_chat: bool = typer.Option(  # pylint: disable=W0613
         False,
         help="List all existing chat ids.",
         callback=ChatHandler.list_ids,
-        rich_help_panel="Chat",
+        rich_help_panel="Chat Options",
     ),
     shell: bool = typer.Option(
         False,
         "--shell",
         "-s",
         help="Generate and execute shell commands.",
-        rich_help_panel="Assistance Modes",
+        rich_help_panel="Assistance Options",
     ),
     code: bool = typer.Option(
         False,
         help="Generate only code.",
-        rich_help_panel="Assistance Modes",
+        rich_help_panel="Assistance Options",
     ),
     editor: bool = typer.Option(
         False,

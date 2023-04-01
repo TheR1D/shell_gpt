@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As devel
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.1
+pip install shell-gpt==0.8.2
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -221,12 +221,12 @@ REQUEST_TIMEOUT=60
 │ --cache                                        Cache completion results. [default: cache]               │
 │ --help                                         Show this message and exit.                              │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Chat ──────────────────────────────────────────────────────────────────────────────────────────────────╮
+╭─ Chat Options ──────────────────────────────────────────────────────────────────────────────────────────╮
 │ --chat           TEXT  Follow conversation with id (chat mode). [default: None]                         │
 │ --show-chat      TEXT  Show all messages from provided chat id. [default: None]                         │
 │ --list-chat            List all existing chat ids. [default: no-list-chat]                              │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Assistance Modes ──────────────────────────────────────────────────────────────────────────────────────╮
+╭─ Assistance Options ────────────────────────────────────────────────────────────────────────────────────╮
 │ --shell  -s  Generate and execute shell commands.                                                       │
 │ --code       Generate only code. [default: no-code]                                                     │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
