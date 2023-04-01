@@ -102,8 +102,10 @@ def main(
         full_completion += word
     typer.secho()
     if not code and shell and typer.confirm("Execute shell command?"):
-        os.system(full_completion)
-
+        if os.getenv("SHELL",'POWERSHELL'):
+            os.system('powershell.exe ' + full_completion)
+        else:
+            os.system(completion)
 
 def entry_point() -> None:
     # Python package entry point defined in setup.py
