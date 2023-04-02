@@ -51,12 +51,3 @@ def initial(prompt: str, shell: bool, code: bool) -> str:
     if code:
         return CODE_PROMPT.format(prompt=prompt)
     return DEFAULT_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
-
-
-def chat_mode(prompt: str, shell: bool, code: bool) -> str:
-    prompt = prompt.strip()
-    if shell:
-        prompt += "\nCommand:"
-    elif code:
-        prompt += "\nCode:"
-    return prompt

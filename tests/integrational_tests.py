@@ -104,6 +104,13 @@ class TestShellGpt(TestCase):
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "8" in result.stdout
+        dict_arguments["--shell"] = True
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 2
+        dict_arguments["--code"] = True
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        # If we have default chat, we cannot use --code or --shell.
+        assert result.exit_code == 2
 
     def test_chat_shell(self):
         chat_name = uuid4()
@@ -123,6 +130,12 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 0
         assert "-p 80:80" in result.stdout
         assert "-p 443:443" in result.stdout
+        dict_arguments["--code"] = True
+        del dict_arguments["--shell"]
+        assert "--shell" not in dict_arguments
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        # If we are using --code, we cannot use --shell.
+        assert result.exit_code == 2
 
     def test_chat_code(self):
         chat_name = uuid4()
@@ -138,6 +151,12 @@ class TestShellGpt(TestCase):
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "localhost:443" in result.stdout
+        del dict_arguments["--code"]
+        assert "--code" not in dict_arguments
+        dict_arguments["--shell"] = True
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        # If we have --code chat, we cannot use --shell.
+        assert result.exit_code == 2
 
     def test_list_chat(self):
         result = runner.invoke(app, ["--list-chat"])
@@ -158,3 +177,13 @@ class TestShellGpt(TestCase):
         assert "Remember my favorite number: 6" in result.stdout
         assert "What is my favorite number + 2?" in result.stdout
         assert "8" in result.stdout
+
+    def test_validation_code_shell(self):
+        dict_arguments = {
+            "prompt": "What is the capital of the Czech Republic?",
+            "--code": True,
+            "--shell": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 2
+        assert "--shell and --code options cannot be used together" in result.stdout

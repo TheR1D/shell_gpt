@@ -16,7 +16,7 @@ import os
 import typer
 
 # Click is part of typer.
-from click import MissingParameter
+from click import MissingParameter, BadArgumentUsage
 from sgpt import config, OpenAIClient
 from sgpt import ChatHandler, DefaultHandler
 from sgpt.utils import get_edited_prompt
@@ -50,7 +50,7 @@ def main(  # pylint: disable=too-many-arguments
         help="Show all messages from provided chat id.",
         callback=ChatHandler.show_messages,
         rich_help_panel="Chat Options",
-    ),  # Pylint: disable=W0613
+    ),
     list_chat: bool = typer.Option(  # pylint: disable=W0613
         False,
         help="List all existing chat ids.",
@@ -78,9 +78,11 @@ def main(  # pylint: disable=too-many-arguments
         help="Cache completion results.",
     ),
 ) -> None:
-    # TODO: Move this validation into typer callbacks.
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
+
+    if shell and code:
+        raise BadArgumentUsage("--shell and --code options cannot be used together.")
 
     if editor:
         prompt = get_edited_prompt()

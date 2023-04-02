@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Dict, Optional, Callable, Generator
 
 import typer
-from click import BadParameter
+from click import BadArgumentUsage
 
 from sgpt import OpenAIClient, config, make_prompt
 from sgpt.utils import CompletionModes
@@ -74,7 +74,6 @@ class ChatSession:
         file_path.unlink()
 
     def get_messages(self, chat_id):
-        print(chat_id)
         messages = self._read(chat_id)
         return [f"{message['role']}: {message['content']}" for message in messages]
 
@@ -108,6 +107,7 @@ class ChatHandler(Handler):
         chat_history = self.chat_session.get_messages(self.chat_id)
         self.is_shell_chat = chat_history and chat_history[0].endswith("###\nCommand:")
         self.is_code_chat = chat_history and chat_history[0].endswith("###\nCode:")
+        self.is_default_chat = chat_history and chat_history[0].endswith("###")
 
         self.validate()
 
@@ -134,14 +134,19 @@ class ChatHandler(Handler):
     def validate(self) -> None:
         if self.initiated:
             if self.is_shell_chat and self.mode == CompletionModes.CODE:
-                raise BadParameter(
+                raise BadArgumentUsage(
                     f'Chat session "{self.chat_id}" was initiated as shell assistant, '
-                    "can be used with --shell only"
+                    "and can be used with --shell only"
                 )
             if self.is_code_chat and self.mode == CompletionModes.SHELL:
-                raise BadParameter(
+                raise BadArgumentUsage(
                     f'Chat "{self.chat_id}" was initiated as code assistant, '
-                    "can be used with --code only"
+                    "and can be used with --code only"
+                )
+            if self.is_default_chat and self.mode != CompletionModes.NORMAL:
+                raise BadArgumentUsage(
+                    f'Chat "{self.chat_id}" was initiated as default assistant, '
+                    "and can't be used with --shell or --code"
                 )
             # If user didn't pass chat mode, we will use the one that was used to initiate the chat.
             if self.mode == CompletionModes.NORMAL:
