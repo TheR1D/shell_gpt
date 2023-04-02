@@ -77,6 +77,10 @@ def main(  # pylint: disable=too-many-arguments
         True,
         help="Cache completion results.",
     ),
+    model: str = typer.Option(
+        os.getenv("MODEL", "gpt-3.5-turbo"),
+        help="The OpenAI model which will generate the completion."
+    ),
 ) -> None:
     if not prompt and not editor:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
@@ -98,6 +102,7 @@ def main(  # pylint: disable=too-many-arguments
             top_probability=top_probability,
             chat_id=chat,
             caching=cache,
+            model=model,
         )
     else:
         full_completion = DefaultHandler(client, shell, code).handle(
@@ -105,6 +110,7 @@ def main(  # pylint: disable=too-many-arguments
             temperature=temperature,
             top_probability=top_probability,
             caching=cache,
+            model=model,
         )
 
     if not code and shell and typer.confirm("Execute shell command?"):
