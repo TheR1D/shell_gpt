@@ -16,14 +16,14 @@ CHAT_CACHE_PATH = Path(config.get("CHAT_CACHE_PATH"))
 class ChatSession:
     """
     This class is used as a decorator for OpenAI chat API requests.
-    The ChatCache class caches chat messages and keeps track of the
+    The ChatSession class caches chat messages and keeps track of the
     conversation history. It is designed to store cached messages
     in a specified directory and in JSON format.
     """
 
     def __init__(self, length: int, storage_path: Path):
         """
-        Initialize the ChatCache decorator.
+        Initialize the ChatSession decorator.
 
         :param length: Integer, maximum number of cached messages to keep.
         """
@@ -71,7 +71,7 @@ class ChatSession:
 
     def invalidate(self, chat_id: str):
         file_path = self.storage_path / chat_id
-        file_path.unlink()
+        file_path.unlink(missing_ok=True)
 
     def get_messages(self, chat_id):
         messages = self._read(chat_id)
@@ -104,10 +104,9 @@ class ChatHandler(Handler):
         self.mode = CompletionModes.get_mode(shell, code)
         self.model = model
 
-        chat_history = self.chat_session.get_messages(self.chat_id)
-        self.is_shell_chat = chat_history and chat_history[0].endswith("###\nCommand:")
-        self.is_code_chat = chat_history and chat_history[0].endswith("###\nCode:")
-        self.is_default_chat = chat_history and chat_history[0].endswith("###")
+        if chat_id == "temp":
+            # If the chat id is "temp", we don't want to save the chat session.
+            self.chat_session.invalidate(chat_id)
 
         self.validate()
 
@@ -120,16 +119,40 @@ class ChatHandler(Handler):
             typer.echo(chat_id)
         raise typer.Exit()
 
+    @property
+    def initiated(self) -> bool:
+        return self.chat_session.exists(self.chat_id)
+
+    @property
+    def is_shell_chat(self) -> bool:
+        # TODO: Should be optimized for REPL mode.
+        chat_history = self.chat_session.get_messages(self.chat_id)
+        return chat_history and chat_history[0].endswith("###\nCommand:")
+
+    @property
+    def is_code_chat(self) -> bool:
+        chat_history = self.chat_session.get_messages(self.chat_id)
+        return chat_history and chat_history[0].endswith("###\nCode:")
+
+    @property
+    def is_default_chat(self) -> bool:
+        chat_history = self.chat_session.get_messages(self.chat_id)
+        return chat_history and chat_history[0].endswith("###")
+
     @classmethod
-    def show_messages(cls, chat_id: str) -> None:
+    def show_messages_callback(cls, chat_id) -> None:
         if not chat_id:
             return
+        cls.show_messages(chat_id)
+        raise typer.Exit()
+
+    @classmethod
+    def show_messages(cls, chat_id: str) -> None:
         # Prints all messages from a specified chat ID to the console.
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
             message = message.replace("\nCommand:", "").replace("\nCode:", "")
             color = "cyan" if index % 2 == 0 else "green"
             typer.secho(message, fg=color)
-        raise typer.Exit()
 
     def validate(self) -> None:
         if self.initiated:
@@ -154,10 +177,6 @@ class ChatHandler(Handler):
                     self.mode = CompletionModes.SHELL
                 elif self.is_code_chat:
                     self.mode = CompletionModes.CODE
-
-    @property
-    def initiated(self) -> bool:
-        return self.chat_session.exists(self.chat_id)
 
     def make_prompt(self, prompt: str) -> str:
         prompt = prompt.strip()

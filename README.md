@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As devel
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.2
+pip install shell-gpt==0.8.3
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -121,7 +121,7 @@ python fizz_buzz.py
 ```
 
 ### Chat
-To start a chat session, use the `--chat` option followed by a unique session name and a prompt:
+To start a chat session, use the `--chat` option followed by a unique session name and a prompt. You can also use "temp" as a session name to start a temporary chat session.
 ```shell
 sgpt --chat number "please remember my favorite number: 4"
 # -> I will remember that your favorite number is 4.
@@ -162,6 +162,48 @@ sgpt --chat sh "Concatenate them using FFMPEG"
 # -> ffmpeg -i "concat:$(ls | sort | tr '\n' '|')" -codec copy output.mp4
 sgpt --chat sh "Convert the resulting file into an MP3"
 # -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
+```
+
+### REPL
+There is very handy REPL (read–eval–print loop) mode, which allows you to interactively chat with GPT models. To start a chat session in REPL mode, use the `--repl` option followed by a unique session name. You can also use "temp" as a session name to start a temporary REPL session. Note that `--chat` and `--repl` are using same chat sessions, so you can use `--chat` to start a chat session and then use `--repl` to continue the conversation in REPL mode. REPL mode will also show history of your conversation in the beginning.
+
+<p align="center">
+  <img src="https://s10.gifyu.com/images/repl-demo.gif" alt="gif">
+</p>
+
+```text
+sgpt --repl temp
+Entering REPL mode, press Ctrl+C to exit.
+>>> What is REPL?
+REPL stands for Read-Eval-Print Loop. It is a programming environment ...
+>>> How can I use Python with REPL?
+To use Python with REPL, you can simply open a terminal or command prompt ...
+```
+REPL mode can work with `--shell` and `--code` options, which makes it very handy for interactive shell commands and code generation:
+```text
+sgpt --repl temp --shell
+Entering shell REPL mode, type [e] to execute commands or press Ctrl+C to exit.
+>>> What is in current folder?
+ls
+>>> Show file sizes
+ls -lh
+>>> Sort them by file sizes
+ls -lhS
+>>> e (enter just e to execute commands)
+...
+```
+Example of using REPL mode to generate code:
+```text
+sgpt --repl temp --code
+Entering REPL mode, press Ctrl+C to exit.
+>>> Using Python request localhost:80
+import requests
+response = requests.get('http://localhost:80')
+print(response.text)
+>>> Change port to 443
+import requests
+response = requests.get('https://localhost:443')
+print(response.text)
 ```
 
 ### Chat sessions
