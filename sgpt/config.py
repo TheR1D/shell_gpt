@@ -44,7 +44,7 @@ def init() -> None:
         config["REQUEST_TIMEOUT"] = os.getenv("REQUEST_TIMEOUT", str(REQUEST_TIMEOUT))
         _write()
 
-    with open(CONFIG_PATH, "r") as file:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as file:
         for line in file:
             if "=" in line:
                 key, value = line.strip().split("=")
@@ -59,7 +59,7 @@ def get(key: str) -> str:
 
 
 def _write() -> None:
-    with open(CONFIG_PATH, "w") as file:
+    with open(CONFIG_PATH, "w", encoding="utf-8") as file:
         for key, value in config.items():
             # Write only keys which are not presented in ENV.
             if key in os.environ:

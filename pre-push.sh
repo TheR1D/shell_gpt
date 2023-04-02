@@ -21,26 +21,25 @@ if [ -f "$PWD/venv/bin/activate" ]; then
     source $PWD/venv/bin/activate
 fi
 
-if black --exclude venv --check --target-version py310 -l 120 *.py
+if black ./sgpt ./tests --check --target-version py310
 then
     echo 'Black passed ✅'
 else
     echo 'Black failed ❌'
-    echo 'RUN: black --exclude venv --target-version py310 -l 120 *.py'
+    echo 'RUN: black ./sgpt ./tests --target-version py310'
     exit 1
 fi
 
 if pylint \
-  *.py \
+  ./sgpt \
+  ./tests \
+  --disable=fixme \
+  --disable=cyclic-import \
+  --disable=useless-import-alias \
   --disable=missing-function-docstring \
-  --disable=too-many-arguments \
   --disable=missing-module-docstring \
-  --disable=import-error \
   --disable=missing-class-docstring \
-  --disable=too-many-instance-attributes \
   --disable=too-many-function-args \
-  --disable=unspecified-encoding \
-  --max-line-length=120 \
   --ignore=venv
 then
     echo 'Pylint passed ✅'

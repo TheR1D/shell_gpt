@@ -1,7 +1,8 @@
 from . import config as config
 from .cache import Cache as Cache
-from .cache import ChatCache as ChatCache
 from .client import OpenAIClient as OpenAIClient
+from .handlers.chat_handler import ChatHandler as ChatHandler
+from .handlers.default_handler import DefaultHandler as DefaultHandler
 from . import utils as utils
 from .app import main as main
 from .app import entry_point as cli
