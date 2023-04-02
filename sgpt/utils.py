@@ -1,8 +1,10 @@
 import os
 from enum import Enum
 from tempfile import NamedTemporaryFile
+from typing import Callable
 
 from click import BadParameter
+import typer
 
 
 class CompletionModes(Enum):
@@ -39,3 +41,12 @@ def get_edited_prompt() -> str:
     if not output:
         raise BadParameter("Couldn't get valid PROMPT from $EDITOR")
     return output
+
+
+def option_callback(func: Callable) -> Callable:
+    def wrapper(cls, value):
+        if not value:
+            return
+        func(cls)
+        raise typer.Exit()
+    return wrapper

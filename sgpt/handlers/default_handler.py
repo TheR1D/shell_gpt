@@ -14,9 +14,10 @@ class DefaultHandler(Handler):
         client: OpenAIClient,
         shell: bool = False,
         code: bool = False,
+        role: str = None,
         model: str = "gpt-3.5-turbo",
     ) -> None:
-        super().__init__(client)
+        super().__init__(client, role)
         self.client = client
         self.mode = CompletionModes.get_mode(shell, code)
         self.model = model

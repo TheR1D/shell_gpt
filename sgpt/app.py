@@ -20,6 +20,7 @@ from click import MissingParameter, BadArgumentUsage
 from sgpt import config, OpenAIClient
 from sgpt import ChatHandler, DefaultHandler
 from sgpt.utils import get_edited_prompt
+from sgpt.role import SystemRole
 
 
 def main(  # pylint: disable=too-many-arguments
@@ -40,6 +41,18 @@ def main(  # pylint: disable=too-many-arguments
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
+    shell: bool = typer.Option(
+        False,
+        "--shell",
+        "-s",
+        help="Generate and execute shell commands.",
+        rich_help_panel="Assistance Options",
+    ),
+    code: bool = typer.Option(
+        False,
+        help="Generate only code.",
+        rich_help_panel="Assistance Options",
+    ),
     chat: str = typer.Option(
         None,
         help="Follow conversation with id (chat mode).",
@@ -57,17 +70,28 @@ def main(  # pylint: disable=too-many-arguments
         callback=ChatHandler.list_ids,
         rich_help_panel="Chat Options",
     ),
-    shell: bool = typer.Option(
-        False,
-        "--shell",
-        "-s",
-        help="Generate and execute shell commands.",
-        rich_help_panel="Assistance Options",
+    role: str = typer.Option(
+        None,
+        help="Specify what role a prompt should use.",
+        rich_help_panel="Role Options",
     ),
-    code: bool = typer.Option(
+    create_role: str = typer.Option(
+        None,
+        help="Save a role for future use.",
+        rich_help_panel="Role Options",
+        callback=SystemRole.create,
+    ),
+    list_roles: bool = typer.Option(  # pylint: disable=W0613
         False,
-        help="Generate only code.",
-        rich_help_panel="Assistance Options",
+        help="List all saved roles.",
+        callback=SystemRole.list,
+        rich_help_panel="Role Options",
+    ),
+    show_role: str = typer.Option(  # pylint: disable=W0613
+        None,
+        help="Show a saved role.",
+        callback=SystemRole.show,
+        rich_help_panel="Role Options",
     ),
     editor: bool = typer.Option(
         False,
@@ -92,7 +116,7 @@ def main(  # pylint: disable=too-many-arguments
     client = OpenAIClient(api_host, api_key)
 
     if chat:
-        full_completion = ChatHandler(client, chat, shell, code).handle(
+        full_completion = ChatHandler(client, chat, shell, code, role).handle(
             prompt,
             temperature=temperature,
             top_probability=top_probability,
@@ -100,7 +124,7 @@ def main(  # pylint: disable=too-many-arguments
             caching=cache,
         )
     else:
-        full_completion = DefaultHandler(client, shell, code).handle(
+        full_completion = DefaultHandler(client, shell, code, role).handle(
             prompt,
             temperature=temperature,
             top_probability=top_probability,

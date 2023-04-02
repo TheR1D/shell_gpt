@@ -9,6 +9,7 @@ CONFIG_FOLDER = os.path.expanduser("~/.config")
 CONFIG_PATH = Path(CONFIG_FOLDER) / "shell_gpt" / ".sgptrc"
 CHAT_CACHE_PATH = Path(gettempdir()) / "shell_gpt" / "chat_cache"
 CACHE_PATH = Path(gettempdir()) / "shell_gpt" / "cache"
+ROLE_STORAGE_PATH = Path(CONFIG_FOLDER) / "shell_gpt" / "roles"
 CHAT_CACHE_LENGTH = 100
 CACHE_LENGTH = 100
 REQUEST_TIMEOUT = 60
@@ -42,13 +43,19 @@ def init() -> None:
         config["CACHE_LENGTH"] = os.getenv("CACHE_LENGTH", str(CACHE_LENGTH))
         config["CACHE_PATH"] = os.getenv("CACHE_PATH", str(CACHE_PATH))
         config["REQUEST_TIMEOUT"] = os.getenv("REQUEST_TIMEOUT", str(REQUEST_TIMEOUT))
+        config["REQUEST_TIMEOUT"] = os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH))
         _write()
 
-    with open(CONFIG_PATH, "r", encoding="utf-8") as file:
-        for line in file:
-            if "=" in line:
-                key, value = line.strip().split("=")
-                config[key] = value
+    # New features may add new keys to config.
+    if "ROLE_STORAGE_PATH" not in config:
+        append("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH))
+
+    _read()
+
+
+def append(key: str, value: str) -> None:
+    with open(CONFIG_PATH, encoding="utf-8", mode="a") as file:
+        file.write(f"{key}={value}\n")
 
 
 def get(key: str) -> str:
@@ -65,6 +72,14 @@ def _write() -> None:
             if key in os.environ:
                 continue
             file.write(f"{key}={value}\n")
+
+
+def _read() -> None:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as file:
+        for line in file:
+            if "=" in line:
+                key, value = line.strip().split("=")
+                config[key] = value
 
 
 def put(key: str, value: str, write_file=True) -> None:
