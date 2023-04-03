@@ -14,7 +14,7 @@ class DefaultHandler(Handler):
         client: OpenAIClient,
         shell: bool = False,
         code: bool = False,
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4",
     ) -> None:
         super().__init__(client)
         self.client = client
