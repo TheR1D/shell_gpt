@@ -17,7 +17,7 @@ class ReplHandler(ChatHandler):
         chat_id: str,
         shell: bool = False,
         code: bool = False,
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4",
     ):
         super().__init__(client, chat_id, shell, code, model)
 
