@@ -25,7 +25,7 @@ class OpenAIClient:
     def _request(
         self,
         messages: List[Mapping[str, str]],
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4",
         temperature: float = 1,
         top_probability: float = 1,
     ) -> Dict:
@@ -34,7 +34,7 @@ class OpenAIClient:
         https://platform.openai.com/docs/api-reference/chat
 
         :param messages: List of messages {"role": user or assistant, "content": message_string}
-        :param model: String gpt-3.5-turbo or gpt-3.5-turbo-0301
+        :param model: String gpt-4
         :param temperature: Float in 0.0 - 1.0 range.
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
@@ -72,7 +72,7 @@ class OpenAIClient:
     def get_completion(
         self,
         messages: List[Mapping[str, str]],
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4",
         temperature: float = 1,
         top_probability: float = 1,
         caching: bool = True,
@@ -81,7 +81,7 @@ class OpenAIClient:
         Generates single completion for prompt (message).
 
         :param messages: List of dict with messages and roles.
-        :param model: String gpt-3.5-turbo or gpt-3.5-turbo-0301.
+        :param model: String gpt-4
         :param temperature: Float in 0.0 - 1.0 range.
         :param top_probability: Float in 0.0 - 1.0 range.
         :param caching: Boolean value to enable/disable caching.
