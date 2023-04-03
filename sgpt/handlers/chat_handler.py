@@ -96,7 +96,7 @@ class ChatHandler(Handler):
         chat_id: str,
         shell: bool = False,
         code: bool = False,
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4",
     ) -> None:
         super().__init__(client)
         self.chat_id = chat_id
