@@ -6,7 +6,7 @@ from sgpt import OpenAIClient
 
 
 class Handler:
-    def __init__(self, client: OpenAIClient):
+    def __init__(self, client: OpenAIClient) -> None:
         self.client = client
 
     def make_prompt(self, prompt) -> str:

@@ -6,16 +6,18 @@ or ENV variable OPENAI_API_KEY.
 It is useful for quick tests, saves a bit time.
 """
 
+import json
 import subprocess
 import os
 from time import sleep
+from pathlib import Path
 from unittest import TestCase
 from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 import typer
 from typer.testing import CliRunner
-from sgpt import main
+from sgpt import main, config
 
 runner = CliRunner()
 app = typer.Typer()
@@ -25,7 +27,7 @@ app.command()(main)
 class TestShellGpt(TestCase):
     def setUp(self) -> None:
         # Just to not spam the API.
-        sleep(2)
+        sleep(1)
 
     @staticmethod
     def get_arguments(prompt, **kwargs):
@@ -187,3 +189,86 @@ class TestShellGpt(TestCase):
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 2
         assert "--shell and --code options cannot be used together" in result.stdout
+
+    def test_repl_default(self):
+        dict_arguments = {
+            "prompt": "",
+            "--repl": "temp",
+        }
+        inputs = [
+            "Please remember my favorite number: 6",
+            "What is my favorite number + 2?",
+            "exit()",
+        ]
+        result = runner.invoke(
+            app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
+        )
+        assert result.exit_code == 0
+        assert ">>> Please remember my favorite number: 6" in result.stdout
+        assert ">>> What is my favorite number + 2?" in result.stdout
+        assert "8" in result.stdout
+
+    def test_repl_shell(self):
+        # Temp chat session from previous test should be overwritten.
+        dict_arguments = {
+            "prompt": "",
+            "--repl": "temp",
+            "--shell": True,
+        }
+        inputs = ["What is in current folder?", "Sort by name", "exit()"]
+        result = runner.invoke(
+            app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
+        )
+        assert result.exit_code == 0
+        assert "type [e] to execute commands" in result.stdout
+        assert ">>> What is in current folder?" in result.stdout
+        assert ">>> Sort by name" in result.stdout
+        assert "ls" in result.stdout
+        assert "ls | sort" in result.stdout
+        chat_storage = config.get("CHAT_CACHE_PATH")
+        tmp_chat = Path(chat_storage) / "temp"
+        chat_messages = json.loads(tmp_chat.read_text())
+        # TODO: Implement same check in chat mode tests.
+        assert chat_messages[0]["content"].startswith("###")
+        assert chat_messages[0]["content"].endswith("\n###\nCommand:")
+        assert chat_messages[1]["content"] == "ls"
+        assert chat_messages[2]["content"].endswith("\nCommand:")
+        assert chat_messages[3]["content"] == "ls | sort"
+
+    def test_repl_code(self):
+        dict_arguments = {
+            "prompt": "",
+            "--repl": f"test_{uuid4()}",
+            "--code": True,
+        }
+        inputs = (
+            "Using python make request to localhost:8080",
+            "Change port to 443",
+            "exit()",
+        )
+        result = runner.invoke(
+            app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
+        )
+        assert result.exit_code == 0
+        assert f">>> {inputs[0]}" in result.stdout
+        assert "requests.get" in result.stdout
+        assert "localhost:8080" in result.stdout
+        assert f">>> {inputs[1]}" in result.stdout
+        assert "localhost:443" in result.stdout
+
+        chat_storage = config.get("CHAT_CACHE_PATH")
+        tmp_chat = Path(chat_storage) / dict_arguments["--repl"]
+        chat_messages = json.loads(tmp_chat.read_text())
+        assert chat_messages[0]["content"].startswith("###")
+        assert chat_messages[0]["content"].endswith("\n###\nCode:")
+        assert chat_messages[2]["content"].endswith("\nCode:")
+
+        # Coming back after exit.
+        new_inputs = ("Change port to 80", "exit()")
+        result = runner.invoke(
+            app, self.get_arguments(**dict_arguments), input="\n".join(new_inputs)
+        )
+        # Should include previous chat history.
+        assert "user: ###" in result.stdout
+        assert "Chat History" in result.stdout
+        assert f"user: {inputs[1]}" in result.stdout
