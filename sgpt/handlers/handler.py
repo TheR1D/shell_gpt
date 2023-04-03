@@ -15,7 +15,7 @@ class Handler:
     def get_completion(  # pylint: disable=too-many-arguments
         self,
         messages: List[Dict[str, str]],
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4",
         temperature: float = 1,
         top_probability: float = 1,
         caching: bool = True,
