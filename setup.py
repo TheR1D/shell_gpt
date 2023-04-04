@@ -10,6 +10,8 @@ setup(
         "requests~=2.28.2",
         "rich==13.3.1",
         "distro~=1.8.0",
+        "psutil",
+        "subprocess",
     ],
     entry_points={
         "console_scripts": ["sgpt = sgpt:cli"],
