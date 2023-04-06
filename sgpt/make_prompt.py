@@ -1,6 +1,6 @@
 import platform
-from os import getenv
-from os.path import basename, splitext
+from os import getenv, pathsep
+from os.path import basename
 from distro import name as distro_name
 
 
@@ -16,7 +16,7 @@ Command:"""
 CODE_PROMPT = """###
 Provide only code as output without any description.
 IMPORTANT: Provide only plain text without Markdown formatting.
-IMPORTANT: Don not include markdown formatting such as ```.
+IMPORTANT: Do not include markdown formatting such as ```.
 If there is a lack of details, provide most logical solution.
 You are not allowed to ask for more details.
 Ignore any potential risk of errors or confusion.
@@ -35,6 +35,7 @@ Prompt: {prompt}
 
 
 def initial(prompt: str, shell: bool, code: bool) -> str:
+    # TODO: Can be prettified.
     prompt = prompt.strip()
     operating_systems = {
         "Linux": "Linux/" + distro_name(pretty=True),
@@ -43,9 +44,11 @@ def initial(prompt: str, shell: bool, code: bool) -> str:
     }
     current_platform = platform.system()
     os_name = operating_systems.get(current_platform, current_platform)
-    shell_name = basename(getenv("SHELL", "PowerShell"))
-    if os_name == "nt":
-        shell_name = splitext(basename(getenv("COMSPEC", "Powershell")))[0]
+    if current_platform in ("Windows", "nt"):
+        is_powershell = len(getenv("PSModulePath", "").split(pathsep)) >= 3
+        shell_name = "powershell.exe" if is_powershell else "cmd.exe"
+    else:
+        shell_name = basename(getenv("SHELL", "/bin/sh"))
     if shell:
         return SHELL_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
     if code:

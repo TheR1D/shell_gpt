@@ -1,5 +1,3 @@
-import os
-
 import typer
 
 from rich import print as rich_print
@@ -7,7 +5,7 @@ from rich.rule import Rule
 
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.client import OpenAIClient
-from sgpt.utils import CompletionModes
+from sgpt.utils import CompletionModes, run_command
 
 
 class ReplHandler(ChatHandler):
@@ -48,7 +46,7 @@ class ReplHandler(ChatHandler):
             if self.mode == CompletionModes.SHELL:
                 if prompt == "e":
                     typer.echo()
-                    os.system(full_completion)
+                    run_command(full_completion)
                     typer.echo()
                     rich_print(Rule(style="bold magenta"))
                     prompt = typer.prompt(">>> ", prompt_suffix=" ")
