@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As devel
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.4
+pip install shell-gpt==0.8.5
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 

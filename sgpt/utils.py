@@ -1,12 +1,10 @@
 import os
 import shlex
-import subprocess
 
 from enum import Enum
 from tempfile import NamedTemporaryFile
 
 import platform
-import typer
 
 from click import BadParameter
 
@@ -56,28 +54,12 @@ def run_command(command: str) -> None:
     if platform.system() == "Windows":
         is_powershell = len(os.getenv("PSModulePath", "").split(os.pathsep)) >= 3
         full_command = (
-            ["powershell.exe", "-Command", command]
+            f'powershell.exe -Command "{command}"'
             if is_powershell
-            else ["cmd.exe", "/c", command]
-        )
-        result = subprocess.run(
-            full_command,
-            shell=True,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
+            else f'cmd.exe /c "{command}"'
         )
     else:
         shell = os.environ.get("SHELL", "/bin/sh")
         full_command = f"{shell} -c {shlex.quote(command)}"
-        result = subprocess.run(
-            full_command,
-            shell=True,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
-    output = result.stdout or result.stderr
-    typer.echo(output.strip())
+
+    os.system(full_command)
