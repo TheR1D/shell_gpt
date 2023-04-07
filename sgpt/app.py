@@ -19,14 +19,18 @@ import typer
 # Click is part of typer.
 from click import MissingParameter, BadArgumentUsage
 from sgpt import ChatHandler, DefaultHandler, ReplHandler, OpenAIClient, config
-from sgpt.utils import get_edited_prompt, run_command
+from sgpt.utils import get_edited_prompt, run_command, ModelOptions
 
 
-def main(  # pylint: disable=too-many-arguments
+def main(  # pylint: disable=too-many-arguments,too-many-locals
     prompt: str = typer.Argument(
         None,
         show_default=False,
         help="The prompt to generate completions for.",
+    ),
+    model: ModelOptions = typer.Option(
+        ModelOptions.GPT3.value,
+        help="OpenAI GPT model to use.",
     ),
     temperature: float = typer.Option(
         0.1,
@@ -103,6 +107,7 @@ def main(  # pylint: disable=too-many-arguments
         # Will be in infinite loop here until user exits with Ctrl+C.
         ReplHandler(client, repl, shell, code).handle(
             prompt,
+            model=model.value,
             temperature=temperature,
             top_probability=top_probability,
             chat_id=repl,
@@ -112,6 +117,7 @@ def main(  # pylint: disable=too-many-arguments
     if chat:
         full_completion = ChatHandler(client, chat, shell, code).handle(
             prompt,
+            model=model.value,
             temperature=temperature,
             top_probability=top_probability,
             chat_id=chat,
@@ -120,6 +126,7 @@ def main(  # pylint: disable=too-many-arguments
     else:
         full_completion = DefaultHandler(client, shell, code).handle(
             prompt,
+            model=model.value,
             temperature=temperature,
             top_probability=top_probability,
             caching=cache,

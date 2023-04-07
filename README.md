@@ -1,5 +1,5 @@
 # Shell GPT
-A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As developers, we can leverage ChatGPT capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
+A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developers, we can leverage ChatGPT capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
 
 <div align="center">
     <img src="https://i.ibb.co/nzPqnVd/sgpt-v0-8.gif" width="800"/>
@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's ChatGPT (GPT-3.5). As devel
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.5
+pip install shell-gpt==0.8.6
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -252,26 +252,28 @@ REQUEST_TIMEOUT=60
 ```
 
 ### Full list of arguments
-```shell
-╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                         │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --temperature       FLOAT RANGE [0.0<=x<=1.0]  Randomness of generated output. [default: 0.1]           │
-│ --top-probability   FLOAT RANGE [0.1<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]   │
-│ --editor                                       Open $EDITOR to provide a prompt. [default: no-editor]   │
-│ --cache                                        Cache completion results. [default: cache]               │
-│ --help                                         Show this message and exit.                              │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Chat Options ──────────────────────────────────────────────────────────────────────────────────────────╮
-│ --chat           TEXT  Follow conversation with id (chat mode). [default: None]                         │
-│ --show-chat      TEXT  Show all messages from provided chat id. [default: None]                         │
-│ --list-chat            List all existing chat ids. [default: no-list-chat]                              │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Assistance Options ────────────────────────────────────────────────────────────────────────────────────╮
-│ --shell  -s  Generate and execute shell commands.                                                       │
-│ --code       Generate only code. [default: no-code]                                                     │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```text
+╭─ Arguments ────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --model            [gpt-3.5-turbo|gpt-4|gpt-4-32k]  OpenAI GPT model to use. [default: gpt-3.5-turbo]      │
+│ --temperature      FLOAT RANGE [0.0<=x<=1.0]        Randomness of generated output. [default: 0.1]         │
+│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0] │
+│ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor] │
+│ --cache                                             Cache completion results. [default: cache]             │
+│ --help                                              Show this message and exit.                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Assistance Options ───────────────────────────────────────────────────────────────────────────────────────╮
+│ --shell  -s                 Generate and execute shell commands.                                           │
+│ --code       --no-code      Generate only code. [default: no-code]                                         │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Chat Options ─────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --chat        TEXT  Follow conversation with id, use "temp" for quick session. [default: None]             │
+│ --repl        TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                           │
+│ --show-chat   TEXT  Show all messages from provided chat id. [default: None]                               │
+│ --list-chat         List all existing chat ids. [default: no-list-chat]                                    │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Docker

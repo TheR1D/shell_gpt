@@ -15,7 +15,6 @@ REQUEST_TIMEOUT = int(config.get("REQUEST_TIMEOUT"))
 
 class OpenAIClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
-    # chat_cache = ChatCache(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
     def __init__(self, api_host: str, api_key: str) -> None:
         self.api_key = api_key

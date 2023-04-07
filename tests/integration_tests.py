@@ -12,11 +12,13 @@ import os
 from time import sleep
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import patch, ANY
 from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 import typer
 from typer.testing import CliRunner
+
 from sgpt import main, config
 
 runner = CliRunner()
@@ -293,3 +295,15 @@ class TestShellGpt(TestCase):
         # but it is not part of the result.stdout.
         # assert "command not found" not in result.stdout
         # assert "hello world" in stdout.split("\n")[-1]
+
+    @patch("sgpt.client.OpenAIClient.get_completion")
+    def test_model_option(self, mocked_get_completion):
+        dict_arguments = {
+            "prompt": "What is the capital of the Czech Republic?",
+            "--model": "gpt-4",
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        mocked_get_completion.assert_called_once_with(
+            ANY, "gpt-4", 0.1, 1.0, caching=False
+        )
+        assert result.exit_code == 0

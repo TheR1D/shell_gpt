@@ -9,6 +9,12 @@ import platform
 from click import BadParameter
 
 
+class ModelOptions(str, Enum):
+    GPT3 = "gpt-3.5-turbo"
+    GPT4 = "gpt-4"
+    GPT4_32K = "gpt-4-32k"
+
+
 class CompletionModes(Enum):
     NORMAL = "normal"
     SHELL = "shell"
