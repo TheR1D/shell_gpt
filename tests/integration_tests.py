@@ -272,3 +272,20 @@ class TestShellGpt(TestCase):
         assert "user: ###" in result.stdout
         assert "Chat History" in result.stdout
         assert f"user: {inputs[1]}" in result.stdout
+
+    def test_zsh_command(self):
+        """
+        The goal of this test is to verify that $SHELL
+        specific commands are working as expected.
+        In this case testing zsh specific "print" function.
+        """
+        if os.getenv("SHELL", "") != "/bin/zsh":
+            return
+        dict_arguments = {
+            "prompt": 'Using zsh specific "print" function say hello world',
+            "--shell": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input="y\n")
+        stdout = result.stdout.strip()
+        assert "command not found" not in result.stdout
+        assert "hello world" in stdout.split("\n")[-1]

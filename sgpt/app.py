@@ -11,8 +11,6 @@ API Key is stored locally for easy use in future runs.
 """
 
 
-import os
-
 # To allow users to use arrow keys in the REPL.
 import readline  # pylint: disable=unused-import
 
@@ -20,9 +18,8 @@ import typer
 
 # Click is part of typer.
 from click import MissingParameter, BadArgumentUsage
-from sgpt import config, OpenAIClient
-from sgpt import ChatHandler, DefaultHandler, ReplHandler
-from sgpt.utils import get_edited_prompt
+from sgpt import ChatHandler, DefaultHandler, ReplHandler, OpenAIClient, config
+from sgpt.utils import get_edited_prompt, run_command
 
 
 def main(  # pylint: disable=too-many-arguments
@@ -128,8 +125,8 @@ def main(  # pylint: disable=too-many-arguments
             caching=cache,
         )
 
-    if not code and shell and typer.confirm("Execute shell command?"):
-        os.system(full_completion)
+    if shell and typer.confirm("Execute shell command?"):
+        run_command(full_completion)
 
 
 def entry_point() -> None:

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 # pylint: disable=consider-using-with
 setup(
     name="shell_gpt",
-    version="0.8.3",
+    version="0.8.4",
     packages=find_packages(),
     install_requires=[
         "typer~=0.7.0",
@@ -11,6 +11,9 @@ setup(
         "rich==13.3.1",
         "distro~=1.8.0",
     ],
+    extras_require={
+        ':sys_platform == "win32"': ["pyreadline3"]
+    },
     entry_points={
         "console_scripts": ["sgpt = sgpt:cli"],
     },
