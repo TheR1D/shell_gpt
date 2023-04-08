@@ -132,7 +132,7 @@ def main(  # pylint: disable=too-many-arguments
     if not code and shell and typer.confirm("Execute shell command?"):
         # Get the parent process name.
         proc = psutil.Process(os.getppid())
-        shell_name = next(p.name() for p in proc.parents() if "sh" in p.name())
+        shell_name = next(p.name() for p in proc.parents() if "sh" in p.name() or "cmd" in p.name())
 
         # print(f'executing {shell_name} -c "{full_completion}"')
         subprocess.run([shell_name, "-c", full_completion], check=False)
