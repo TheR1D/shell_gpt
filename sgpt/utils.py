@@ -3,6 +3,7 @@ from enum import Enum
 from tempfile import NamedTemporaryFile
 
 from click import BadParameter
+import psutil
 
 
 class CompletionModes(Enum):
@@ -17,6 +18,18 @@ class CompletionModes(Enum):
         if code:
             return CompletionModes.CODE
         return CompletionModes.NORMAL
+
+
+def get_shell_name() -> str:
+    """
+    Get the name of the shell.
+
+    :return: Shell name.
+    """
+    proc = psutil.Process(os.getppid())
+    return next(
+        p.name() for p in proc.parents() if "sh" in p.name() or "cmd" in p.name()
+    )
 
 
 def get_edited_prompt() -> str:
