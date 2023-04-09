@@ -29,7 +29,7 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
         help="The prompt to generate completions for.",
     ),
     model: ModelOptions = typer.Option(
-        ModelOptions(config.get("DEFAULT_MODEL")),
+        ModelOptions(config.get("DEFAULT_MODEL")).value,
         help="OpenAI GPT model to use.",
     ),
     temperature: float = typer.Option(
