@@ -5,6 +5,8 @@ from tempfile import gettempdir
 
 from click import UsageError
 
+from sgpt.utils import ModelOptions
+
 CONFIG_FOLDER = os.path.expanduser("~/.config")
 CONFIG_PATH = Path(CONFIG_FOLDER) / "shell_gpt" / ".sgptrc"
 # TODO: Refactor it to CHAT_STORAGE_PATH.
@@ -13,6 +15,7 @@ CACHE_PATH = Path(gettempdir()) / "shell_gpt" / "cache"
 CHAT_CACHE_LENGTH = 100
 CACHE_LENGTH = 100
 REQUEST_TIMEOUT = 60
+DEFAULT_MODEL = ModelOptions.GPT3.value
 EXPECTED_KEYS = (
     "OPENAI_API_HOST",
     "OPENAI_API_KEY",
@@ -21,6 +24,7 @@ EXPECTED_KEYS = (
     "CACHE_LENGTH",
     "CACHE_PATH",
     "REQUEST_TIMEOUT",
+    "DEFAULT_MODEL",
 )
 config = {}
 
@@ -43,6 +47,7 @@ def init() -> None:
         config["CACHE_LENGTH"] = os.getenv("CACHE_LENGTH", str(CACHE_LENGTH))
         config["CACHE_PATH"] = os.getenv("CACHE_PATH", str(CACHE_PATH))
         config["REQUEST_TIMEOUT"] = os.getenv("REQUEST_TIMEOUT", str(REQUEST_TIMEOUT))
+        config["DEFAULT_MODEL"] = os.getenv("DEFAULT_MODEL", str(DEFAULT_MODEL))
         _write()
 
     with open(CONFIG_PATH, "r", encoding="utf-8") as file:
