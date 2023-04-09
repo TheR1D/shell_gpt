@@ -249,6 +249,8 @@ CACHE_LENGTH=100
 CACHE_PATH=/tmp/shell_gpt/cache
 # Request timeout in seconds.
 REQUEST_TIMEOUT=60
+# Default OpenAI model to use.
+DEFAULT_MODEL=gpt-3.5-turbo
 ```
 
 ### Full list of arguments
