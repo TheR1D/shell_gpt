@@ -1,4 +1,4 @@
-from . import config as config
+from .config import config as config
 from .cache import Cache as Cache
 from .client import OpenAIClient as OpenAIClient
 from .handlers.chat_handler import ChatHandler as ChatHandler

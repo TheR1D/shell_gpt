@@ -19,7 +19,8 @@ from uuid import uuid4
 import typer
 from typer.testing import CliRunner
 
-from sgpt import main, config
+from sgpt import main, config, OpenAIClient
+from sgpt.handlers.handler import Handler
 
 runner = CliRunner()
 app = typer.Typer()
@@ -307,3 +308,11 @@ class TestShellGpt(TestCase):
             ANY, "gpt-4", 0.1, 1.0, caching=False
         )
         assert result.exit_code == 0
+
+    def test_color_output(self):
+        color = config.get("DEFAULT_COLOR")
+        handler = Handler(OpenAIClient("test", "test"))
+        assert handler.color == color
+        os.environ["DEFAULT_COLOR"] = "red"
+        handler = Handler(OpenAIClient("test", "test"))
+        assert handler.color == "red"
