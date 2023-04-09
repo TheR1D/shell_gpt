@@ -16,16 +16,6 @@ CHAT_CACHE_LENGTH = 100
 CACHE_LENGTH = 100
 REQUEST_TIMEOUT = 60
 DEFAULT_MODEL = ModelOptions.GPT3.value
-EXPECTED_KEYS = (
-    "OPENAI_API_HOST",
-    "OPENAI_API_KEY",
-    "CHAT_CACHE_LENGTH",
-    "CHAT_CACHE_PATH",
-    "CACHE_LENGTH",
-    "CACHE_PATH",
-    "REQUEST_TIMEOUT",
-    "DEFAULT_MODEL",
-)
 config = {}
 
 
@@ -55,6 +45,17 @@ def init() -> None:
             if "=" in line:
                 key, value = line.strip().split("=")
                 config[key] = value
+
+    # TODO: Refactor it this module to Config class.
+    # New features may add new keys to existing config.
+    if "DEFAULT_MODEL" not in config:
+        append("DEFAULT_MODEL", str(DEFAULT_MODEL))
+        init()
+
+
+def append(key: str, value: str) -> None:
+    with open(CONFIG_PATH, encoding="utf-8", mode="a") as file:
+        file.write(f"{key}={value}\n")
 
 
 def get(key: str) -> str:
