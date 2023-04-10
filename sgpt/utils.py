@@ -28,7 +28,7 @@ def get_shell_name() -> str:
     """
     proc = psutil.Process(os.getppid())
     return next(
-        p.name() for p in proc.parents() if "sh" in p.name() or "cmd" in p.name()
+        p.name() for p in (proc.parents() + [proc]) if "sh" in p.name() or "cmd" in p.name()
     )
 
 
