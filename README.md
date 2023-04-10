@@ -1,5 +1,5 @@
 # Shell GPT
-A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developers, we can leverage ChatGPT capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
+A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
 
 <div align="center">
     <img src="https://i.ibb.co/nzPqnVd/sgpt-v0-8.gif" width="800"/>
@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developer
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.7
+pip install shell-gpt==0.8.8
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -22,23 +22,26 @@ sgpt "nginx default config file location"
 # -> The default configuration file for Nginx is located at /etc/nginx/nginx.conf.
 ```
 ```shell
-sgpt "docker show all local images"
-# -> You can view all locally available Docker images by running: `docker images`
-```
-```shell
 sgpt "mass of sun"
 # -> = 1.99 × 10^30 kg
 ```
-### Conversion
-Convert various units and measurements without having to search for the conversion formula or use a separate conversion website. You can convert units such as time, distance, weight, temperature, and more.
 ```shell
 sgpt "1 hour and 30 minutes to seconds"
 # -> 5,400 seconds
 ```
+### Summarization and analyzing
+ShellGPT accepts prompt from both stdin and command line argument, you choose the most convenient input method for your preferences. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. This versatile feature is particularly useful when you need to pass file content or pipe output from other commands to the GPT models for summarization or analysis. For example, you can easily generate a git commit message based on a diff:
 ```shell
-sgpt "1 kilometer to miles"
-# -> 1 kilometer is equal to 0.62137 miles.
+git diff | sgpt "Generate git commit message, my changes"
+# -> Commit message: Implement Model enum and get_edited_prompt()
 ```
+You can analyze logs from various sources by passing them using stdin or command line arguments, along with a user-friendly prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
+```shell
+docker logs -n 20 container_name | sgpt "check logs, find errors, provide possible solutions"
+# ...
+```
+This powerful feature simplifies the process of managing and understanding data from different sources, making it easier for you to focus on what really matters: improving your projects and applications.
+
 ### Shell commands
 Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal.
 ```shell
@@ -57,7 +60,6 @@ The same prompt, when used on Ubuntu, will generate a different suggestion:
 sgpt -s "update my system"
 # -> sudo apt update && sudo apt upgrade -y
 ```
-
 Let's try some docker containers:
 ```shell
 sgpt -s "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
@@ -65,13 +67,11 @@ sgpt -s "start nginx using docker, forward 443 and 80 port, mount current folder
 # -> Execute shell command? [y/N]: y
 # ...
 ```
-Also, we can provide some parameters name in our prompt, for example, passing output file name to ffmpeg:
+We can still use pipes to pass input to `sgpt` and get shell commands as output:
 ```shell
-sgpt -s "slow down video twice using ffmpeg, input video name \"input.mp4\" output video name \"output.mp4\""
-# -> ffmpeg -i input.mp4 -filter:v "setpts=2.0*PTS" output.mp4
-# -> Execute shell command? [y/N]: y
-# ...
-```
+cat data.json | sgpt -s "curl localhost with provided json"
+# -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2, "c": 3}' http://localhost
+````
 We can apply additional shell magic in our prompt, in this example passing file names to ffmpeg:
 ```shell
 ls
@@ -79,16 +79,6 @@ ls
 sgpt -s "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
 # -> Execute shell command? [y/N]: y
-# ...
-```
-Since ChatGPT can also do summarization and analyzing of input text, we can ask it to generate commit message:
-```shell
-sgpt "Generate git commit message, my changes: $(git diff)"
-# -> Commit message: Implement Model enum and get_edited_prompt() func, add temperature, top_p and editor args for OpenAI request.
-```
-Or ask it to find error in logs and provide more details:
-```shell
-sgpt "check these logs, find errors, and explain what the error is about: ${docker logs -n 20 container_name}"
 # ...
 ```
 ### Generating code
@@ -119,6 +109,29 @@ python fizz_buzz.py
 # Fizz
 # ...
 ```
+We can also use pipes to pass input to `sgpt`:
+```shell
+cat fizz_buzz.py | python -m sgpt --code "Generate comments for each line of my code"
+```
+```python
+# Loop through numbers 1 to 100
+for i in range(1, 101):
+    # Check if number is divisible by both 3 and 5
+    if i % 3 == 0 and i % 5 == 0:
+        # Print "FizzBuzz" if number is divisible by both 3 and 5
+        print("FizzBuzz")
+    # Check if number is divisible by 3
+    elif i % 3 == 0:
+        # Print "Fizz" if number is divisible by 3
+        print("Fizz")
+    # Check if number is divisible by 5
+    elif i % 5 == 0:
+        # Print "Buzz" if number is divisible by 5
+        print("Buzz")
+    # If number is not divisible by 3 or 5, print the number itself
+    else:
+        print(i)
+```
 
 ### Chat
 To start a chat session, use the `--chat` option followed by a unique session name and a prompt. You can also use "temp" as a session name to start a temporary chat session.
@@ -128,7 +141,7 @@ sgpt --chat number "please remember my favorite number: 4"
 sgpt --chat number "what would be my favorite number + 4?"
 # -> Your favorite number is 4, so if we add 4 to it, the result would be 8.
 ```
-You can also use chat sessions to iteratively improve ChatGPT's suggestions by providing additional clues.
+You can also use chat sessions to iteratively improve GPT suggestions by providing additional clues.
 ```shell
 sgpt --chat python_requst --code "make an example request to localhost using Python"
 ```
@@ -138,7 +151,7 @@ import requests
 response = requests.get('http://localhost')
 print(response.text)
 ```
-Asking ChatGPT to add a cache to our request.
+Asking AI to add a cache to our request.
 ```shell
 sgpt --chat python_request --code "add caching"
 ```
@@ -230,7 +243,7 @@ sgpt "what are the colors of a rainbow"
 ```
 Next time, same exact query will get results from local cache instantly. Note that `sgpt "what are the colors of a rainbow" --temperature 0.5` will make a new request, since we didn't provide `--temperature` (same applies to `--top-probability`) on previous request.
 
-This is just some examples of what we can do using ChatGPT model, I'm sure you will find it useful for your specific use cases.
+This is just some examples of what we can do using OpenAI GPT models, I'm sure you will find it useful for your specific use cases.
 
 ### Runtime configuration file
 You can setup some parameters in runtime configuration file `~/.config/shell_gpt/.sgptrc`:

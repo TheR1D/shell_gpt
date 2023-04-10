@@ -9,7 +9,7 @@ shell commands directly from the interface.
 
 API Key is stored locally for easy use in future runs.
 """
-
+import sys
 
 # To allow users to use arrow keys in the REPL.
 import readline  # pylint: disable=unused-import
@@ -87,6 +87,11 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
         rich_help_panel="Chat Options",
     ),
 ) -> None:
+    stdin_passed = not sys.stdin.isatty()
+
+    if stdin_passed and not repl:
+        prompt = sys.stdin.read() + (prompt or "")
+
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
@@ -95,6 +100,9 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
 
     if chat and repl:
         raise BadArgumentUsage("--chat and --repl options cannot be used together.")
+
+    if editor and stdin_passed:
+        raise BadArgumentUsage("--editor option cannot be used with stdin input.")
 
     if editor:
         prompt = get_edited_prompt()
@@ -132,7 +140,7 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
             caching=cache,
         )
 
-    if shell and typer.confirm("Execute shell command?"):
+    if shell and not stdin_passed and typer.confirm("Execute shell command?"):
         run_command(full_completion)
 
 
