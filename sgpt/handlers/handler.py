@@ -3,11 +3,13 @@ from typing import List, Dict, Generator
 import typer
 
 from sgpt import OpenAIClient
+from sgpt import config
 
 
 class Handler:
     def __init__(self, client: OpenAIClient) -> None:
         self.client = client
+        self.color = config.get("DEFAULT_COLOR")
 
     def make_prompt(self, prompt) -> str:
         raise NotImplementedError
@@ -33,7 +35,7 @@ class Handler:
         messages = [{"role": "user", "content": prompt}]
         full_completion = ""
         for word in self.get_completion(messages=messages, **kwargs):
-            typer.secho(word, fg="magenta", bold=True, nl=False)
+            typer.secho(word, fg=self.color, bold=True, nl=False)
             full_completion += word
         typer.echo()
         return full_completion

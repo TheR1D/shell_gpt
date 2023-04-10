@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 # pylint: disable=consider-using-with
 setup(
     name="shell_gpt",
-    version="0.8.6",
+    version="0.8.7",
     packages=find_packages(),
     install_requires=[
         "typer~=0.7.0",

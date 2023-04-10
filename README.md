@@ -7,7 +7,7 @@ A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developer
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.6
+pip install shell-gpt==0.8.7
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -251,7 +251,10 @@ CACHE_PATH=/tmp/shell_gpt/cache
 REQUEST_TIMEOUT=60
 # Default OpenAI model to use.
 DEFAULT_MODEL=gpt-3.5-turbo
+# Default color for OpenAI completions.
+DEFAULT_COLOR=magenta
 ```
+Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 
 ### Full list of arguments
 ```text
