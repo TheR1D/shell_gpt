@@ -1,7 +1,7 @@
 """
 This test module will execute real commands using shell.
 This means it will call sgpt.py with command line arguments.
-Make sure you have your API key in place ~/.config/shell_gpt/.sgptrc
+Make sure you have your API key in place ~/.cfg/shell_gpt/.sgptrc
 or ENV variable OPENAI_API_KEY.
 It is useful for quick tests, saves a bit time.
 """
@@ -19,7 +19,7 @@ from uuid import uuid4
 import typer
 from typer.testing import CliRunner
 
-from sgpt import OpenAIClient, config, main
+from sgpt import OpenAIClient, cfg, main
 from sgpt.handlers.handler import Handler
 
 runner = CliRunner()
@@ -230,7 +230,7 @@ class TestShellGpt(TestCase):
         assert ">>> Sort by name" in result.stdout
         assert "ls" in result.stdout
         assert "ls | sort" in result.stdout
-        chat_storage = config.get("CHAT_CACHE_PATH")
+        chat_storage = cfg.get("CHAT_CACHE_PATH")
         tmp_chat = Path(chat_storage) / "temp"
         chat_messages = json.loads(tmp_chat.read_text())
         # TODO: Implement same check in chat mode tests.
@@ -261,7 +261,7 @@ class TestShellGpt(TestCase):
         assert f">>> {inputs[1]}" in result.stdout
         assert "localhost:443" in result.stdout
 
-        chat_storage = config.get("CHAT_CACHE_PATH")
+        chat_storage = cfg.get("CHAT_CACHE_PATH")
         tmp_chat = Path(chat_storage) / dict_arguments["--repl"]
         chat_messages = json.loads(tmp_chat.read_text())
         assert chat_messages[0]["content"].startswith("###")
@@ -312,7 +312,7 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 0
 
     def test_color_output(self):
-        color = config.get("DEFAULT_COLOR")
+        color = cfg.get("DEFAULT_COLOR")
         handler = Handler(OpenAIClient("test", "test"))
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
