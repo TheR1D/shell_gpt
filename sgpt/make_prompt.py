@@ -1,8 +1,8 @@
 import platform
 from os import getenv, pathsep
 from os.path import basename
-from distro import name as distro_name
 
+from distro import name as distro_name
 
 SHELL_PROMPT = """###
 Provide only {shell} commands for {os} without any description.

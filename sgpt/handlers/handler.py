@@ -1,27 +1,26 @@
-from typing import List, Dict, Generator
+from typing import Any, Dict, Generator, List
 
 import typer
 
-from sgpt import OpenAIClient
-from sgpt import config
+from sgpt import OpenAIClient, cfg
 
 
 class Handler:
     def __init__(self, client: OpenAIClient) -> None:
         self.client = client
-        self.color = config.get("DEFAULT_COLOR")
+        self.color = cfg.get("DEFAULT_COLOR")
 
-    def make_prompt(self, prompt) -> str:
+    def make_prompt(self, prompt: str) -> str:
         raise NotImplementedError
 
-    def get_completion(  # pylint: disable=too-many-arguments
+    def get_completion(
         self,
         messages: List[Dict[str, str]],
         model: str = "gpt-3.5-turbo",
         temperature: float = 1,
         top_probability: float = 1,
         caching: bool = True,
-    ) -> Generator:
+    ) -> Generator[str, None, None]:
         yield from self.client.get_completion(
             messages,
             model,
@@ -30,7 +29,7 @@ class Handler:
             caching=caching,
         )
 
-    def handle(self, prompt: str, **kwargs) -> str:
+    def handle(self, prompt: str, **kwargs: Any) -> str:
         prompt = self.make_prompt(prompt)
         messages = [{"role": "user", "content": prompt}]
         full_completion = ""

@@ -7,20 +7,19 @@ It is useful for quick tests, saves a bit time.
 """
 
 import json
-import subprocess
 import os
-
-from time import sleep
+import subprocess
 from pathlib import Path
-from unittest import TestCase
-from unittest.mock import patch, ANY
 from tempfile import NamedTemporaryFile
+from time import sleep
+from unittest import TestCase
+from unittest.mock import ANY, patch
 from uuid import uuid4
 
 import typer
 from typer.testing import CliRunner
 
-from sgpt import main, config, OpenAIClient
+from sgpt import OpenAIClient, config, main
 from sgpt.handlers.handler import Handler
 
 runner = CliRunner()
@@ -86,7 +85,7 @@ class TestShellGpt(TestCase):
             try:
                 compile(result.output, file.name, "exec")
             except SyntaxError:
-                assert False, "The output is not valid Python code."
+                assert False, "The output is not valid Python code."  # noqa: B011
             file.seek(0)
             file.truncate()
             file.write(result.output)

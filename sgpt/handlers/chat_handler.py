@@ -1,16 +1,16 @@
 import json
 from pathlib import Path
-from typing import List, Dict, Optional, Callable, Generator
+from typing import Any, Callable, Dict, Generator, List, Optional
 
 import typer
 from click import BadArgumentUsage
 
-from sgpt import OpenAIClient, config, make_prompt
-from sgpt.utils import CompletionModes
+from sgpt import OpenAIClient, cfg, make_prompt
 from sgpt.handlers.handler import Handler
+from sgpt.utils import CompletionModes
 
-CHAT_CACHE_LENGTH = int(config.get("CHAT_CACHE_LENGTH"))
-CHAT_CACHE_PATH = Path(config.get("CHAT_CACHE_PATH"))
+CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
+CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
 
 
 class ChatSession:
@@ -31,7 +31,7 @@ class ChatSession:
         self.storage_path = storage_path
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
-    def __call__(self, func: Callable) -> Callable:
+    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
         The Cache decorator.
 
@@ -39,7 +39,7 @@ class ChatSession:
         :return: Wrapped function with chat caching.
         """
 
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Generator[str, None, None]:
             chat_id = kwargs.pop("chat_id", None)
             messages = kwargs["messages"]
             if not chat_id:
@@ -58,29 +58,29 @@ class ChatSession:
 
         return wrapper
 
-    def _read(self, chat_id: str) -> List[Dict]:
+    def _read(self, chat_id: str) -> List[Dict[str, str]]:
         file_path = self.storage_path / chat_id
         if not file_path.exists():
             return []
         parsed_cache = json.loads(file_path.read_text())
         return parsed_cache if isinstance(parsed_cache, list) else []
 
-    def _write(self, messages: List[Dict], chat_id: str):
+    def _write(self, messages: List[Dict[str, str]], chat_id: str) -> None:
         file_path = self.storage_path / chat_id
         json.dump(messages[-self.length :], file_path.open("w"))
 
-    def invalidate(self, chat_id: str):
+    def invalidate(self, chat_id: str) -> None:
         file_path = self.storage_path / chat_id
         file_path.unlink(missing_ok=True)
 
-    def get_messages(self, chat_id):
+    def get_messages(self, chat_id: str) -> List[str]:
         messages = self._read(chat_id)
         return [f"{message['role']}: {message['content']}" for message in messages]
 
     def exists(self, chat_id: Optional[str]) -> bool:
-        return chat_id and bool(self._read(chat_id))
+        return bool(chat_id and bool(self._read(chat_id)))
 
-    def list(self):
+    def list(self) -> List[Path]:
         # Get all files in the folder.
         files = self.storage_path.glob("*")
         # Sort files by last modification time in ascending order.
@@ -90,7 +90,7 @@ class ChatSession:
 class ChatHandler(Handler):
     chat_session = ChatSession(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         client: OpenAIClient,
         chat_id: str,
@@ -111,7 +111,7 @@ class ChatHandler(Handler):
         self.validate()
 
     @classmethod
-    def list_ids(cls, value) -> None:
+    def list_ids(cls, value: str) -> None:
         if not value:
             return
         # Prints all existing chat IDs to the console.
@@ -127,20 +127,20 @@ class ChatHandler(Handler):
     def is_shell_chat(self) -> bool:
         # TODO: Should be optimized for REPL mode.
         chat_history = self.chat_session.get_messages(self.chat_id)
-        return chat_history and chat_history[0].endswith("###\nCommand:")
+        return bool(chat_history and chat_history[0].endswith("###\nCommand:"))
 
     @property
     def is_code_chat(self) -> bool:
         chat_history = self.chat_session.get_messages(self.chat_id)
-        return chat_history and chat_history[0].endswith("###\nCode:")
+        return bool(chat_history and chat_history[0].endswith("###\nCode:"))
 
     @property
     def is_default_chat(self) -> bool:
         chat_history = self.chat_session.get_messages(self.chat_id)
-        return chat_history and chat_history[0].endswith("###")
+        return bool(chat_history and chat_history[0].endswith("###"))
 
     @classmethod
-    def show_messages_callback(cls, chat_id) -> None:
+    def show_messages_callback(cls, chat_id: str) -> None:
         if not chat_id:
             return
         cls.show_messages(chat_id)
@@ -193,8 +193,8 @@ class ChatHandler(Handler):
         )
 
     @chat_session
-    def get_completion(  # pylint: disable=arguments-differ
+    def get_completion(
         self,
-        **kwargs,
-    ) -> Generator:
+        **kwargs: Any,
+    ) -> Generator[str, None, None]:
         yield from super().get_completion(**kwargs)

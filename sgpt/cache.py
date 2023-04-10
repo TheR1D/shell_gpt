@@ -1,10 +1,10 @@
 import json
 from hashlib import md5
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable, Generator, no_type_check
 
 
-class Cache:  # pylint: disable=too-few-public-methods
+class Cache:
     """
     Decorator class that adds caching functionality to a function.
     """
@@ -19,7 +19,7 @@ class Cache:  # pylint: disable=too-few-public-methods
         self.cache_path = cache_path
         self.cache_path.mkdir(parents=True, exist_ok=True)
 
-    def __call__(self, func: Callable) -> Callable:
+    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
         The Cache decorator.
 
@@ -27,7 +27,7 @@ class Cache:  # pylint: disable=too-few-public-methods
         :return: Wrapped function with caching.
         """
 
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Generator[str, None, None]:
             # Exclude self instance from hashing.
             cache_key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
             cache_file = self.cache_path / cache_key
@@ -40,10 +40,11 @@ class Cache:  # pylint: disable=too-few-public-methods
                 result += i
                 yield i
             cache_file.write_text(result)
-            self._delete_oldest_files(self.length)
+            self._delete_oldest_files(self.length)  # type: ignore
 
         return wrapper
 
+    @no_type_check
     def _delete_oldest_files(self, max_files: int) -> None:
         """
         Class method to delete the oldest cached files in the CACHE_DIR folder.
