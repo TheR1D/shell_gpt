@@ -9,6 +9,7 @@ It is useful for quick tests, saves a bit time.
 import json
 import subprocess
 import os
+
 from time import sleep
 from pathlib import Path
 from unittest import TestCase
@@ -193,7 +194,9 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 2
         assert "--shell and --code options cannot be used together" in result.stdout
 
-    def test_repl_default(self):
+    def test_repl_default(
+        self,
+    ):
         dict_arguments = {
             "prompt": "",
             "--repl": "temp",
@@ -316,3 +319,16 @@ class TestShellGpt(TestCase):
         os.environ["DEFAULT_COLOR"] = "red"
         handler = Handler(OpenAIClient("test", "test"))
         assert handler.color == "red"
+
+    def test_simple_stdin(self):
+        result = runner.invoke(app, input="What is the capital of Germany?\n")
+        assert "Berlin" in result.stdout
+
+    def test_shell_stdin_with_prompt(self):
+        dict_arguments = {
+            "prompt": "Sort by name",
+            "--shell": True,
+        }
+        stdin = "What is in current folder\n"
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
+        assert result.stdout == "ls | sort\n"
