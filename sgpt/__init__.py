@@ -6,6 +6,7 @@ from .handlers.default_handler import DefaultHandler as DefaultHandler
 from .handlers.repl_handler import ReplHandler as ReplHandler
 from . import utils as utils
 from .app import main as main
+from .app import entry_point as cli  # noqa: F401
 from . import make_prompt as make_prompt
 
 __version__ = "0.8.8"
