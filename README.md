@@ -32,7 +32,7 @@ sgpt "1 hour and 30 minutes to seconds"
 ### Summarization and analyzing
 ShellGPT accepts prompt from both stdin and command line argument, you choose the most convenient input method for your preferences. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. This versatile feature is particularly useful when you need to pass file content or pipe output from other commands to the GPT models for summarization or analysis. For example, you can easily generate a git commit message based on a diff:
 ```shell
-git diff | sgpt "Generate git commit message, my changes"
+git diff | sgpt "Generate git commit message, for my changes"
 # -> Commit message: Implement Model enum and get_edited_prompt()
 ```
 You can analyze logs from various sources by passing them using stdin or command line arguments, along with a user-friendly prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
