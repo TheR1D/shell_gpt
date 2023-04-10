@@ -24,16 +24,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install ."[dev,test]"
-    - name: Analysing the code with pylint
-      run: |
-        mypy sgpt
-        ruff sgpt tests scripts
-        black sgpt tests --check
-        isort sgpt tests scripts --check-only
-
-    - name: Analysing the code with black
-      run: black ./sgpt ./tests --check --target-version py310
-    - name: Run unittests
+    - name: black
+      run: black sgpt tests --check
+    - name: isort
+      run: isort sgpt tests scripts --check-only
+    - name: ruff
+      run: ruff sgpt tests scripts
+    - name: mypy
+      run: mypy sgpt
+    - name: unittests
       run: |
         export OPENAI_API_KEY=test_api_key
-        pytest tests/unittests.py
+        pytest tests/test_unit.py
