@@ -76,12 +76,16 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
     ),
     show_chat: str = typer.Option(  # pylint: disable=W0613
         None,
+        "--show-chat",
+        "-sc",
         help="Show all messages from provided chat id.",
         callback=ChatHandler.show_messages_callback,
         rich_help_panel="Chat Options",
     ),
     list_chat: bool = typer.Option(  # pylint: disable=W0613
         False,
+        "--list-chat",
+        "-lc",
         help="List all existing chat ids.",
         callback=ChatHandler.list_ids,
         rich_help_panel="Chat Options",
@@ -96,13 +100,16 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
     if shell and code:
-        raise BadArgumentUsage("--shell and --code options cannot be used together.")
+        raise BadArgumentUsage(
+            "--shell and --code options cannot be used together.")
 
     if chat and repl:
-        raise BadArgumentUsage("--chat and --repl options cannot be used together.")
+        raise BadArgumentUsage(
+            "--chat and --repl options cannot be used together.")
 
     if editor and stdin_passed:
-        raise BadArgumentUsage("--editor option cannot be used with stdin input.")
+        raise BadArgumentUsage(
+            "--editor option cannot be used with stdin input.")
 
     if editor:
         prompt = get_edited_prompt()
