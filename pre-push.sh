@@ -17,10 +17,6 @@ fi
 
 echo 'Executing pre-push hook.'
 
-if [ -f "$PWD/venv/bin/activate" ]; then
-    source $PWD/venv/bin/activate
-fi
-
 if black ./sgpt ./tests --check --target-version py310
 then
     echo 'Black passed ✅'
@@ -39,8 +35,7 @@ if pylint \
   --disable=missing-function-docstring \
   --disable=missing-module-docstring \
   --disable=missing-class-docstring \
-  --disable=too-many-function-args \
-  --ignore=venv
+  --disable=too-many-function-args
 then
     echo 'Pylint passed ✅'
 else

@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "sgpt",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/python:0-3.9",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "pip3 install --user -r requirements.txt",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mohsen1.prettify-json",
+				"yzhang.markdown-all-in-one",
+				"foxundermoon.shell-format",
+				"eamodio.gitlens",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"shardulm94.trailing-spaces"
+			],
+			// zsh
+			"settings": {
+				"terminal.integrated.profiles.linux": {
+					"zsh": {
+						"path": "/usr/bin/zsh",
+						"args": ["-l"]
+					}
+				},
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"files.insertFinalNewline": true,
+				"files.trimFinalNewlines": true,
+				"python.linting.enabled": true,
+				"python.linting.pylintEnabled": true,
+				"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+				"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+			}
+		}
+	},
+	"remoteEnv": {
+        "HOST_PROJECT_PATH": "${localWorkspaceFolder}"
+    }
+}
