@@ -3,19 +3,21 @@ KEYBINDING='^s'
 # Toggles the buffer between natural language and shell, assuming
 # it executes in zsh.
 _sgpt_zsh() {
-    # The BUFFER variable contains the text
+    # In zsh, the text in the terminal is stored in BUFFER.
     [[ -z $BUFFER ]] && BUFFER=$(fc -ln -1)
 
-    # Optimization: cache the results when toggling. If the keybinding
+    # Cache the answers when toggling as an optimization. If the keybinding
     # is pressed twice, then the first answer is already stored.
     if [[ $BUFFER == $_sgpt_penult_cmd ]]; then
         # Swap the buffer and the previous cached result. Then store
-        # the command thats being translated
+        # the command that is being translated.
         tmp=$BUFFER
         BUFFER=$_sgpt_prev_cmd
         _sgpt_penult_cmd=$_sgpt_prev_cmd
         _sgpt_prev_cmd=$tmp
     else
+        # If there is a mismatch (text changed between toggles), then the
+        # result must be recalculated with sgpt.
         _sgpt_prev_cmd=$BUFFER
         BUFFER=$(_sgpt_translate_buffer "$BUFFER")
         _sgpt_penult_cmd=$BUFFER
@@ -25,7 +27,10 @@ _sgpt_zsh() {
 # Toggles the buffer between natural language and shell, assuming
 # it executes in bash.
 _sgpt_bash() {
-    # Small modification over _sgpt_zsh: use READLINE_BUFFER instead of BUFFER
+    # Small modification over _sgpt_zsh: use READLINE_BUFFER instead of BUFFER.
+    # NOTE: These two functions could be merged using an indirect reference to the
+    # buffer variable given as a parameter, but the method that is compatible with 
+    # both zsh and bash is very messy: (https://tldp.org/LDP/abs/html/ivr.html)
     [[ -z $READLINE_BUFFER ]] && READLINE_BUFFER=$(fc -ln -1)
 
     if [[ $READLINE_BUFFER == $_sgpt_penult_cmd ]]; then
@@ -40,6 +45,8 @@ _sgpt_bash() {
     fi
 }
 
+# Decides whether the buffer contains shell command or natural language, then translates
+# it to the other one.
 _sgpt_translate_buffer() {
     # The command name is the first word in the buffer
     local command_name=${1%% *}
@@ -53,10 +60,10 @@ _sgpt_translate_buffer() {
     sgpt $sgpt_flag $1
 }
 
-# Overrides the function that executes when a command is not found
-# Decides if the bad command is natural language. If it is, then translate
-# to shell. If the translated command. If it is a destructive command, 
-# prompt before executing. Otherwise, directly execute.
+# Overrides the function that executes when a command is not found.
+# First, decide if the incorrect command is natural language. If it is, 
+# then translate to shell. If the translated command. If it is a destructive
+# command, then prompt before executing. Otherwise, directly execute.
 command_not_found_handler() {
     # If the command is shorter than 6 words, assume it is a regular shell command
     local nl_word_count_threshold=6
