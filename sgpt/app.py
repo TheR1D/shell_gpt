@@ -127,8 +127,10 @@ def main(
     if shell and code:
         raise BadArgumentUsage("--shell and --code options cannot be used together.")
 
-    if shell and describe_shell: 
-        raise BadArgumentUsage("--shell and --describe-shell options cannot be used together.")
+    if shell and describe_shell:
+        raise BadArgumentUsage(
+            "--shell and --describe-shell options cannot be used together."
+        )
 
     if chat and repl:
         raise BadArgumentUsage("--chat and --repl options cannot be used together.")
