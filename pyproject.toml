@@ -5,21 +5,20 @@ build-backend = "hatchling.build"
 [project]
 name = "shell_gpt"
 description = "A command-line productivity tool powered by OpenAI GPT models, will help you accomplish your tasks faster and more efficiently."
+keywords = ["shell", "gpt", "openai", "cli", "productivity", "cheet-sheet"]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.6"
 authors = [{ name = "Farkhod Sadykov", email = "farkhod@sadykov.dev" }]
 dynamic = ["version"]
-homepage = "https://github.com/ther1d/shell_gpt"
-repository = "https://github.com/ther1d/shell_gpt"
 classifiers = [
+    "Operating System :: OS Independent",
+    "Topic :: Software Development",
+    "License :: OSI Approved :: MIT License",
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python",
-    "Topic :: Software Development",
     "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
@@ -27,34 +26,36 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "License :: OSI Approved :: MIT License"
 ]
 dependencies = [
-    "requests >= 2.28.2,<3.0.0",
-    "typer >= 0.7.0,<1.0.0",
-    "click >= 7.1.1,<9.0.0",
-    "rich >= 10.11.0,<13.0.0",
-    "distro >= 1.8.0,<2.0.0",
+    "requests >= 2.28.2, < 3.0.0",
+    "typer >= 0.7.0, < 1.0.0",
+    "click >= 7.1.1, < 9.0.0",
+    "rich >= 10.11.0, < 13.0.0",
+    "distro >= 1.8.0, < 2.0.0",
+    'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
 ]
-
-[target.'platform:win32'.dependencies]
-pyreadline3 = "3.4.1"
 
 [project.scripts]
 sgpt = "sgpt:cli"
 
+[project.urls]
+homepage = "https://github.com/ther1d/shell_gpt"
+repository = "https://github.com/ther1d/shell_gpt"
+documentation = "https://github.com/TheR1D/shell_gpt/blob/main/README.md"
+
 [project.optional-dependencies]
 test = [
-    "pytest >= 7.2.2,<8.0.0",
-    "requests-mock[fixture] >= 1.10.0,<2.0.0",
+    "pytest >= 7.2.2, < 8.0.0",
+    "requests-mock[fixture] >= 1.10.0, < 2.0.0",
+    "isort >= 5.12.0, < 6.0.0",
     "black == 23.1.0",
-    "isort >= 5.12.0,<6.0.0",
     "mypy == 1.1.1",
     "types-requests == 2.28.11.17",
 ]
 dev = [
     "ruff == 0.0.256",
-    "pre-commit >= 3.1.1,<4.0.0",
+    "pre-commit >= 3.1.1, < 4.0.0",
 ]
 
 [tool.hatch.version]
