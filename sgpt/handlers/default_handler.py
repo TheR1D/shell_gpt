@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from sgpt import OpenAIClient, config, make_prompt
+from sgpt import OpenAIClient, cfg, make_prompt
 from sgpt.utils import CompletionModes
+
 from .handler import Handler
 
-CHAT_CACHE_LENGTH = int(config.get("CHAT_CACHE_LENGTH"))
-CHAT_CACHE_PATH = Path(config.get("CHAT_CACHE_PATH"))
+CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
+CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
 
 
 class DefaultHandler(Handler):
@@ -21,7 +22,7 @@ class DefaultHandler(Handler):
         self.mode = CompletionModes.get_mode(shell, code)
         self.model = model
 
-    def make_prompt(self, prompt) -> str:
+    def make_prompt(self, prompt: str) -> str:
         prompt = prompt.strip()
         return make_prompt.initial(
             prompt,

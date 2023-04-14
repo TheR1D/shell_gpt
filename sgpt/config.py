@@ -1,8 +1,8 @@
 import os
-from pathlib import Path
 from getpass import getpass
+from pathlib import Path
 from tempfile import gettempdir
-from typing import Any, Optional
+from typing import Any
 
 from click import UsageError
 
@@ -30,7 +30,7 @@ DEFAULT_CONFIG = {
 }
 
 
-class Config(dict):
+class Config(dict):  # type: ignore
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
 
@@ -56,20 +56,20 @@ class Config(dict):
     def _exists(self) -> bool:
         return self.config_path.exists()
 
-    def _write(self):
+    def _write(self) -> None:
         with open(self.config_path, "w", encoding="utf-8") as file:
             string_config = ""
             for key, value in self.items():
                 string_config += f"{key}={value}\n"
             file.write(string_config)
 
-    def _read(self):
+    def _read(self) -> None:
         with open(self.config_path, "r", encoding="utf-8") as file:
             for line in file:
                 key, value = line.strip().split("=")
                 self[key] = value
 
-    def get(self, key: str) -> Optional[str]:
+    def get(self, key: str) -> str:  # type: ignore
         # Prioritize environment variables over config file.
         value = os.getenv(key) or super().get(key)
         if not value:
@@ -77,4 +77,4 @@ class Config(dict):
         return value
 
 
-config = Config(CONFIG_PATH, **DEFAULT_CONFIG)
+cfg = Config(CONFIG_PATH, **DEFAULT_CONFIG)

@@ -9,27 +9,27 @@ shell commands directly from the interface.
 
 API Key is stored locally for easy use in future runs.
 """
-import sys
-
 # To allow users to use arrow keys in the REPL.
-import readline  # pylint: disable=unused-import
+import readline  # noqa: F401
+import sys
 
 import typer
 
 # Click is part of typer.
-from click import MissingParameter, BadArgumentUsage
-from sgpt import ChatHandler, DefaultHandler, ReplHandler, OpenAIClient, config
-from sgpt.utils import get_edited_prompt, run_command, ModelOptions
+from click import BadArgumentUsage, MissingParameter
+
+from sgpt import ChatHandler, DefaultHandler, OpenAIClient, ReplHandler, cfg
+from sgpt.utils import ModelOptions, get_edited_prompt, run_command
 
 
-def main(  # pylint: disable=too-many-arguments,too-many-locals
+def main(
     prompt: str = typer.Argument(
         None,
         show_default=False,
         help="The prompt to generate completions for.",
     ),
     model: ModelOptions = typer.Option(
-        ModelOptions(config.get("DEFAULT_MODEL")).value,
+        ModelOptions(cfg.get("DEFAULT_MODEL")).value,
         help="OpenAI GPT model to use.",
     ),
     temperature: float = typer.Option(
@@ -74,13 +74,13 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
         help="Start a REPL (Read–eval–print loop) session.",
         rich_help_panel="Chat Options",
     ),
-    show_chat: str = typer.Option(  # pylint: disable=W0613
+    show_chat: str = typer.Option(
         None,
         help="Show all messages from provided chat id.",
         callback=ChatHandler.show_messages_callback,
         rich_help_panel="Chat Options",
     ),
-    list_chat: bool = typer.Option(  # pylint: disable=W0613
+    list_chat: bool = typer.Option(
         False,
         help="List all existing chat ids.",
         callback=ChatHandler.list_ids,
@@ -107,8 +107,8 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
     if editor:
         prompt = get_edited_prompt()
 
-    api_host = config.get("OPENAI_API_HOST")
-    api_key = config.get("OPENAI_API_KEY")
+    api_host = cfg.get("OPENAI_API_HOST")
+    api_key = cfg.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
 
     if repl:

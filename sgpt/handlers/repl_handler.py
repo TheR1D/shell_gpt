@@ -1,15 +1,16 @@
-import typer
+from typing import Any
 
+import typer
 from rich import print as rich_print
 from rich.rule import Rule
 
-from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.client import OpenAIClient
+from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.utils import CompletionModes, run_command
 
 
 class ReplHandler(ChatHandler):
-    def __init__(  # pylint: disable=useless-parent-delegation,too-many-arguments
+    def __init__(
         self,
         client: OpenAIClient,
         chat_id: str,
@@ -19,7 +20,7 @@ class ReplHandler(ChatHandler):
     ):
         super().__init__(client, chat_id, shell, code, model)
 
-    def handle(self, prompt: str, **kwargs) -> None:
+    def handle(self, prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:
             rich_print(Rule(title="Chat History", style="bold magenta"))
             self.show_messages(self.chat_id)

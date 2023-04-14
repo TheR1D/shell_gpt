@@ -1,10 +1,8 @@
 import os
+import platform
 import shlex
-
 from enum import Enum
 from tempfile import NamedTemporaryFile
-
-import platform
 
 from click import BadParameter
 
@@ -21,7 +19,7 @@ class CompletionModes(Enum):
     CODE = "code"
 
     @classmethod
-    def get_mode(cls, shell, code) -> "CompletionModes":
+    def get_mode(cls, shell: bool, code: bool) -> "CompletionModes":
         if shell:
             return CompletionModes.SHELL
         if code:
