@@ -40,9 +40,6 @@ dependencies = [
 [target.'platform:win32'.dependencies]
 pyreadline3 = "3.4.1"
 
-[project.urls]
-Source = "https://github.com/ther1d/shell_gpt"
-
 [project.scripts]
 sgpt = "sgpt:cli"
 
