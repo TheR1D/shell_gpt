@@ -5,7 +5,7 @@ https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-
 
 ## Installation
 ```shell
-pip install shell-gpt==0.8.8
+pip install shell-gpt==0.8.9
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
