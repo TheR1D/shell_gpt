@@ -8,9 +8,7 @@ description = "A command-line productivity tool powered by OpenAI GPT models, wi
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.6"
-authors = [
-    { name = "Farkhod Sadykov", email = "farkhod@sadykov.dev" },
-]
+authors = [{ name = "Farkhod Sadykov", email = "farkhod@sadykov.dev" }]
 dynamic = ["version"]
 homepage = "https://github.com/ther1d/shell_gpt"
 repository = "https://github.com/ther1d/shell_gpt"
@@ -64,6 +62,18 @@ dev = [
 
 [tool.hatch.version]
 path = "sgpt/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["sgpt"]
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "sgpt",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
 
 [tool.isort]
 profile = "black"
