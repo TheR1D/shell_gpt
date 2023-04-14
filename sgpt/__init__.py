@@ -9,4 +9,4 @@ from .app import main as main
 from .app import entry_point as cli  # noqa: F401
 from . import make_prompt as make_prompt
 
-__version__ = "0.8.8"
+__version__ = "0.8.9"
