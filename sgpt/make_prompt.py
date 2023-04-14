@@ -13,6 +13,14 @@ Prompt: {prompt}
 ###
 Command:"""
 
+DESCRIBE_SHELL_PROMPT = """###
+Provide a terse, single sentence description of the given shell command.
+Provide only plain text without Markdown formatting.
+Do not show any warnings or information regarding your capabilities.
+If you need to store any data, assume it will be stored in the chat.
+Prompt: {prompt}
+"""
+
 CODE_PROMPT = """###
 Provide only code as output without any description.
 IMPORTANT: Provide only plain text without Markdown formatting.
@@ -34,7 +42,7 @@ Prompt: {prompt}
 ###"""
 
 
-def initial(prompt: str, shell: bool, code: bool) -> str:
+def initial(prompt: str, shell: bool, describe_shell: bool, code: bool) -> str:
     # TODO: Can be prettified.
     prompt = prompt.strip()
     operating_systems = {
@@ -51,6 +59,8 @@ def initial(prompt: str, shell: bool, code: bool) -> str:
         shell_name = basename(getenv("SHELL", "/bin/sh"))
     if shell:
         return SHELL_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)
+    if describe_shell:
+        return DESCRIBE_SHELL_PROMPT.format(prompt=prompt)
     if code:
         return CODE_PROMPT.format(prompt=prompt)
     return DEFAULT_PROMPT.format(shell=shell_name, os=os_name, prompt=prompt)

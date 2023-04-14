@@ -10,6 +10,11 @@ _sgpt_zsh() {
     # Cache the answers when toggling (optimization). If the keybinding
     # is pressed twice, then the first answer would already be stored.
     if [[ $BUFFER == $_sgpt_penult_cmd ]]; then
+        # First, remember the cursor position before toggling
+        tmp_cursor=$CURSOR
+        CURSOR=$_sgpt_prev_cursor
+        _sgpt_prev_cursor=$tmp_cursor
+
         # Swap the buffer and the previous cached result. Then store
         # the command that is being translated.
         tmp=$BUFFER
@@ -17,6 +22,9 @@ _sgpt_zsh() {
         _sgpt_penult_cmd=$_sgpt_prev_cmd
         _sgpt_prev_cmd=$tmp
     else
+        # First, store current cursor position
+        _sgpt_prev_cursor=$CURSOR
+
         # If there is a mismatch (text changed between toggles), then the
         # result must be recalculated with sgpt.
         _sgpt_prev_cmd=$BUFFER
@@ -64,7 +72,7 @@ _sgpt_translate_buffer() {
     fi
 
 
-    sgpt $sgpt_flag $1
+    sgpt $sgpt_flag <<< $1
 }
 
 # Overrides the function that executes when a command is not found.
@@ -84,7 +92,7 @@ command_not_found_handler() {
     fi
 
     # Convert the natural language to shell
-    local converted_command=$(sgpt --shell "$@")
+    local converted_command=$(sgpt --shell <<< "$@")
 
     # If it's destructive, then prompt for confirmation.
     if _sgpt_is_destructive_command "$converted_command"; then
