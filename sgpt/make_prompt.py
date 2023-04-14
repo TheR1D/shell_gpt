@@ -14,10 +14,11 @@ Prompt: {prompt}
 Command:"""
 
 DESCRIBE_SHELL_PROMPT = """###
-Provide a terse, single sentence description of the given shell command.
+Provide an imperative, terse, single sentence description of the given shell command.
+Do not repeat the given shell command or use any phrase indicating "this command".
 Provide only plain text without Markdown formatting.
-Do not show any warnings or information regarding your capabilities.
-If you need to store any data, assume it will be stored in the chat.
+Command: du -cks
+Answer: List the total disk usage of the current directory and its subdirectories in kilobytes.
 Prompt: {prompt}
 """
 
