@@ -2,7 +2,8 @@ from typing import Any, Dict, Generator, List
 
 import typer
 
-from sgpt import OpenAIClient, cfg
+from ..client import OpenAIClient
+from ..config import cfg
 
 
 class Handler:
@@ -31,6 +32,8 @@ class Handler:
 
     def handle(self, prompt: str, **kwargs: Any) -> str:
         prompt = self.make_prompt(prompt)
+        # print(prompt)
+        # print(kwargs)
         messages = [{"role": "user", "content": prompt}]
         full_completion = ""
         for word in self.get_completion(messages=messages, **kwargs):

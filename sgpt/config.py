@@ -6,31 +6,34 @@ from typing import Any
 
 from click import UsageError
 
-from sgpt.utils import ModelOptions
+from .utils import ModelOptions
+
 
 CONFIG_FOLDER = os.path.expanduser("~/.config")
-CONFIG_PATH = Path(CONFIG_FOLDER) / "shell_gpt" / ".sgptrc"
+SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
+SHELL_GPT_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
+ROLE_STORAGE_PATH = SHELL_GPT_CONFIG_FOLDER / "roles"
+CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
+CACHE_PATH = Path(gettempdir()) / "cache"
 
 # TODO: Refactor ENV variables with SGPT_ prefix.
 DEFAULT_CONFIG = {
     # TODO: Refactor it to CHAT_STORAGE_PATH.
-    "CHAT_CACHE_PATH": os.getenv(
-        "CHAT_CACHE_PATH", str(Path(gettempdir()) / "shell_gpt" / "chat_cache")
-    ),
-    "CACHE_PATH": os.getenv(
-        "CACHE_PATH", str(Path(gettempdir()) / "shell_gpt" / "cache")
-    ),
+    "CHAT_CACHE_PATH": os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
+    "CACHE_PATH": os.getenv("CACHE_PATH", str(CACHE_PATH)),
     "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
     "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", ModelOptions.GPT3.value),
     "OPENAI_API_HOST": os.getenv("OPENAI_API_HOST", "https://api.openai.com"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
+    "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     # New features might add their own config variables here.
 }
 
 
 class Config(dict):  # type: ignore
+
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
 
@@ -77,4 +80,4 @@ class Config(dict):  # type: ignore
         return value
 
 
-cfg = Config(CONFIG_PATH, **DEFAULT_CONFIG)
+cfg = Config(SHELL_GPT_CONFIG_PATH, **DEFAULT_CONFIG)

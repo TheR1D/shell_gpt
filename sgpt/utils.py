@@ -13,20 +13,6 @@ class ModelOptions(str, Enum):
     GPT4_32K = "gpt-4-32k"
 
 
-class CompletionModes(Enum):
-    NORMAL = "normal"
-    SHELL = "shell"
-    CODE = "code"
-
-    @classmethod
-    def get_mode(cls, shell: bool, code: bool) -> "CompletionModes":
-        if shell:
-            return CompletionModes.SHELL
-        if code:
-            return CompletionModes.CODE
-        return CompletionModes.NORMAL
-
-
 def get_edited_prompt() -> str:
     """
     Opens the user's default editor to let them
