@@ -1,5 +1,5 @@
 KEYBINDING='^ '
-DEBUG_MODE=true
+DEBUG_MODE=false
 
 # Toggles the buffer between natural language and shell command, assuming
 # it executes in zsh.
@@ -10,11 +10,6 @@ _sgpt_zsh() {
     # Cache the answers when toggling (optimization). If the keybinding
     # is pressed twice, then the first answer would already be stored.
     if [[ $BUFFER == $_sgpt_penult_cmd ]]; then
-        # First, remember the cursor position before toggling
-        tmp_cursor=$CURSOR
-        CURSOR=$_sgpt_prev_cursor
-        _sgpt_prev_cursor=$tmp_cursor
-
         # Swap the buffer and the previous cached result. Then store
         # the command that is being translated.
         tmp=$BUFFER
@@ -22,9 +17,6 @@ _sgpt_zsh() {
         _sgpt_penult_cmd=$_sgpt_prev_cmd
         _sgpt_prev_cmd=$tmp
     else
-        # First, store current cursor position
-        _sgpt_prev_cursor=$CURSOR
-
         # If there is a mismatch (text changed between toggles), then the
         # result must be recalculated with sgpt.
         _sgpt_prev_cmd=$BUFFER
@@ -33,6 +25,7 @@ _sgpt_zsh() {
         zle end-of-line
     fi
     # Move cursor to end of line
+    zle end-of-line
 }
 
 # Toggles the buffer between natural language and shell command, assuming
@@ -56,7 +49,7 @@ _sgpt_bash() {
         _sgpt_penult_cmd=$READLINE_BUFFER
     fi
     # Move cursor to end of line
-    #readline end-of-line
+    tput end-of-line
 }
 
 # Decides whether the buffer contains shell command or natural language, then translates
