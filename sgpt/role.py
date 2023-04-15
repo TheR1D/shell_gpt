@@ -4,9 +4,10 @@ from enum import Enum
 from os import getenv, pathsep
 from os.path import basename
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Dict, Optional
 
 import typer
+from click import BadArgumentUsage
 from distro import name as distro_name
 
 from .config import cfg
@@ -40,10 +41,10 @@ Request: {request}
 
 
 def option_callback(func: Callable) -> Callable:  # type: ignore
-    def wrapper(cls: Any, value: Any) -> None:
+    def wrapper(cls: "SystemRole", value: str) -> None:
         if not value:
             return
-        func(cls)
+        func(cls, value)
         raise typer.Exit()
 
     return wrapper
@@ -113,24 +114,22 @@ class SystemRole:
         file_path = cls.storage / f"{name}.json"
         # print(file_path)
         if not file_path.exists():
-            raise FileNotFoundError(f'Role "{name}" not found.')
+            raise BadArgumentUsage(f'Role "{name}" not found.')
         return cls(**json.loads(file_path.read_text()))
 
     @classmethod
+    @option_callback
     def create(cls, name: str) -> None:
-        if not name:
-            return
         role = typer.prompt("Enter role description")
         expecting = typer.prompt(
             "Enter output type, e.g. answer, code, shell command, json, etc."
         )
         role = cls(name, role, expecting)
         role.save()
-        raise typer.Exit()
 
     @classmethod
     @option_callback
-    def list(cls) -> None:
+    def list(cls, _value: str) -> None:
         if not cls.storage.exists():
             return
         # Get all files in the folder.
