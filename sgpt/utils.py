@@ -3,7 +3,7 @@ import platform
 import shlex
 from enum import Enum
 from tempfile import NamedTemporaryFile
-from typing import Callable, Any
+from typing import Any, Callable
 
 import typer
 from click import BadParameter
