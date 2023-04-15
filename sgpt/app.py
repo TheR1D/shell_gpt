@@ -25,6 +25,7 @@ from sgpt.utils import ModelOptions, get_edited_prompt, run_command
 from sgpt.role import DefaultRoles
 from sgpt.config import cfg
 from sgpt.client import OpenAIClient
+from sgpt.role import SystemRole
 
 
 def main(
@@ -91,6 +92,29 @@ def main(
         callback=ChatHandler.list_ids,
         rich_help_panel="Chat Options",
     ),
+    role: str = typer.Option(
+        None,
+        help="System role for GPT model.",
+        rich_help_panel="Role Options",
+    ),
+    create_role: str = typer.Option(
+        None,
+        help="Create role.",
+        rich_help_panel="Role Options",
+        callback=SystemRole.create,
+    ),
+    show_role: str = typer.Option(  # pylint: disable=W0613
+        None,
+        help="Show role.",
+        callback=SystemRole.show,
+        rich_help_panel="Role Options",
+    ),
+    list_roles: bool = typer.Option(  # pylint: disable=W0613
+        False,
+        help="List roles.",
+        callback=SystemRole.list,
+        rich_help_panel="Role Options",
+    ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
@@ -116,7 +140,7 @@ def main(
     api_key = cfg.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
 
-    role = DefaultRoles.get(shell, code)
+    role = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.

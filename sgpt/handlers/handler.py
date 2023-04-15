@@ -32,7 +32,7 @@ class Handler:
 
     def handle(self, prompt: str, **kwargs: Any) -> str:
         prompt = self.make_prompt(prompt)
-        # print(prompt)
+        print(prompt)
         # print(kwargs)
         messages = [{"role": "user", "content": prompt}]
         full_completion = ""
