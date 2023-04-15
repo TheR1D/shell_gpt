@@ -19,9 +19,9 @@ from uuid import uuid4
 import typer
 from typer.testing import CliRunner
 
+from sgpt.app import main
 from sgpt.client import OpenAIClient
 from sgpt.config import cfg
-from sgpt.app import main
 from sgpt.handlers.handler import Handler
 
 runner = CliRunner()

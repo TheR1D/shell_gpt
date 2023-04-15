@@ -18,14 +18,13 @@ import typer
 # Click is part of typer.
 from click import BadArgumentUsage, MissingParameter
 
+from sgpt.client import OpenAIClient
+from sgpt.config import cfg
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
+from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import ModelOptions, get_edited_prompt, run_command
-from sgpt.role import DefaultRoles
-from sgpt.config import cfg
-from sgpt.client import OpenAIClient
-from sgpt.role import SystemRole
 
 
 def main(
@@ -140,11 +139,11 @@ def main(
     api_key = cfg.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
 
-    role = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
+    role_class = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
-        ReplHandler(client, repl, role).handle(
+        ReplHandler(client, repl, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -154,7 +153,7 @@ def main(
         )
 
     if chat:
-        full_completion = ChatHandler(client, chat, role).handle(
+        full_completion = ChatHandler(client, chat, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -163,7 +162,7 @@ def main(
             caching=cache,
         )
     else:
-        full_completion = DefaultHandler(client, role).handle(
+        full_completion = DefaultHandler(client, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,

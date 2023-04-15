@@ -8,7 +8,6 @@ from click import UsageError
 
 from .utils import ModelOptions
 
-
 CONFIG_FOLDER = os.path.expanduser("~/.config")
 SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
 SHELL_GPT_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
@@ -33,7 +32,6 @@ DEFAULT_CONFIG = {
 
 
 class Config(dict):  # type: ignore
-
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
 

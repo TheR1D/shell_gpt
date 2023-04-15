@@ -4,11 +4,10 @@ import typer
 from rich import print as rich_print
 from rich.rule import Rule
 
-from ..role import SystemRole
 from ..client import OpenAIClient
-from .chat_handler import ChatHandler
+from ..role import DefaultRoles, SystemRole
 from ..utils import run_command
-from ..role import DefaultRoles
+from .chat_handler import ChatHandler
 
 
 class ReplHandler(ChatHandler):
@@ -45,7 +44,7 @@ class ReplHandler(ChatHandler):
             if prompt == "exit()":
                 # This is also useful during tests.
                 raise typer.Exit()
-            if self.role.name == DefaultRoles.SHELL:
+            if self.role.name == DefaultRoles.SHELL.value:
                 if prompt == "e":
                     typer.echo()
                     run_command(full_completion)

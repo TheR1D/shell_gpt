@@ -152,14 +152,18 @@ class ChatHandler(Handler):
         if self.initiated:
             # print("initial message:", self.initial_message)
             chat_role_name = self.role.get_role_name(self.initial_message)
+            if not chat_role_name:
+                raise BadArgumentUsage(
+                    f'Could not determine chat role of "{self.chat_id}"'
+                )
             if self.role.name == "default":
                 # If user didn't pass chat mode, we will use the one that was used to initiate the chat.
                 self.role = SystemRole.get(chat_role_name)
             else:
                 if not self.is_same_role:
                     raise BadArgumentUsage(
-                        f"Cant change chat role \"{self.role.name}\" "
-                        f"of initiated \"{chat_role_name}\" chat."
+                        f'Cant change chat role "{self.role.name}" '
+                        f'of initiated "{chat_role_name}" chat.'
                     )
 
     def make_prompt(self, prompt: str) -> str:

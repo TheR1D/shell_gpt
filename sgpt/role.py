@@ -1,16 +1,12 @@
 import json
-from enum import Enum
-
-from pathlib import Path
-from typing import Dict, Callable, Optional
-
-import typer
-
-
 import platform
+from enum import Enum
 from os import getenv, pathsep
 from os.path import basename
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional
 
+import typer
 from distro import name as distro_name
 
 from .config import cfg
@@ -43,12 +39,13 @@ Request: {request}
 {expecting}:"""
 
 
-def option_callback(func: Callable) -> Callable:
-    def wrapper(cls, value):
+def option_callback(func: Callable) -> Callable:  # type: ignore
+    def wrapper(cls: Any, value: Any) -> None:
         if not value:
             return
         func(cls)
         raise typer.Exit()
+
     return wrapper
 
 
@@ -72,13 +69,13 @@ class SystemRole:
         self.role = role
 
     @classmethod
-    def create_defaults(cls):
+    def create_defaults(cls) -> None:
         cls.storage.parent.mkdir(parents=True, exist_ok=True)
         variables = {"shell": cls.shell_name(), "os": cls.os_name()}
         for default_role in (
-                SystemRole("default", DEFAULT_ROLE, "Answer", variables),
-                SystemRole("shell", SHELL_ROLE, "Command", variables),
-                SystemRole("code", CODE_ROLE, "Code"),
+            SystemRole("default", DEFAULT_ROLE, "Answer", variables),
+            SystemRole("shell", SHELL_ROLE, "Command", variables),
+            SystemRole("code", CODE_ROLE, "Code"),
         ):
             if not default_role.exists:
                 default_role.save()
@@ -124,7 +121,9 @@ class SystemRole:
         if not name:
             return
         role = typer.prompt("Enter role description")
-        expecting = typer.prompt("Enter output type, e.g. answer, code, shell command, json, etc.")
+        expecting = typer.prompt(
+            "Enter output type, e.g. answer, code, shell command, json, etc."
+        )
         role = cls(name, role, expecting)
         role.save()
         raise typer.Exit()
@@ -142,7 +141,7 @@ class SystemRole:
 
     @classmethod
     @option_callback
-    def show(cls, name: str):
+    def show(cls, name: str) -> None:
         typer.echo(cls.get(name).role)
 
     @property
