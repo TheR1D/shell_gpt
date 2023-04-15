@@ -16,11 +16,12 @@ Command:"""
 DESCRIBE_SHELL_PROMPT = """###
 Provide an imperative, terse, single sentence description of the given shell command.
 Do not repeat the given shell command or use any phrase indicating "this command".
-Provide only plain text without Markdown formatting.
-Command: du -cks
-Answer: List the total disk usage of the current directory and its subdirectories in kilobytes.
+Provide only plain text without Markdown formatting. Use the following example:
+Prompt: du -cks
+Description: List the total disk usage of the current directory and its subdirectories in kilobytes.
 Prompt: {prompt}
-"""
+###
+Description:"""
 
 CODE_PROMPT = """###
 Provide only code as output without any description.
