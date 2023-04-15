@@ -4,13 +4,14 @@ from enum import Enum
 from os import getenv, pathsep
 from os.path import basename
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Dict, Optional
 
 import typer
 from click import BadArgumentUsage
 from distro import name as distro_name
 
 from .config import cfg
+from .utils import option_callback
 
 SHELL_ROLE = """Provide only {shell} commands for {os} without any description.
 If there is a lack of details, provide most logical solution.
@@ -38,16 +39,6 @@ Role name: {name}
 Request: {request}
 ###
 {expecting}:"""
-
-
-def option_callback(func: Callable) -> Callable:  # type: ignore
-    def wrapper(cls: "SystemRole", value: str) -> None:
-        if not value:
-            return
-        func(cls, value)
-        raise typer.Exit()
-
-    return wrapper
 
 
 class SystemRole:

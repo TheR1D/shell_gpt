@@ -102,13 +102,13 @@ def main(
         rich_help_panel="Role Options",
         callback=SystemRole.create,
     ),
-    show_role: str = typer.Option(  # pylint: disable=W0613
+    show_role: str = typer.Option(
         None,
         help="Show role.",
         callback=SystemRole.show,
         rich_help_panel="Role Options",
     ),
-    list_roles: bool = typer.Option(  # pylint: disable=W0613
+    list_roles: bool = typer.Option(
         False,
         help="List roles.",
         callback=SystemRole.list,

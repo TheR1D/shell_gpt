@@ -3,7 +3,9 @@ import platform
 import shlex
 from enum import Enum
 from tempfile import NamedTemporaryFile
+from typing import Callable, Any
 
+import typer
 from click import BadParameter
 
 
@@ -53,3 +55,13 @@ def run_command(command: str) -> None:
         full_command = f"{shell} -c {shlex.quote(command)}"
 
     os.system(full_command)
+
+
+def option_callback(func: Callable) -> Callable:  # type: ignore
+    def wrapper(cls: Any, value: str) -> None:
+        if not value:
+            return
+        func(cls, value)
+        raise typer.Exit()
+
+    return wrapper
