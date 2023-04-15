@@ -1,0 +1,34 @@
+rio
+# Rasterio command line interface for loading and operating on geospatial raster datasets.
+# For example, rio can be used to load the contents of a COG on S3 as a virtual file.
+# CLI help follows. reference rasterio docs for more details.
+Options:
+  -v, --verbose           Increase verbosity.
+  -q, --quiet             Decrease verbosity.
+  --aws-profile TEXT      Select a profile from the AWS credentials file
+  --aws-no-sign-requests  Make requests anonymously
+  --aws-requester-pays    Requester pays data transfer costs
+  --version               Show the version and exit.
+  --gdal-version
+  --help                  Show this message and exit.
+Commands:
+  blocks     Write dataset blocks as GeoJSON features.
+  bounds     Write bounding boxes to stdout as GeoJSON.
+  calc       Raster data calculator.
+  clip       Clip a raster to given bounds.
+  convert    Copy and convert raster dataset.
+  edit-info  Edit dataset metadata.
+  env        Print information about the Rasterio environment.
+  gcps       Print ground control points as GeoJSON.
+  info       Print information about a data file.
+  insp       Open a data file and start an interpreter.
+  mask       Mask in raster using features.
+  merge      Merge a stack of raster datasets.
+  overview   Construct overviews in an existing dataset.
+  rasterize  Rasterize features.
+  rm         Delete a dataset.
+  sample     Sample a dataset.
+  shapes     Write shapes extracted from bands or masks.
+  stack      Stack a number of bands into a multiband dataset.
+  transform  Transform coordinates.
+  warp       Warp a raster dataset.

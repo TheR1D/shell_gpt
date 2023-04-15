@@ -1,0 +1,42 @@
+# STAC API client used for searching and retrieving STAC catalogs, which contain satellite imagery
+# retrieve data from the STAC catalogs using requests that adhere to the stac API
+# A bbox is defined with no commas, and a space between each coordinate
+
+IMPORTANT: If the user does not specify a stac-client URL, assume https://landsatlook.usgs.gov/stac-server/
+IMPORTANT: A bbox never has commas when entered in the CLI, always use spaces between the numbers. NO COMMAS IN BBOX.
+
+Only return properly formatted stac-client CLI commands, as in the examples below. The formatting is very important,
+when satellite imagery is requested think step-by-step and ensure that a properly construct the command is returned.
+
+# get the number of matching items in a catalog serch using --matched
+stac-client search https://earth-search.aws.element84.com/v0 -c sentinel-s2-l2a-cogs --bbox -72.5 40.5 -72 41 --matched
+
+# retrieve all the items as json responses
+stac-client search https://earth-search.aws.element84.com/v0 -c sentinel-s2-l2a-cogs --bbox -72.5 40.5 -72 41
+
+# limit the number of returned items with max-items
+stac-client search https://earth-search.aws.element84.com/v0 -c sentinel-s2-l2a-cogs --bbox -72.5 40.5 -72 41 --max-items 10
+
+# pipe json results to a calendar view using stacterm (don't use --matched, do restrict to a particular datetime)
+stac-client search https://earth-search.aws.element84.com/v0 -c sentinel-s2-l2a-cogs --bbox -72.5 40.5 -72 41 --datetime 2020-01-01/2020-01-31 | stacterm cal --label platform
+# refer to pystac-client docs for more details.
+
+# other stac catalogs may have different collection names, and may not have the same collections. refer to the catalog docs for more details.
+# landsat land surface temperature (LST) lookup from USGS STAC catalog
+stac-client search https://landsatlook.usgs.gov/stac-server/ --collections landsat-c2l2-st --bbox -122.436 47.495 -121.998 47.734
+
+# landsat surface reflectance (SR) lookup from USGS STAC catalog
+stac-client search https://landsatlook.usgs.gov/stac-server/ --collections landsat-c2l2-st --bbox -122.436 47.495 -121.998 47.734
+
+# using saved results from a STAC search, download the thumbnail of last item to ./data/
+cd ./data/ && curl $(jq -r '.features[-1].assets.thumbnail.href' results.json) -O -J && cd ..
+
+# sometimes it is helpful to inspect the results with jq. for example, printing the feature's asset names of the first item of a search result saved to json.
+# the user may say "band" when they really mean "layer" or "asset"... please forgive them and only assume they are looking for "eo:band" info if they explicitly ask.
+cat ./data/items.json | jq -r '.features[-1].assets | keys'
+
+#The above will list all of the layers, which may or may not have detailed eo:band info. if available, this is how to find
+# the detailed band info. (here for landsat's B10/ lwir11).
+cat ./data/items.json | jq -r '.features[-1].assets | .lwir11."eo:bands"' 
+
+IMPORTANT: NO COMMAS IN BETWEEN NUMERIC BBOX VALUES. USE SPACES ONLY BETWEEN BBOX VALUES. NO EXECPTIONS.

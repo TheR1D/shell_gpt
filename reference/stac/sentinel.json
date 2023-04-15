@@ -1,0 +1,201 @@
+{
+    "stac_version": "1.0.0-beta.2",
+    "stac_extensions": [
+      "view",
+      "projection"
+    ],
+    "type": "Feature",
+    "id": "S2A_OPER_MSI_L2A_TL_SGS__20180524T190423_A015250_T26SKD_N02.08",
+    "collection": "sentinel-s2-l2a",
+    "links": [
+      {
+        "rel": "self",
+        "href": "s3://sentinel-s2-l2a-catalog/tiles/35/V/MK/2018/6/5/0/sentinel2-sample.json"
+      },
+      {
+        "rel": "root",
+        "href": "s3://sentinel-s2-l2a-catalog/catalog.json"
+      },
+      {
+        "rel": "collection",
+        "href": "s3://sentinel-s2-l2a-catalog/catalog.json"
+      }
+    ],
+    "bbox": [
+      25.0815883093,
+      62.1306897126,
+      27.1935425597,
+      63.1293872370
+    ],
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -105.160846396,
+            39.1656009422
+          ],
+          [
+            -104.947574355,
+            39.1750024943
+          ],
+          [
+            -104.949890373,
+            39.0512153242
+          ],
+          [
+            -105.161151214,
+            39.0436821016
+          ],
+          [
+            -105.160846396,
+            39.1656009422
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "datetime": "2018-06-05T10:00:27Z",
+      "platform": "sentinel-2",
+      "gsd": 10,
+      "proj:epsg": 32635,
+      "eo:cloud_cover": 88.459539,
+      "view:sun_azimuth" : 176.091667178268
+    },
+    "collection": "s2-l2a",
+    "assets": {
+      "metadata": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/metadata.xml",
+        "title": "Tile metadata",
+        "type": "application/xml",
+        "roles": [ "metadata" ]
+      },
+      "tileInfo": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/tileInfo.json",
+        "title": "Tile info",
+        "type": "application/json"
+      },
+      "productInfo": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/productInfo.json",
+        "title": "Product info",
+        "type": "application/json"
+      },
+      "thumbnail": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/qi/L2A_PVI.jp2",
+        "title": "True color thumbnail",
+        "type": "image/jp2",
+        "roles": [ "thumbnail" ]
+      },
+      "B02_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/B02.jp2",
+        "title": "Band 2 - Blue 0.490 (10m)",
+        "type": "image/jp2"
+      },
+      "B03_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/B03.jp2",
+        "title": "Band 3 - Green 0.560 (10m)",
+        "type": "image/jp2"
+      },
+      "B04_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/B04.jp2",
+        "title": "Band 4 - Red 0.665 (10m)",
+        "type": "image/jp2"
+      },
+      "B08_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/B08.jp2",
+        "title": "Band 8 - NIR 0.842 (10m)",
+        "type": "image/jp2"
+      },
+      "AOT_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/AOT.jp2",
+        "title": "Aerosol Optical Thickness (10m)",
+        "type": "image/jp2"
+      },
+      "TCI_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/TCI.jp2",
+        "title": "True Color Image (10m)",
+        "type": "image/jp2"
+      },
+      "WVP_10m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R10m/WVP.jp2",
+        "title": "Water Vapor (10m)",
+        "type": "image/jp2"
+      },
+      "B02_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B02.jp2",
+        "title": "Band 2 - Blue 0.490 (20m)",
+  
+        "type": "image/jp2"
+      },
+      "B03_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B03.jp2",
+        "title": "Band 3 - Green 0.560 (20m)",
+        "type": "image/jp2"
+      },
+      "B04_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B04.jp2",
+        "title": "Band 4 - Red 0.665 (20m)",
+        "type": "image/jp2"
+      },
+      "B05_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B05.jp2",
+        "title" : "Band 5 - Vegetation Red Edge 0.705 (20m)",
+        "type": "image/jp2"
+      },
+      "B06_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B06.jp2",
+        "title": "Band 6 - Vegetation Red Edge 0.740 (20m)",
+        "type": "image/jp2"
+      },
+      "B07_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B07.jp2",
+        "title": "Band 7 - Vegetation Red Edge 0.783 (20m)",
+        "type": "image/jp2"
+      },
+      "B8A_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B8A.jp2",
+        "title": "Band 8A - Narrow NIR 0.865 (20m)",
+        "type": "image/jp2"
+      },
+      "B11_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B11.jp2",
+        "title": "Band 11 - SWIR 1.610 (20m)",
+        "type": "image/jp2"
+      },
+      "B12_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/B12.jp2",
+        "title": "Band 12 - SWIR 2.190 (20m)",
+        "type": "image/jp2"
+      },
+      "AOT_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/AOT.jp2",
+        "title": "Aerosol Optical Thickness (20m)",
+        "type": "image/jp2"
+      },
+      "SCL_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/SCL.jp2",
+        "title": "Scene Classification (20m)",
+        "type": "image/jp2"
+      },
+      "TCI_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/TCI.jp2",
+        "title": "True Color Image (20m)",
+        "type": "image/jp2"
+      },
+      "WVP_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/R20m/WVP.jp2",
+        "title": "Water Vapor (20m)",
+        "type": "image/jp2"
+      },
+      "CLD_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/qi/CLD_20m.jp2",
+        "title": "Cloud (20m)",
+        "type": "image/jp2"
+      },
+      "SNW_20m": {
+        "href": "s3://sentinel-s2-l2a/tiles/35/V/MK/2018/6/5/0/qi/SNW_20m.jp2",
+        "title": "Snow (20m)",
+        "type": "image/jp2"
+      }
+    }
+  }

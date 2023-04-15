@@ -1,0 +1,14 @@
+{
+    "stac_version": "1.0.0-beta.2",
+    "id": "stac-examples",
+    "description": "This catalog contains a variety of STAC Collections and items, in order to give new users a sense of how STAC is used in the real world. Note that it is different from real world implementations as it only has one or two items per catalog or collection. See the [repository readme](https://github.com/stac-utils/stac-examples) for more information about how this repo differs from typical STAC best practices.",
+    "links": [
+      { "rel": "self", "href": ".https://raw.githubusercontent.com/stac-utils/stac-examples/main/catalog.json" },
+      { "rel": "child", "href": "./planet/collection.json" },
+      { "rel": "child", "href": "./cbers/collection.json" },
+      { "rel": "child", "href": "./sentinel-2/collection.json" },
+      { "rel": "child", "href": "./landsat8/collection.json" },
+      { "rel": "child", "href": "./aster-openeo-gee/collection.json" },
+      { "rel": "root", "href": "./catalog.json" }
+    ]
+}

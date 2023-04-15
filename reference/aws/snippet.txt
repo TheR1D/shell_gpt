@@ -1,0 +1,5 @@
+The locations of satellite images will often be S3 buckets, with links provided in e.g. a stac item's alternate.href.s3
+
+IMPORTANT: If trying to access S3 buckets, always set the 
+
+aws s3 cp s3://bucket-name/path/to/file /local/path --request-payer=requester
