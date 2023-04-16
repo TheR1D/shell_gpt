@@ -4,7 +4,8 @@ from typing import Dict, Generator, List
 
 import requests
 
-from sgpt import Cache, cfg
+from .cache import Cache
+from .config import cfg
 
 CACHE_LENGTH = int(cfg.get("CACHE_LENGTH"))
 CACHE_PATH = Path(cfg.get("CACHE_PATH"))
@@ -27,7 +28,7 @@ class OpenAIClient:
         top_probability: float = 1,
     ) -> Generator[str, None, None]:
         """
-        Make request to OpenAI ChatGPT API, read more:
+        Make request to OpenAI API, read more:
         https://platform.openai.com/docs/api-reference/chat
 
         :param messages: List of messages {"role": user or assistant, "content": message_string}

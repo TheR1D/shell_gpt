@@ -5,9 +5,10 @@ from typing import Any, Callable, Dict, Generator, List, Optional
 import typer
 from click import BadArgumentUsage
 
-from sgpt import OpenAIClient, cfg, make_prompt
-from sgpt.handlers.handler import Handler
-from sgpt.utils import CompletionModes
+from ..client import OpenAIClient
+from ..config import cfg
+from ..role import SystemRole
+from .handler import Handler
 
 CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
 CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
@@ -94,15 +95,12 @@ class ChatHandler(Handler):
         self,
         client: OpenAIClient,
         chat_id: str,
-        shell: bool = False,
-        code: bool = False,
-        model: str = "gpt-3.5-turbo",
+        role: SystemRole,
     ) -> None:
-        super().__init__(client)
+        super().__init__(client, role)
         self.chat_id = chat_id
         self.client = client
-        self.mode = CompletionModes.get_mode(shell, code)
-        self.model = model
+        self.role = role
 
         if chat_id == "temp":
             # If the chat id is "temp", we don't want to save the chat session.
@@ -124,20 +122,15 @@ class ChatHandler(Handler):
         return self.chat_session.exists(self.chat_id)
 
     @property
-    def is_shell_chat(self) -> bool:
+    def initial_message(self) -> str:
+        chat_history = self.chat_session.get_messages(self.chat_id)
+        index = 1 if cfg.get("SYSTEM_ROLES") == "true" else 0
+        return chat_history[index] if chat_history else ""
+
+    @property
+    def is_same_role(self) -> bool:
         # TODO: Should be optimized for REPL mode.
-        chat_history = self.chat_session.get_messages(self.chat_id)
-        return bool(chat_history and chat_history[0].endswith("###\nCommand:"))
-
-    @property
-    def is_code_chat(self) -> bool:
-        chat_history = self.chat_session.get_messages(self.chat_id)
-        return bool(chat_history and chat_history[0].endswith("###\nCode:"))
-
-    @property
-    def is_default_chat(self) -> bool:
-        chat_history = self.chat_session.get_messages(self.chat_id)
-        return bool(chat_history and chat_history[0].endswith("###"))
+        return self.role.same_role(self.initial_message)
 
     @classmethod
     def show_messages_callback(cls, chat_id: str) -> None:
@@ -150,47 +143,40 @@ class ChatHandler(Handler):
     def show_messages(cls, chat_id: str) -> None:
         # Prints all messages from a specified chat ID to the console.
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
-            message = message.replace("\nCommand:", "").replace("\nCode:", "")
-            color = "cyan" if index % 2 == 0 else "green"
+            # Remove output type from the message, e.g. "text\nCommand:" -> "text"
+            if message.startswith("user:"):
+                message = "\n".join(message.splitlines()[:-1])
+            color = "magenta" if index % 2 == 0 else "green"
             typer.secho(message, fg=color)
 
     def validate(self) -> None:
         if self.initiated:
-            if self.is_shell_chat and self.mode == CompletionModes.CODE:
+            # print("initial message:", self.initial_message)
+            chat_role_name = self.role.get_role_name(self.initial_message)
+            if not chat_role_name:
                 raise BadArgumentUsage(
-                    f'Chat session "{self.chat_id}" was initiated as shell assistant, '
-                    "and can be used with --shell only"
+                    f'Could not determine chat role of "{self.chat_id}"'
                 )
-            if self.is_code_chat and self.mode == CompletionModes.SHELL:
-                raise BadArgumentUsage(
-                    f'Chat "{self.chat_id}" was initiated as code assistant, '
-                    "and can be used with --code only"
-                )
-            if self.is_default_chat and self.mode != CompletionModes.NORMAL:
-                raise BadArgumentUsage(
-                    f'Chat "{self.chat_id}" was initiated as default assistant, '
-                    "and can't be used with --shell or --code"
-                )
-            # If user didn't pass chat mode, we will use the one that was used to initiate the chat.
-            if self.mode == CompletionModes.NORMAL:
-                if self.is_shell_chat:
-                    self.mode = CompletionModes.SHELL
-                elif self.is_code_chat:
-                    self.mode = CompletionModes.CODE
+            if self.role.name == "default":
+                # If user didn't pass chat mode, we will use the one that was used to initiate the chat.
+                self.role = SystemRole.get(chat_role_name)
+            else:
+                if not self.is_same_role:
+                    raise BadArgumentUsage(
+                        f'Cant change chat role to "{self.role.name}" '
+                        f'since it was initiated as "{chat_role_name}" chat.'
+                    )
 
     def make_prompt(self, prompt: str) -> str:
         prompt = prompt.strip()
-        if self.initiated:
-            if self.is_shell_chat:
-                prompt += "\nCommand:"
-            elif self.is_code_chat:
-                prompt += "\nCode:"
-            return prompt
-        return make_prompt.initial(
-            prompt,
-            self.mode == CompletionModes.SHELL,
-            self.mode == CompletionModes.CODE,
-        )
+        return self.role.make_prompt(prompt, not self.initiated)
+
+    def make_messages(self, prompt: str) -> List[Dict[str, str]]:
+        messages = []
+        if not self.initiated and cfg.get("SYSTEM_ROLES") == "true":
+            messages.append({"role": "system", "content": self.role.role})
+        messages.append({"role": "user", "content": prompt})
+        return messages
 
     @chat_session
     def get_completion(

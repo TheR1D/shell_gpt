@@ -4,21 +4,15 @@ import typer
 from rich import print as rich_print
 from rich.rule import Rule
 
-from sgpt.client import OpenAIClient
-from sgpt.handlers.chat_handler import ChatHandler
-from sgpt.utils import CompletionModes, run_command
+from ..client import OpenAIClient
+from ..role import DefaultRoles, SystemRole
+from ..utils import run_command
+from .chat_handler import ChatHandler
 
 
 class ReplHandler(ChatHandler):
-    def __init__(
-        self,
-        client: OpenAIClient,
-        chat_id: str,
-        shell: bool = False,
-        code: bool = False,
-        model: str = "gpt-3.5-turbo",
-    ):
-        super().__init__(client, chat_id, shell, code, model)
+    def __init__(self, client: OpenAIClient, chat_id: str, role: SystemRole) -> None:
+        super().__init__(client, chat_id, role)
 
     def handle(self, prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:
@@ -28,7 +22,7 @@ class ReplHandler(ChatHandler):
 
         info_message = (
             "Entering REPL mode, press Ctrl+C to exit."
-            if not self.mode == CompletionModes.SHELL
+            if not self.role.name == DefaultRoles.SHELL.value
             else "Entering shell REPL mode, type [e] to execute commands or press Ctrl+C to exit."
         )
         typer.secho(info_message, fg="yellow")
@@ -44,7 +38,7 @@ class ReplHandler(ChatHandler):
             if prompt == "exit()":
                 # This is also useful during tests.
                 raise typer.Exit()
-            if self.mode == CompletionModes.SHELL:
+            if self.role.name == DefaultRoles.SHELL.value:
                 if prompt == "e":
                     typer.echo()
                     run_command(full_completion)

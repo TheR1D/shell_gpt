@@ -1,8 +1,9 @@
 from pathlib import Path
+from typing import Dict, List
 
-from sgpt import OpenAIClient, cfg, make_prompt
-from sgpt.utils import CompletionModes
-
+from ..client import OpenAIClient
+from ..config import cfg
+from ..role import SystemRole
 from .handler import Handler
 
 CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
@@ -13,19 +14,19 @@ class DefaultHandler(Handler):
     def __init__(
         self,
         client: OpenAIClient,
-        shell: bool = False,
-        code: bool = False,
-        model: str = "gpt-3.5-turbo",
+        role: SystemRole,
     ) -> None:
-        super().__init__(client)
+        super().__init__(client, role)
         self.client = client
-        self.mode = CompletionModes.get_mode(shell, code)
-        self.model = model
+        self.role = role
 
     def make_prompt(self, prompt: str) -> str:
         prompt = prompt.strip()
-        return make_prompt.initial(
-            prompt,
-            self.mode == CompletionModes.SHELL,
-            self.mode == CompletionModes.CODE,
-        )
+        return self.role.make_prompt(prompt, initial=True)
+
+    def make_messages(self, prompt: str) -> List[Dict[str, str]]:
+        messages = []
+        if cfg.get("SYSTEM_ROLES") == "true":
+            messages.append({"role": "system", "content": self.role.role})
+        messages.append({"role": "user", "content": prompt})
+        return messages

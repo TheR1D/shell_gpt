@@ -19,8 +19,11 @@ from uuid import uuid4
 import typer
 from typer.testing import CliRunner
 
-from sgpt import OpenAIClient, cfg, main
+from sgpt.app import main
+from sgpt.client import OpenAIClient
+from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
+from sgpt.role import SystemRole
 
 runner = CliRunner()
 app = typer.Typer()
@@ -62,7 +65,7 @@ class TestShellGpt(TestCase):
 
     def test_code(self):
         """
-        This test will request from ChatGPT a python code to make CLI app,
+        This test will request from OpenAI API a python code to make CLI app,
         which will be written to a temp file, and then it will be executed
         in shell with two positional int arguments. As the output we are
         expecting the result of multiplying them.
@@ -164,7 +167,7 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 2
 
     def test_list_chat(self):
-        result = runner.invoke(app, ["--list-chat"])
+        result = runner.invoke(app, ["--list-chats"])
         assert result.exit_code == 0
         assert "test_" in result.stdout
 
@@ -307,16 +310,21 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         mocked_get_completion.assert_called_once_with(
-            ANY, "gpt-4", 0.1, 1.0, caching=False
+            messages=ANY,
+            model="gpt-4",
+            temperature=0.1,
+            top_probability=1.0,
+            caching=False,
         )
         assert result.exit_code == 0
 
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
-        handler = Handler(OpenAIClient("test", "test"))
+        role = SystemRole.get("default")
+        handler = Handler(OpenAIClient("test", "test"), role=role)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(OpenAIClient("test", "test"))
+        handler = Handler(OpenAIClient("test", "test"), role=role)
         assert handler.color == "red"
 
     def test_simple_stdin(self):
@@ -331,3 +339,56 @@ class TestShellGpt(TestCase):
         stdin = "What is in current folder\n"
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
         assert result.stdout == "ls | sort\n"
+
+    def test_role(self):
+        test_role = Path(cfg.get("ROLE_STORAGE_PATH")) / "test_json.json"
+        test_role.unlink(missing_ok=True)
+        dict_arguments = {
+            "prompt": "test",
+            "--create-role": "test_json",
+        }
+        input = "You are a JSON generator, return only JSON as response.\n" "json\n"
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input=input)
+        assert result.exit_code == 0
+
+        dict_arguments = {
+            "prompt": "test",
+            "--list-roles": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "test_json" in result.stdout
+
+        dict_arguments = {
+            "prompt": "test",
+            "--show-role": "test_json",
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "You are a JSON generator" in result.stdout
+
+        # Test with command line argument prompt.
+        dict_arguments = {
+            "prompt": "random username, password, email",
+            "--role": "test_json",
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        generated_json = json.loads(result.stdout)
+        assert "username" in generated_json
+        assert "password" in generated_json
+        assert "email" in generated_json
+
+        # Test with stdin prompt.
+        dict_arguments = {
+            "prompt": "",
+            "--role": "test_json",
+        }
+        stdin = "random username, password, email"
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
+        assert result.exit_code == 0
+        generated_json = json.loads(result.stdout)
+        assert "username" in generated_json
+        assert "password" in generated_json
+        assert "email" in generated_json
+        test_role.unlink(missing_ok=True)
