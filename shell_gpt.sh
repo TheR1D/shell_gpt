@@ -111,7 +111,7 @@ _sgpt_is_destructive_command() {
     # HACK: This is not an exhaustive way to check if the command
     # is destructive. There are flags in other common commands that
     # should be checked.
-    local destructive_commands=(rm mv dd chmod mkfs mkswap )
+    local destructive_commands=(rm mv dd chmod sed git mkfs mkswap )
     local command_name=${1%% *}
     [[ "$destructive_commands[@]" =~ $command_name ]]
 }
