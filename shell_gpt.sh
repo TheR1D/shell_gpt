@@ -1,5 +1,5 @@
-KEYBINDING='^ '
-DEBUG_MODE=false
+ZSH_KEYBINDING='^ '
+BASH_KEYBINDING='\C-@'
 
 # Toggles the buffer between natural language and shell command, assuming
 # it executes in zsh.
@@ -22,7 +22,6 @@ _sgpt_zsh() {
         _sgpt_prev_cmd=$BUFFER
         BUFFER=$(_sgpt_translate_buffer "$BUFFER")
         _sgpt_penult_cmd=$BUFFER
-        zle end-of-line
     fi
     # Move cursor to end of line
     zle end-of-line
@@ -35,35 +34,33 @@ _sgpt_bash() {
     # NOTE: These two functions could be merged using an indirect reference to the
     # buffer variable given as a parameter, but the method that is compatible with 
     # both zsh and bash is very messy: (https://tldp.org/LDP/abs/html/ivr.html)
-    [[ -z $READLINE_BUFFER ]] && READLINE_BUFFER=$(fc -ln -1)
+    [[ -z $READLINE_LINE ]] && READLINE_LINE=$(fc -ln -1)
 
-    if [[ $READLINE_BUFFER == $_sgpt_penult_cmd ]]; then
-        tmp=$READLINE_BUFFER
-        BUFFER=$_sgpt_prev_cmd
+    if [[ $READLINE_LINE == $_sgpt_penult_cmd ]]; then
+        tmp=$READLINE_LINE
+        READLINE_LINE=$_sgpt_prev_cmd
         _sgpt_penult_cmd=$_sgpt_prev_cmd
         _sgpt_prev_cmd=$tmp
     else
-        echo "I MADE IT"
-        _sgpt_prev_cmd=$READLINE_BUFFER
-        READLINE_BUFFER=$(_sgpt_translate_buffer "$READLINE_BUFFER")
-        _sgpt_penult_cmd=$READLINE_BUFFER
+        _sgpt_prev_cmd=$READLINE_LINE
+        READLINE_LINE=$(_sgpt_translate_buffer "$READLINE_LINE")
+        _sgpt_penult_cmd=$READLINE_LINE
     fi
     # Move cursor to end of line
-    tput end-of-line
+    READLINE_POINT=${#READLINE_LINE}
 }
 
 # Decides whether the buffer contains shell command or natural language, then translates
-# it to the other one.
+# it to the other one using sgpt.
 _sgpt_translate_buffer() {
     # The command name is the first word in the buffer
     local command_name=${1%% *}
     local sgpt_flag='--shell'
 
     # Decide if the buffer contains command or natural language
-    if type $command_name > /dev/null; then
+    if command -v $command_name > /dev/null; then
         sgpt_flag='--describe-shell'
     fi
-
 
     sgpt $sgpt_flag <<< $1
 }
@@ -90,22 +87,23 @@ command_not_found_handler() {
     # If it's destructive, then prompt for confirmation.
     if _sgpt_is_destructive_command "$converted_command"; then
         # Then prompt for confirmation
-        echo "Execute shell command? [y/N]:"
+        echo "$converted_command"
+        echo "Execute destructive shell command? [y/N]:"
         read confirmation
-        # If confirmation starts with n or N, then exit unsuccessfully
-        if [[ $confirmation == ^[Nn]* ]]; then
+        # If user types enter or a word starting with n or N, then exit unsuccessfully
+        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
             return 1
         fi
     fi
 
     # Execute the translated command.
-    # NOTE Using subshell to execute command is safer than eval
-    $(echo $converted_command)
+    # TODO Use subshell to execute command instead because it is safer then eval.
+    eval "$converted_command"
 }
 
 # Same thing for bash, but slightly different function name
 command_not_found_handle() { 
-    command_not_found_handler $@ 
+    command_not_found_handler "$@"
 }
 
 # Retusns whether or not a given commands makes an irreversable change
@@ -121,7 +119,7 @@ _sgpt_is_destructive_command() {
 # Determine the type of shell, and execute the appropriate keybinding commmand
 if [[ -n $ZSH_VERSION ]]; then
     zle -N _sgpt_zsh
-    bindkey $KEYBINDING _sgpt_zsh
+    bindkey $ZSH_KEYBINDING _sgpt_zsh
 else
-    bind -x "\"$KEYBINDING\": _sgpt_bash"
+    bind -x "\"$BASH_KEYBINDING\": _sgpt_bash"
 fi
