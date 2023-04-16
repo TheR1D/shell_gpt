@@ -112,7 +112,7 @@ def main(
     stdin_passed = not sys.stdin.isatty()
 
     if stdin_passed and not repl:
-        prompt = sys.stdin.read() + (prompt or "")
+        prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
 
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")

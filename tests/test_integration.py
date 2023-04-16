@@ -339,3 +339,56 @@ class TestShellGpt(TestCase):
         stdin = "What is in current folder\n"
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
         assert result.stdout == "ls | sort\n"
+
+    def test_role(self):
+        test_role = Path(cfg.get("ROLE_STORAGE_PATH")) / "test_json.json"
+        test_role.unlink(missing_ok=True)
+        dict_arguments = {
+            "prompt": "test",
+            "--create-role": "test_json",
+        }
+        input = "You are a JSON generator, return only JSON as response.\n" "json\n"
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input=input)
+        assert result.exit_code == 0
+
+        dict_arguments = {
+            "prompt": "test",
+            "--list-roles": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "test_json" in result.stdout
+
+        dict_arguments = {
+            "prompt": "test",
+            "--show-role": "test_json",
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "You are a JSON generator" in result.stdout
+
+        # Test with command line argument prompt.
+        dict_arguments = {
+            "prompt": "random username, password, email",
+            "--role": "test_json",
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        generated_json = json.loads(result.stdout)
+        assert "username" in generated_json
+        assert "password" in generated_json
+        assert "email" in generated_json
+
+        # Test with stdin prompt.
+        dict_arguments = {
+            "prompt": "",
+            "--role": "test_json",
+        }
+        stdin = "random username, password, email"
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
+        assert result.exit_code == 0
+        generated_json = json.loads(result.stdout)
+        assert "username" in generated_json
+        assert "password" in generated_json
+        assert "email" in generated_json
+        test_role.unlink(missing_ok=True)
