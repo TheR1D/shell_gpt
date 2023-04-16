@@ -28,7 +28,7 @@ class OpenAIClient:
         top_probability: float = 1,
     ) -> Generator[str, None, None]:
         """
-        Make request to OpenAI ChatGPT API, read more:
+        Make request to OpenAI API, read more:
         https://platform.openai.com/docs/api-reference/chat
 
         :param messages: List of messages {"role": user or assistant, "content": message_string}

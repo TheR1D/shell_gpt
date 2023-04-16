@@ -1,13 +1,9 @@
 """
-shell-gpt: An interface to OpenAI's ChatGPT (GPT-3.5) API
-
-This module provides a simple interface for OpenAI's ChatGPT API using Typer
+This module provides a simple interface for OpenAI API using Typer
 as the command line interface. It supports different modes of output including
 shell commands and code, and allows users to specify the desired OpenAI model
 and length and other options of the output. Additionally, it supports executing
 shell commands directly from the interface.
-
-API Key is stored locally for easy use in future runs.
 """
 # To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
@@ -15,7 +11,6 @@ import sys
 
 import typer
 
-# Click is part of typer.
 from click import BadArgumentUsage, MissingParameter
 
 from sgpt.client import OpenAIClient
@@ -99,8 +94,8 @@ def main(
     create_role: str = typer.Option(
         None,
         help="Create role.",
-        rich_help_panel="Role Options",
         callback=SystemRole.create,
+        rich_help_panel="Role Options",
     ),
     show_role: str = typer.Option(
         None,

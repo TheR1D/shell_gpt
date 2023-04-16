@@ -65,7 +65,7 @@ class TestShellGpt(TestCase):
 
     def test_code(self):
         """
-        This test will request from ChatGPT a python code to make CLI app,
+        This test will request from OpenAI API a python code to make CLI app,
         which will be written to a temp file, and then it will be executed
         in shell with two positional int arguments. As the output we are
         expecting the result of multiplying them.
