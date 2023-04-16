@@ -10,7 +10,6 @@ import readline  # noqa: F401
 import sys
 
 import typer
-
 from click import BadArgumentUsage, MissingParameter
 
 from sgpt.client import OpenAIClient
