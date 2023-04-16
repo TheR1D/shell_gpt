@@ -11,14 +11,8 @@ from .chat_handler import ChatHandler
 
 
 class ReplHandler(ChatHandler):
-    def __init__(
-        self,
-        client: OpenAIClient,
-        chat_id: str,
-        role: SystemRole,
-        model: str = "gpt-3.5-turbo",
-    ):
-        super().__init__(client, chat_id, role, model)
+    def __init__(self, client: OpenAIClient, chat_id: str, role: SystemRole) -> None:
+        super().__init__(client, chat_id, role)
 
     def handle(self, prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:

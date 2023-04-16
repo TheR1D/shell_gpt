@@ -103,7 +103,6 @@ class SystemRole:
     @classmethod
     def get(cls, name: str) -> "SystemRole":
         file_path = cls.storage / f"{name}.json"
-        # print(file_path)
         if not file_path.exists():
             raise BadArgumentUsage(f'Role "{name}" not found.')
         return cls(**json.loads(file_path.read_text()))

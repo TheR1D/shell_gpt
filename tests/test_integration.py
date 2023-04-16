@@ -23,6 +23,7 @@ from sgpt.app import main
 from sgpt.client import OpenAIClient
 from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
+from sgpt.role import SystemRole
 
 runner = CliRunner()
 app = typer.Typer()
@@ -309,16 +310,21 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         mocked_get_completion.assert_called_once_with(
-            ANY, "gpt-4", 0.1, 1.0, caching=False
+            messages=ANY,
+            model="gpt-4",
+            temperature=0.1,
+            top_probability=1.0,
+            caching=False,
         )
         assert result.exit_code == 0
 
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
-        handler = Handler(OpenAIClient("test", "test"))
+        role = SystemRole.get("default")
+        handler = Handler(OpenAIClient("test", "test"), role=role)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(OpenAIClient("test", "test"))
+        handler = Handler(OpenAIClient("test", "test"), role=role)
         assert handler.color == "red"
 
     def test_simple_stdin(self):

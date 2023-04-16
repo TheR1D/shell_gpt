@@ -27,6 +27,7 @@ DEFAULT_CONFIG = {
     "OPENAI_API_HOST": os.getenv("OPENAI_API_HOST", "https://api.openai.com"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
+    "SYSTEM_ROLES": os.getenv("SYSTEM_ROLES", "false"),
     # New features might add their own config variables here.
 }
 
