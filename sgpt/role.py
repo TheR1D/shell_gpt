@@ -112,7 +112,7 @@ class SystemRole:
     def create(cls, name: str) -> None:
         role = typer.prompt("Enter role description")
         expecting = typer.prompt(
-            "Enter output type, e.g. answer, code, shell command, json, etc."
+            "Enter expecting result, e.g. answer, code, shell command, etc."
         )
         role = cls(name, role, expecting)
         role.save()

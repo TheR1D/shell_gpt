@@ -1,5 +1,5 @@
 # ShellGPT
-A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort.
+A command-line productivity tool powered by OpenAI's GPT-3.5 model. As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort. ShellGPT is cross-platform compatible and supports all major operating systems, including Linux, macOS, and Windows with all major shells, such as Windows PowerShell, CMD, Bash, Zsh, Fish.
 
 https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-a6e1-6807651aa894.mp4
 
@@ -231,6 +231,26 @@ sgpt --show-chat number
 # assistant: I will remember that your favorite number is 4.
 # user: what would be my favorite number + 4?
 # assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
+```
+
+### Roles
+ShellGPT allows you to create custom system roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
+```shell
+sgpt --create-role json
+# Enter role description: You are JSON generator, provide only valid json as response.
+# Enter expecting result, e.g. answer, code, shell command, etc.: json
+sgpt --role json "random: user, password, email, address"
+{
+  "user": "JohnDoe",
+  "password": "p@ssw0rd",
+  "email": "johndoe@example.com",
+  "address": {
+    "street": "123 Main St",
+    "city": "Anytown",
+    "state": "CA",
+    "zip": "12345"
+  }
+}
 ```
 
 ### Request cache
