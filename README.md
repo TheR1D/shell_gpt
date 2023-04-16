@@ -218,9 +218,9 @@ print(response.text)
 ```
 
 ### Chat sessions
-To list all the current chat sessions, use the `--list-chat` option:
+To list all the current chat sessions, use the `--list-chats` option:
 ```shell
-sgpt --list-chat
+sgpt --list-chats
 # .../shell_gpt/chat_cache/number
 # .../shell_gpt/chat_cache/python_request
 ```
