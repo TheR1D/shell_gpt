@@ -79,7 +79,7 @@ def main(
         callback=ChatHandler.show_messages_callback,
         rich_help_panel="Chat Options",
     ),
-    list_chat: bool = typer.Option(
+    list_chats: bool = typer.Option(
         False,
         help="List all existing chat ids.",
         callback=ChatHandler.list_ids,

@@ -167,7 +167,7 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 2
 
     def test_list_chat(self):
-        result = runner.invoke(app, ["--list-chat"])
+        result = runner.invoke(app, ["--list-chats"])
         assert result.exit_code == 0
         assert "test_" in result.stdout
 

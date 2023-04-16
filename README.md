@@ -293,27 +293,33 @@ Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/art
 
 ### Full list of arguments
 ```text
-╭─ Arguments ────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                            │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ──────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            [gpt-3.5-turbo|gpt-4|gpt-4-32k]  OpenAI GPT model to use. [default: gpt-3.5-turbo]      │
-│ --temperature      FLOAT RANGE [0.0<=x<=1.0]        Randomness of generated output. [default: 0.1]         │
-│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0] │
-│ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor] │
-│ --cache                                             Cache completion results. [default: cache]             │
-│ --help                                              Show this message and exit.                            │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Assistance Options ───────────────────────────────────────────────────────────────────────────────────────╮
-│ --shell  -s                 Generate and execute shell commands.                                           │
-│ --code       --no-code      Generate only code. [default: no-code]                                         │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Chat Options ─────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --chat        TEXT  Follow conversation with id, use "temp" for quick session. [default: None]             │
-│ --repl        TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                           │
-│ --show-chat   TEXT  Show all messages from provided chat id. [default: None]                               │
-│ --list-chat         List all existing chat ids. [default: no-list-chat]                                    │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                             │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --model            [gpt-3.5-turbo|gpt-4|gpt-4-32k]  OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
+│ --temperature      FLOAT RANGE [0.0<=x<=1.0]        Randomness of generated output. [default: 0.1]          │
+│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
+│ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
+│ --cache                                             Cache completion results. [default: cache]              │
+│ --help                                              Show this message and exit.                             │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Assistance Options ────────────────────────────────────────────────────────────────────────────────────────╮
+│ --shell  -s                 Generate and execute shell commands.                                            │
+│ --code       --no-code      Generate only code. [default: no-code]                                          │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Chat Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --chat        TEXT  Follow conversation with id, use "temp" for quick session. [default: None]              │
+│ --repl        TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                            │
+│ --show-chat   TEXT  Show all messages from provided chat id. [default: None]                                │
+│ --list-chats        List all existing chat ids. [default: no-list-chats]                                    │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Role Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --role         TEXT  System role for GPT model. [default: None]                                             │
+│ --create-role  TEXT  Create role. [default: None]                                                           │
+│ --show-role    TEXT  Show role. [default: None]                                                             │
+│ --list-roles         List roles. [default: no-list-roles]                                                   │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## Docker
