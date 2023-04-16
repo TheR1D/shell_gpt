@@ -13,12 +13,14 @@ API Key is stored locally for easy use in future runs.
 import readline  # noqa: F401
 import sys
 
+from typing import Optional
+
 import typer
 
 # Click is part of typer.
 from click import BadArgumentUsage, MissingParameter
 
-from sgpt import ChatHandler, DefaultHandler, OpenAIClient, ReplHandler, cfg
+from sgpt import ChatHandler, DefaultHandler, OpenAIClient, ReplHandler, cfg, __version__
 from sgpt.utils import ModelOptions, get_edited_prompt, run_command
 
 
@@ -27,6 +29,11 @@ def main(
         None,
         show_default=False,
         help="The prompt to generate completions for.",
+    ),
+    version: Optional[bool] = typer.Option(
+        None,
+        "--version",
+        help="Version of ShellGPT."
     ),
     model: ModelOptions = typer.Option(
         ModelOptions(cfg.get("DEFAULT_MODEL")).value,
@@ -88,6 +95,10 @@ def main(
     ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
+
+    if version:
+        print(f'ShellGPT version: {__version__}')
+        return
 
     if stdin_passed and not repl:
         prompt = sys.stdin.read() + (prompt or "")
