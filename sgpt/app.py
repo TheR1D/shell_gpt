@@ -124,12 +124,9 @@ def main(
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
-    if shell and code:
-        raise BadArgumentUsage("--shell and --code options cannot be used together.")
-
-    if shell and describe_shell:
+    if sum([shell, describe_shell, code]) > 1:
         raise BadArgumentUsage(
-            "--shell and --describe-shell options cannot be used together."
+            "Only one of --shell, --describe-shell, and --code options can be used at a time."
         )
 
     if chat and repl:
