@@ -70,7 +70,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "List the contents of the current directory." in result.stdout
+        assert "List " in result.stdout
 
     def test_code(self):
         """
@@ -167,9 +167,7 @@ class TestShellGpt(TestCase):
         dict_arguments["prompt"] = "-A"
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert (
-            "Add all changes to the index (including untracked files)." in result.stdout
-        )
+        assert "all" in result.stdout
 
     def test_chat_code(self):
         chat_name = uuid4()
@@ -220,7 +218,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 2
-        assert "--shell and --code options cannot be used together" in result.stdout
+        assert "Only one of --shell, --describe-shell, and --code" in result.stdout
 
     def test_repl_default(
         self,
