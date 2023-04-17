@@ -167,7 +167,9 @@ class TestShellGpt(TestCase):
         dict_arguments["prompt"] = "-A"
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "Add all changes to the index (including untracked files)." in result.stdout
+        assert (
+            "Add all changes to the index (including untracked files)." in result.stdout
+        )
 
     def test_chat_code(self):
         chat_name = uuid4()
