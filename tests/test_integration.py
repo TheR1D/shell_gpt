@@ -63,6 +63,15 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 0
         assert "git commit" in result.stdout
 
+    def test_describe_shell(self):
+        dict_arguments = {
+            "prompt": "ls",
+            "--describe-shell": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "List the contents of the current directory." in result.stdout
+
     def test_code(self):
         """
         This test will request from OpenAI API a python code to make CLI app,
@@ -144,6 +153,21 @@ class TestShellGpt(TestCase):
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we are using --code, we cannot use --shell.
         assert result.exit_code == 2
+
+    def test_chat_describe_shell(self):
+        chat_name = uuid4()
+        dict_arguments = {
+            "prompt": "git add",
+            "--chat": f"test_{chat_name}",
+            "--describe-shell": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "Add file contents to the index." in result.stdout
+        dict_arguments["prompt"] = "-A"
+        result = runner.invoke(app, self.get_arguments(**dict_arguments))
+        assert result.exit_code == 0
+        assert "Add all changes to the index (including untracked files)." in result.stdout
 
     def test_chat_code(self):
         chat_name = uuid4()
@@ -242,6 +266,27 @@ class TestShellGpt(TestCase):
         assert chat_messages[1]["content"] == "ls"
         assert chat_messages[2]["content"].endswith("\nCommand:")
         assert chat_messages[3]["content"] == "ls | sort"
+
+    def test_repl_describe_command(self):
+        # Temp chat session from previous test should be overwritten.
+        dict_arguments = {
+            "prompt": "",
+            "--repl": "temp",
+            "--describe-shell": True,
+        }
+        inputs = ["pacman -S", "-yu"]
+        result = runner.invoke(
+            app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
+        )
+        assert result.exit_code == 0
+        assert "Install a package" in result.stdout
+        assert "Update all installed packages" in result.stdout
+
+        chat_storage = config.get("CHAT_CACHE_PATH")
+        tmp_chat = Path(chat_storage) / "temp"
+        chat_messages = json.loads(tmp_chat.read_text())
+        assert chat_messages[0]["content"].startswith("###")
+        assert chat_messages[0]["content"].endswith("\n###\nDescription:")
 
     def test_repl_code(self):
         dict_arguments = {
