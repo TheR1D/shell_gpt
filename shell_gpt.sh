@@ -1,5 +1,4 @@
-ZSH_KEYBINDING='^ '
-BASH_KEYBINDING='\C-@'
+KEYBINDING='\e ' # Default keybinding = Alt+Space
 
 # Toggles the buffer between natural language and shell command, assuming
 # it executes in zsh.
@@ -119,7 +118,7 @@ _sgpt_is_destructive_command() {
 # Determine the type of shell, and execute the appropriate keybinding commmand
 if [[ -n $ZSH_VERSION ]]; then
     zle -N _sgpt_zsh
-    bindkey $ZSH_KEYBINDING _sgpt_zsh
+    bindkey $KEYBINDING _sgpt_zsh
 else
-    bind -x "\"$BASH_KEYBINDING\": _sgpt_bash"
+    bind -x "\"$KEYBINDING\": _sgpt_bash"
 fi
