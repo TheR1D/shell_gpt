@@ -142,7 +142,11 @@ def main(
     api_key = cfg.get("OPENAI_API_KEY")
     client = OpenAIClient(api_host, api_key)
 
-    role_class = DefaultRoles.get(shell, describe_shell, code) if not role else SystemRole.get(role)
+    role_class = (
+        DefaultRoles.get(shell, describe_shell, code)
+        if not role
+        else SystemRole.get(role)
+    )
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.

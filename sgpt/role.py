@@ -18,7 +18,7 @@ If there is a lack of details, provide most logical solution.
 Ensure the output is a valid shell command.
 If multiple steps required try to combine them together."""
 
-DESCRIBE_SHELL_ROLE = """Provide a terse, single sentence description 
+DESCRIBE_SHELL_ROLE = """Provide a terse, single sentence description
 of the given shell command. Provide only plain text without Markdown formatting.
 Do not show any warnings or information regarding your capabilities.
 If you need to store any data, assume it will be stored in the chat."""
