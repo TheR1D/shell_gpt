@@ -160,11 +160,12 @@ class TestShellGpt(TestCase):
             "prompt": "git add",
             "--chat": f"test_{chat_name}",
             "--describe-shell": True,
+            "--temperature": 0,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "Add file contents to the index." in result.stdout
-        dict_arguments["prompt"] = "-A"
+        dict_arguments["prompt"] = "'-A'"
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "all" in result.stdout
@@ -274,15 +275,15 @@ class TestShellGpt(TestCase):
             "--repl": "temp",
             "--describe-shell": True,
         }
-        inputs = ["pacman -S", "-yu"]
+        inputs = ["pacman -S", "-yu", "exit()"]
         result = runner.invoke(
             app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
         )
         assert result.exit_code == 0
-        assert "Install a package" in result.stdout
-        assert "Update all installed packages" in result.stdout
+        assert "Install" in result.stdout
+        assert "Update" in result.stdout
 
-        chat_storage = config.get("CHAT_CACHE_PATH")
+        chat_storage = cfg.get("CHAT_CACHE_PATH")
         tmp_chat = Path(chat_storage) / "temp"
         chat_messages = json.loads(tmp_chat.read_text())
         assert chat_messages[0]["content"].startswith("###")

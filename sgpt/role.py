@@ -72,7 +72,7 @@ class SystemRole:
         for default_role in (
             SystemRole("default", DEFAULT_ROLE, "Answer", variables),
             SystemRole("shell", SHELL_ROLE, "Command", variables),
-            SystemRole("describe_shell", DESCRIBE_SHELL_ROLE, "Answer", variables),
+            SystemRole("describe_shell", DESCRIBE_SHELL_ROLE, "Description", variables),
             SystemRole("code", CODE_ROLE, "Code"),
         ):
             if not default_role.exists:
