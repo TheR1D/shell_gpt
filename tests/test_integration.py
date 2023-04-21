@@ -98,7 +98,7 @@ class TestShellGpt(TestCase):
         arguments = ["python", file.name, str(number_a), str(number_b)]
         script_output = subprocess.run(arguments, stdout=subprocess.PIPE, check=True)
         os.remove(file_path)
-        assert script_output.stdout.decode().strip(), number_a * number_b
+        assert script_output.stdout.decode().strip(), str(number_a * number_b)
 
     def test_chat_default(self):
         chat_name = uuid4()

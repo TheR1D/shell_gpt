@@ -10,6 +10,8 @@ from .config import cfg
 CACHE_LENGTH = int(cfg.get("CACHE_LENGTH"))
 CACHE_PATH = Path(cfg.get("CACHE_PATH"))
 REQUEST_TIMEOUT = int(cfg.get("REQUEST_TIMEOUT"))
+OPENAI_API_TYPE = cfg['OPENAI_API_TYPE']
+AZURE_OPENAI_ENGINE = cfg['AZURE_OPENAI_ENGINE']
 
 
 class OpenAIClient:
@@ -37,10 +39,21 @@ class OpenAIClient:
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
         """
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
-        }
+
+        # valide if Azure endpoint is requested
+        # if OPENAI_API_TYPE == "azure" and AZURE_OPENAI_ENGINE is not empty
+        if OPENAI_API_TYPE == "azure" and AZURE_OPENAI_ENGINE != "":
+            headers = {
+                "Content-Type": "application/json",
+                "api-key": f"{self.api_key}",
+            }
+            endpoint = f"{self.api_host}/openai/deployments/{AZURE_OPENAI_ENGINE}/chat/completions?api-version=2023-03-15-preview"
+        else:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+            }
+            endpoint = f"{self.api_host}/v1/chat/completions"
         data = {
             "messages": messages,
             "model": model,
@@ -48,7 +61,7 @@ class OpenAIClient:
             "top_p": top_probability,
             "stream": True,
         }
-        endpoint = f"{self.api_host}/v1/chat/completions"
+
         response = requests.post(
             endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT, stream=True
         )
