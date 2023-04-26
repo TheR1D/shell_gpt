@@ -111,8 +111,14 @@ def main(
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
-    if stdin_passed and not repl:
-        prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
+    if stdin_passed:
+        input_lines = sys.stdin.readlines()
+        prompt = "".join(input_lines) + "\n\n" + (prompt or "")
+        # Switch to stdin for interactive input
+        if os.name == "posix":
+            sys.stdin = open("/dev/tty", "r")
+        elif os.name == "nt":
+            sys.stdin = open("CON", "r")
 
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
