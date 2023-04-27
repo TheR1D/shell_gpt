@@ -28,8 +28,7 @@ DEFAULT_CONFIG = {
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     "SYSTEM_ROLES": os.getenv("SYSTEM_ROLES", "false"),
-    "OPENAI_API_TYPE": os.getenv("OPENAI_API_TYPE", ""),
-    "AZURE_OPENAI_ENGINE": os.getenv("AZURE_OPENAI_ENGINE", ""),
+    "OPENAI_API_TYPE": os.getenv("OPENAI_API_TYPE", "openai"),
     # New features might add their own config variables here.
 }
 

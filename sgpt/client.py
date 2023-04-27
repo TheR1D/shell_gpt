@@ -10,16 +10,16 @@ from .config import cfg
 CACHE_LENGTH = int(cfg.get("CACHE_LENGTH"))
 CACHE_PATH = Path(cfg.get("CACHE_PATH"))
 REQUEST_TIMEOUT = int(cfg.get("REQUEST_TIMEOUT"))
-OPENAI_API_TYPE = cfg['OPENAI_API_TYPE']
-AZURE_OPENAI_ENGINE = cfg['AZURE_OPENAI_ENGINE']
 
 
 class OpenAIClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
 
-    def __init__(self, api_host: str, api_key: str) -> None:
+    def __init__(self, api_host: str, api_key: str, api_type: str, azure_api_engine: str = "") -> None:
         self.api_key = api_key
         self.api_host = api_host
+        self.api_type = api_type
+        self.azure_api_engine = azure_api_engine
 
     @cache
     def _request(
@@ -42,12 +42,12 @@ class OpenAIClient:
 
         # valide if Azure endpoint is requested
         # if OPENAI_API_TYPE == "azure" and AZURE_OPENAI_ENGINE is not empty
-        if OPENAI_API_TYPE == "azure" and AZURE_OPENAI_ENGINE != "":
+        if self.api_type == "azure" and self.azure_api_engine != "":
             headers = {
                 "Content-Type": "application/json",
                 "api-key": f"{self.api_key}",
             }
-            endpoint = f"{self.api_host}/openai/deployments/{AZURE_OPENAI_ENGINE}/chat/completions?api-version=2023-03-15-preview"
+            endpoint = f"{self.api_host}/openai/deployments/{self.azure_api_engine}/chat/completions?api-version=2023-03-15-preview"
         else:
             headers = {
                 "Content-Type": "application/json",
@@ -61,7 +61,6 @@ class OpenAIClient:
             "top_p": top_probability,
             "stream": True,
         }
-
         response = requests.post(
             endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT, stream=True
         )

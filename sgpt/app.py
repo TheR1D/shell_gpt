@@ -131,7 +131,12 @@ def main(
 
     api_host = cfg.get("OPENAI_API_HOST")
     api_key = cfg.get("OPENAI_API_KEY")
-    client = OpenAIClient(api_host, api_key)
+    api_type = cfg.get("OPENAI_API_TYPE")
+    if api_type == "azure":
+        azure_api_engine = cfg.get("AZURE_OPENAI_ENGINE")
+    else:
+        azure_api_engine = ""
+    client = OpenAIClient(api_host, api_key, api_type, azure_api_engine)
 
     role_class = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
 
