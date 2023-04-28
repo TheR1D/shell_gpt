@@ -130,8 +130,8 @@ def main(
         prompt = get_edited_prompt()
 
     api_host = cfg.get("OPENAI_API_HOST")
-    api_key = cfg.get("OPENAI_API_KEY")
-    client = OpenAIClient(api_host, api_key)
+    __api_key = cfg.get("OPENAI_API_KEY")
+    client = OpenAIClient(api_host, __api_key)
 
     role_class = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
 
