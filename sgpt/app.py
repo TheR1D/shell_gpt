@@ -34,7 +34,7 @@ def main(
     temperature: float = typer.Option(
         1.0,
         min=0.0,
-        max=1.0,
+        max=2.0,
         help="Randomness of generated output.",
     ),
     top_probability: float = typer.Option(
