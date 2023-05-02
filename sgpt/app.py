@@ -32,7 +32,7 @@ def main(
         help="OpenAI GPT model to use.",
     ),
     temperature: float = typer.Option(
-        0.1,
+        1.0,
         min=0.0,
         max=1.0,
         help="Randomness of generated output.",
