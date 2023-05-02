@@ -16,7 +16,7 @@ class OpenAIClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
 
     def __init__(self, api_host: str, api_key: str) -> None:
-        self.api_key = api_key
+        self.__api_key = api_key
         self.api_host = api_host
 
     @cache
@@ -37,10 +37,6 @@ class OpenAIClient:
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
         """
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
-        }
         data = {
             "messages": messages,
             "model": model,
@@ -50,7 +46,15 @@ class OpenAIClient:
         }
         endpoint = f"{self.api_host}/v1/chat/completions"
         response = requests.post(
-            endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT, stream=True
+            endpoint,
+            # Hide API key from Rich traceback.
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.__api_key}",
+            },
+            json=data,
+            timeout=REQUEST_TIMEOUT,
+            stream=True,
         )
         response.raise_for_status()
         # TODO: Optimise.
