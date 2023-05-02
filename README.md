@@ -141,7 +141,7 @@ sgpt --chat number "what would be my favorite number + 4?"
 ```
 You can also use chat sessions to iteratively improve GPT suggestions by providing additional clues.
 ```shell
-sgpt --chat python_requst --code "make an example request to localhost using Python"
+sgpt --chat python_request --code "make an example request to localhost using Python"
 ```
 ```python
 import requests
