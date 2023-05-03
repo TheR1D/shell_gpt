@@ -298,7 +298,7 @@ Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/art
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --model            [gpt-3.5-turbo|gpt-4|gpt-4-32k]  OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
-│ --temperature      FLOAT RANGE [0.0<=x<=1.0]        Randomness of generated output. [default: 0.1]          │
+│ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.1]          │
 │ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
 │ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
 │ --cache                                             Cache completion results. [default: cache]              │
