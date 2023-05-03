@@ -17,4 +17,3 @@ USER app
 VOLUME /tmp/shell_gpt
 
 ENTRYPOINT ["sgpt"]
-

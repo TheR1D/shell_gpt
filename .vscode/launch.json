@@ -12,6 +12,7 @@
             "module": "sgpt",
             "justMyCode": true,
             "args": ["--chat", "init", "hello"],
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

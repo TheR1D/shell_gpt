@@ -1,12 +1,13 @@
 import os
 import unittest
-import requests_mock
+
 import requests
+import requests_mock
 
-from sgpt import OpenAIClient
+from sgpt.client import OpenAIClient
 
 
-class TestMain(unittest.TestCase):  # pylint: disable=too-many-instance-attributes
+class TestMain(unittest.TestCase):
     API_HOST = os.getenv("OPENAI_HOST", "https://api.openai.com")
     API_URL = f"{API_HOST}/v1/chat/completions"
     # TODO: Fix tests.

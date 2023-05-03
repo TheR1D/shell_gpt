@@ -1,11 +1,11 @@
 import os
+import platform
 import shlex
-
 from enum import Enum
 from tempfile import NamedTemporaryFile
+from typing import Any, Callable
 
-import platform
-
+import typer
 from click import BadParameter
 
 
@@ -13,20 +13,6 @@ class ModelOptions(str, Enum):
     GPT3 = "gpt-3.5-turbo"
     GPT4 = "gpt-4"
     GPT4_32K = "gpt-4-32k"
-
-
-class CompletionModes(Enum):
-    NORMAL = "normal"
-    SHELL = "shell"
-    CODE = "code"
-
-    @classmethod
-    def get_mode(cls, shell, code) -> "CompletionModes":
-        if shell:
-            return CompletionModes.SHELL
-        if code:
-            return CompletionModes.CODE
-        return CompletionModes.NORMAL
 
 
 def get_edited_prompt() -> str:
@@ -69,3 +55,13 @@ def run_command(command: str) -> None:
         full_command = f"{shell} -c {shlex.quote(command)}"
 
     os.system(full_command)
+
+
+def option_callback(func: Callable) -> Callable:  # type: ignore
+    def wrapper(cls: Any, value: str) -> None:
+        if not value:
+            return
+        func(cls, value)
+        raise typer.Exit()
+
+    return wrapper

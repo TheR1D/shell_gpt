@@ -16,7 +16,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r requirements.txt",
+	"postCreateCommand": "pip install -e .\"[dev,test]\"",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -28,7 +28,8 @@
 				"eamodio.gitlens",
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"shardulm94.trailing-spaces"
+				"shardulm94.trailing-spaces",
+				"timonwong.shellcheck"
 			],
 			// zsh
 			"settings": {

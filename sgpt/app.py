@@ -1,35 +1,34 @@
 """
-shell-gpt: An interface to OpenAI's ChatGPT (GPT-3.5) API
-
-This module provides a simple interface for OpenAI's ChatGPT API using Typer
+This module provides a simple interface for OpenAI API using Typer
 as the command line interface. It supports different modes of output including
 shell commands and code, and allows users to specify the desired OpenAI model
 and length and other options of the output. Additionally, it supports executing
 shell commands directly from the interface.
-
-API Key is stored locally for easy use in future runs.
 """
+# To allow users to use arrow keys in the REPL.
+import readline  # noqa: F401
 import sys
 
-# To allow users to use arrow keys in the REPL.
-import readline  # pylint: disable=unused-import
-
 import typer
+from click import BadArgumentUsage, MissingParameter
 
-# Click is part of typer.
-from click import MissingParameter, BadArgumentUsage
-from sgpt import ChatHandler, DefaultHandler, ReplHandler, OpenAIClient, config
-from sgpt.utils import get_edited_prompt, run_command, ModelOptions
+from sgpt.client import OpenAIClient
+from sgpt.config import cfg
+from sgpt.handlers.chat_handler import ChatHandler
+from sgpt.handlers.default_handler import DefaultHandler
+from sgpt.handlers.repl_handler import ReplHandler
+from sgpt.role import DefaultRoles, SystemRole
+from sgpt.utils import ModelOptions, get_edited_prompt, run_command
 
 
-def main(  # pylint: disable=too-many-arguments,too-many-locals
+def main(
     prompt: str = typer.Argument(
         None,
         show_default=False,
         help="The prompt to generate completions for.",
     ),
     model: ModelOptions = typer.Option(
-        ModelOptions(config.get("DEFAULT_MODEL")).value,
+        ModelOptions(cfg.get("DEFAULT_MODEL")).value,
         help="OpenAI GPT model to use.",
     ),
     temperature: float = typer.Option(
@@ -74,23 +73,46 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
         help="Start a REPL (Read–eval–print loop) session.",
         rich_help_panel="Chat Options",
     ),
-    show_chat: str = typer.Option(  # pylint: disable=W0613
+    show_chat: str = typer.Option(
         None,
         help="Show all messages from provided chat id.",
         callback=ChatHandler.show_messages_callback,
         rich_help_panel="Chat Options",
     ),
-    list_chat: bool = typer.Option(  # pylint: disable=W0613
+    list_chats: bool = typer.Option(
         False,
         help="List all existing chat ids.",
         callback=ChatHandler.list_ids,
         rich_help_panel="Chat Options",
     ),
+    role: str = typer.Option(
+        None,
+        help="System role for GPT model.",
+        rich_help_panel="Role Options",
+    ),
+    create_role: str = typer.Option(
+        None,
+        help="Create role.",
+        callback=SystemRole.create,
+        rich_help_panel="Role Options",
+    ),
+    show_role: str = typer.Option(
+        None,
+        help="Show role.",
+        callback=SystemRole.show,
+        rich_help_panel="Role Options",
+    ),
+    list_roles: bool = typer.Option(
+        False,
+        help="List roles.",
+        callback=SystemRole.list,
+        rich_help_panel="Role Options",
+    ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
     if stdin_passed and not repl:
-        prompt = sys.stdin.read() + (prompt or "")
+        prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
 
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
@@ -107,13 +129,13 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
     if editor:
         prompt = get_edited_prompt()
 
-    api_host = config.get("OPENAI_API_HOST")
-    api_key = config.get("OPENAI_API_KEY")
-    client = OpenAIClient(api_host, api_key)
+    client = OpenAIClient(cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY"))
+
+    role_class = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
-        ReplHandler(client, repl, shell, code).handle(
+        ReplHandler(client, repl, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -123,7 +145,7 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
         )
 
     if chat:
-        full_completion = ChatHandler(client, chat, shell, code).handle(
+        full_completion = ChatHandler(client, chat, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -132,7 +154,7 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals
             caching=cache,
         )
     else:
-        full_completion = DefaultHandler(client, shell, code).handle(
+        full_completion = DefaultHandler(client, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
