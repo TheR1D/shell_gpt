@@ -33,7 +33,7 @@ class OpenAIClient:
 
         :param messages: List of messages {"role": user or assistant, "content": message_string}
         :param model: String gpt-3.5-turbo or gpt-3.5-turbo-0301
-        :param temperature: Float in 0.0 - 1.0 range.
+        :param temperature: Float in 0.0 - 2.0 range.
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
         """
