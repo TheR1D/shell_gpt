@@ -68,8 +68,9 @@ class Config(dict):  # type: ignore
     def _read(self) -> None:
         with open(self.config_path, "r", encoding="utf-8") as file:
             for line in file:
-                key, value = line.strip().split("=")
-                self[key] = value
+                if not line.startswith("#"):
+                    key, value = line.strip().split("=")
+                    self[key] = value
 
     def get(self, key: str) -> str:  # type: ignore
         # Prioritize environment variables over config file.
