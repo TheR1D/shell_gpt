@@ -62,7 +62,15 @@ class OpenAIClient:
             "stream": True,
         }
         response = requests.post(
-            endpoint, headers=headers, json=data, timeout=REQUEST_TIMEOUT, stream=True
+            endpoint,
+            # Hide API key from Rich traceback.
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.__api_key}",
+            },
+            json=data,
+            timeout=REQUEST_TIMEOUT,
+            stream=True,
         )
         response.raise_for_status()
         # TODO: Optimise.

@@ -50,8 +50,8 @@ class Config(dict):  # type: ignore
             config_path.parent.mkdir(parents=True, exist_ok=True)
             # Don't write API key to config file if it is in the environment.
             if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
-                api_key = getpass(prompt="Please enter your OpenAI API key: ")
-                defaults["OPENAI_API_KEY"] = api_key
+                __api_key = getpass(prompt="Please enter your OpenAI API key: ")
+                defaults["OPENAI_API_KEY"] = __api_key
             super().__init__(**defaults)
             self._write()
 
