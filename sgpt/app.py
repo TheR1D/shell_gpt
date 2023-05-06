@@ -12,6 +12,7 @@ import sys
 import typer
 from click import BadArgumentUsage, MissingParameter
 
+from sgpt.__version__ import __version__
 from sgpt.client import OpenAIClient
 from sgpt.config import cfg
 from sgpt.handlers.chat_handler import ChatHandler
@@ -108,8 +109,18 @@ def main(
         callback=SystemRole.list,
         rich_help_panel="Role Options",
     ),
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-v",
+        help="Show version.",
+    )
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
+
+    if version:
+        typer.echo(f"ShellGPT {__version__}")
+        return
 
     if stdin_passed and not repl:
         prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
