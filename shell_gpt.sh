@@ -3,7 +3,7 @@ declare -A KEYBINDINGS=(
     [toggle_zsh]='^@' # Control-Space
     [nl_execute_zsh]='[27;5;13~' # Control-Enter
     [toggle_bash]='\C-@'
-    [nl_execute_bash]='\C-M'
+    [nl_execute_bash]='[27;5;13~'
 )
 
 # Toggles the buffer between natural language and shell command, assuming
@@ -146,8 +146,21 @@ _sgpt_override_enter_zsh() {
 }
 
 _sgpt_override_enter_bash() {
-    read -r -a args <<< "$READLINE_LINE"
-    command_not_found_handler "${args[@]}"
+    local converted_command=$(sgpt --shell <<< $READLINE_LINE)
+    if _sgpt_is_destructive_command "$converted_command"; then
+        # Then prompt for confirmation
+        echo "$converted_command"
+        echo "Execute destructive shell command? [y/N]:"
+        read confirmation
+        # If user types enter or a word starting with n or N, then exit unsuccessfully
+        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
+            return 1
+        fi
+    fi
+
+    eval "$converted_command"
+    history -s "$BUFFER"
+    READLINE_LINE=''
 }
 
 # Returns whether or not a given commands makes an irreversable change
