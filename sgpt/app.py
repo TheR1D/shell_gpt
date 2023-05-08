@@ -162,7 +162,7 @@ def main(
             caching=cache,
         )
 
-    if shell and not stdin_passed: # and typer.confirm("Execute shell command?")
+    if shell and not stdin_passed and typer.confirm("Execute shell command?"):
         run_command(full_completion)
 
 
