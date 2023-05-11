@@ -14,6 +14,7 @@ class TestMain(unittest.TestCase):
 
     def setUp(self):
         self.api_key = os.environ["OPENAI_API_KEY"] = "test key"
+        self.organization = os.environ["OPENAI_ORGANIZATION"] = "test org"
         self.prompt = "What is the capital of France?"
         self.shell = False
         self.execute = False
@@ -24,7 +25,7 @@ class TestMain(unittest.TestCase):
         self.top_p = 1.0
         self.response_text = "Paris"
         self.model = "gpt-3.5-turbo"
-        self.client = OpenAIClient(self.API_HOST, self.api_key)
+        self.client = OpenAIClient(self.API_HOST, self.api_key, self.organization)
 
     @requests_mock.Mocker()
     def test_openai_request(self, mock):

@@ -15,8 +15,9 @@ REQUEST_TIMEOUT = int(cfg.get("REQUEST_TIMEOUT"))
 class OpenAIClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
 
-    def __init__(self, api_host: str, api_key: str) -> None:
+    def __init__(self, api_host: str, api_key: str, organization: str) -> None:
         self.__api_key = api_key
+        self.__organization = organization
         self.api_host = api_host
 
     @cache
@@ -45,13 +46,18 @@ class OpenAIClient:
             "stream": True,
         }
         endpoint = f"{self.api_host}/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.__api_key}",
+        }
+
+        if self.__organization:
+            headers["OpenAI-Organization"] = self.__organization
+
         response = requests.post(
             endpoint,
             # Hide API key from Rich traceback.
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.__api_key}",
-            },
+            headers=headers,
             json=data,
             timeout=REQUEST_TIMEOUT,
             stream=True,

@@ -321,10 +321,10 @@ class TestShellGpt(TestCase):
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
         role = SystemRole.get("default")
-        handler = Handler(OpenAIClient("test", "test"), role=role)
+        handler = Handler(OpenAIClient("test", "test", "test"), role=role)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(OpenAIClient("test", "test"), role=role)
+        handler = Handler(OpenAIClient("test", "test", "test"), role=role)
         assert handler.color == "red"
 
     def test_simple_stdin(self):
