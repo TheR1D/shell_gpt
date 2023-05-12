@@ -35,7 +35,7 @@ _sgpt_zsh() {
 # Toggles the buffer between natural language and shell command, assuming
 # it executes in bash.
 _sgpt_bash() {
-    # Small modification over _sgpt_zsh: use READLINE_BUFFER instead of BUFFER.
+    # Small modification over _sgpt_zsh: use READLINE_LINE instead of BUFFER.
     # NOTE: These two functions could be merged using an indirect reference to the
     # buffer variable given as a parameter, but the method that is compatible with 
     # both zsh and bash is very messy: (https://tldp.org/LDP/abs/html/ivr.html)
@@ -106,15 +106,9 @@ command_not_found_handle() {
     command_not_found_handler "$@"
 }
 
-# Emulates the behavior of the above command_not_found_handler.
-# This is tricky because not pressing enter means the default behavior must be emulated,
-# but now assume the buffer contains natural language, allowing for queries starting
-# with a valid command. For example, "ls hidden files" -> "ls -a"
-# This is done in 3 steps
-#   1. Convert natural language and check if it's destructive
-#   2. Print new line, execute command, and print another new line
-#       This is done to emulate the default behavior of pressing enter
-#   3. Add the natural language to the history and clear the buffer
+# Assume buffer is natural language. Translate and execute the command.
+# First handle destructive commands, then execute the command, and add the
+# natural language to history.
 _sgpt_override_enter_zsh() {
     local converted_command=$(sgpt --shell <<< $BUFFER)
     zle -I
@@ -130,6 +124,7 @@ _sgpt_override_enter_zsh() {
     BUFFER=''
 }
 
+# Same thing for bash, but no need to enable output or empty the buffer.
 _sgpt_override_enter_bash() {
     local converted_command=$(sgpt --shell <<< $READLINE_LINE)
     if ! _sgpt_handle_destructive_command "$converted_command"; then
@@ -141,6 +136,9 @@ _sgpt_override_enter_bash() {
     READLINE_LINE=''
 }
 
+# Prompts the user for confirmation if the command is destructive.
+# If the command is not destructive or the user confirms, then return 0.
+# Otherwise, return 1.
 _sgpt_handle_destructive_command() {
     if _sgpt_is_destructive_command "$1"; then
         # Then prompt for confirmation
@@ -154,7 +152,7 @@ _sgpt_handle_destructive_command() {
     fi
 }
 
-# Returns whether or not a given commands makes an irreversable change
+# Returns whether or not a given command mutates the system.
 _sgpt_is_destructive_command() {
     # HACK: This is not an exhaustive way to check if the command
     # is destructive. There are flags in other common commands that
