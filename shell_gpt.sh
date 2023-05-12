@@ -117,18 +117,17 @@ command_not_found_handle() {
 #   3. Add the natural language to the history and clear the buffer
 _sgpt_override_enter_zsh() {
     local converted_command=$(sgpt --shell <<< $BUFFER)
-    echo
+    zle -I
     if ! _sgpt_handle_destructive_command "$converted_command"; then
+        BUFFER=''
         return 1
     fi
 
-    # Execute the translated command.
-    # TODO Use subshell to execute command instead because it is safer then eval.
+    # Execute the translated command, add the natural language 
+    # to history, and clear the buffer
     eval "$converted_command"
-    echo
     print -s "$BUFFER"
     BUFFER=''
-    zle reset-prompt
 }
 
 _sgpt_override_enter_bash() {
@@ -147,10 +146,9 @@ _sgpt_handle_destructive_command() {
         # Then prompt for confirmation
         echo "$1"
         echo "Execute destructive shell command? [y/N]:"
-        read confirmation
+        read confirmation < /dev/tty
         # If user types enter or a word starting with n or N, then exit unsuccessfully
         if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
-            echo "Cancelled"
             return 1
         fi
     fi
