@@ -152,14 +152,38 @@ _sgpt_handle_destructive_command() {
     fi
 }
 
-# Returns whether or not a given command mutates the system.
+# Decides whether or not a given command mutates the system.
+# Returns 0 if destructive, 1 if safe.
 _sgpt_is_destructive_command() {
-    # HACK: This is not an exhaustive way to check if the command
-    # is destructive. There are flags in other common commands that
-    # should be checked.
-    local destructive_commands=(rm mv dd chmod sed git mkfs mkswap )
+    local destructive_commands=(rm mv cp dd chown chmod fdisk git modprobe mkfs mkswap)
+
+    declare -A safe_flags_for_destructive_commands=(
+        [rm]='-i --interactive --help --version'
+        [mv]='-i --interactive -n --no-clobber --help --version'
+        [cp]='-n --no-clobber --help --version'
+        [git]='status log diff show fetch ls-files -h -v --help --version'
+    )
+
+    declare -A destructive_flags_for_safe_commands=(
+        [sed]='-i --in-place'
+        [find]='-delete'
+    )
+
     local command_name=${1%% *}
-    [[ "$destructive_commands[@]" =~ $command_name ]]
+   
+    # If the command is destructive
+    if [[ "$destructive_commands[@]" == *"$command_name"* ]]; then
+        # If the command has a flag that makes it safe, then return 1
+        for flag in $(echo $safe_flags_for_destructive_commands[$command_name]); do
+            [[ "$1" == *"$flag"* ]] && return 1
+        done
+        return 0
+    else
+        for flag in $(echo $destructive_flags_for_safe_commands[$command_name]); do
+            [[ "$1" == *"$flag"*  ]] && return 0
+        done
+        return 1
+    fi
 }
 
 # Determine the type of shell, and execute the appropriate keybinding commmand
