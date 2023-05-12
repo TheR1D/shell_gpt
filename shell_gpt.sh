@@ -92,15 +92,8 @@ command_not_found_handler() {
     local converted_command=$(sgpt --shell <<< "$@")
 
     # If it's destructive, then prompt for confirmation.
-    if _sgpt_is_destructive_command "$converted_command"; then
-        # Then prompt for confirmation
-        echo "$converted_command"
-        echo "Execute destructive shell command? [y/N]:"
-        read confirmation
-        # If user types enter or a word starting with n or N, then exit unsuccessfully
-        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
-            return 1
-        fi
+    if ! _sgpt_handle_destructive_command "$converted_command"; then
+        return 1
     fi
 
     # Execute the translated command.
@@ -124,20 +117,13 @@ command_not_found_handle() {
 #   3. Add the natural language to the history and clear the buffer
 _sgpt_override_enter_zsh() {
     local converted_command=$(sgpt --shell <<< $BUFFER)
-    if _sgpt_is_destructive_command "$converted_command"; then
-        # Then prompt for confirmation
-        echo "$converted_command"
-        echo "Execute destructive shell command? [y/N]:"
-        read confirmation
-        # If user types enter or a word starting with n or N, then exit unsuccessfully
-        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
-            return 1
-        fi
+    echo
+    if ! _sgpt_handle_destructive_command "$converted_command"; then
+        return 1
     fi
 
     # Execute the translated command.
     # TODO Use subshell to execute command instead because it is safer then eval.
-    echo
     eval "$converted_command"
     echo
     print -s "$BUFFER"
@@ -147,20 +133,27 @@ _sgpt_override_enter_zsh() {
 
 _sgpt_override_enter_bash() {
     local converted_command=$(sgpt --shell <<< $READLINE_LINE)
-    if _sgpt_is_destructive_command "$converted_command"; then
-        # Then prompt for confirmation
-        echo "$converted_command"
-        echo "Execute destructive shell command? [y/N]:"
-        read confirmation
-        # If user types enter or a word starting with n or N, then exit unsuccessfully
-        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
-            return 1
-        fi
+    if ! _sgpt_handle_destructive_command "$converted_command"; then
+        return 1
     fi
 
     eval "$converted_command"
     history -s "$BUFFER"
     READLINE_LINE=''
+}
+
+_sgpt_handle_destructive_command() {
+    if _sgpt_is_destructive_command "$1"; then
+        # Then prompt for confirmation
+        echo "$1"
+        echo "Execute destructive shell command? [y/N]:"
+        read confirmation
+        # If user types enter or a word starting with n or N, then exit unsuccessfully
+        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
+            echo "Cancelled"
+            return 1
+        fi
+    fi
 }
 
 # Returns whether or not a given commands makes an irreversable change
