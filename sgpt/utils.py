@@ -36,6 +36,20 @@ def get_edited_prompt() -> str:
         raise BadParameter("Couldn't get valid PROMPT from $EDITOR")
     return output
 
+def save_shell_history(command: str) -> None:
+    """
+    Creates a file in shell_gpt directory.
+    Filename is shell_history.
+    This file stores commands executed by sgpt.
+    """
+    current_file_path = os.path.realpath(__file__)
+    current_directory = os.path.dirname(current_file_path)
+    relative_path = "../shell_history"
+    absolute_path = os.path.join(current_directory, relative_path)
+    log_path = absolute_path
+    with open(log_path, "a", encoding="utf-8") as log:
+        log.write(f"{command}\n")
+
 
 def run_command(command: str) -> None:
     """
@@ -55,7 +69,7 @@ def run_command(command: str) -> None:
         full_command = f"{shell} -c {shlex.quote(command)}"
 
     os.system(full_command)
-
+    save_shell_history(command)
 
 def option_callback(func: Callable) -> Callable:  # type: ignore
     def wrapper(cls: Any, value: str) -> None:
