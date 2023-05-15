@@ -286,6 +286,8 @@ DEFAULT_MODEL=gpt-3.5-turbo
 DEFAULT_COLOR=magenta
 # Force use system role messages (not recommended).
 SYSTEM_ROLES=false
+# When in --shell mode, default to "Y" for no input.
+DEFAULT_EXECUTE_SHELL_CMD=false
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 
