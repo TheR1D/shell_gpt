@@ -50,6 +50,13 @@ def main(
         help="Generate and execute shell commands.",
         rich_help_panel="Assistance Options",
     ),
+    describe_shell: bool = typer.Option(
+        False,
+        "--describe-shell",
+        "-d",
+        help="Describe a shell command.",
+        rich_help_panel="Assistance Options",
+    ),
     code: bool = typer.Option(
         False,
         help="Generate only code.",
@@ -117,8 +124,10 @@ def main(
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
-    if shell and code:
-        raise BadArgumentUsage("--shell and --code options cannot be used together.")
+    if sum([shell, describe_shell, code]) > 1:
+        raise BadArgumentUsage(
+            "Only one of --shell, --describe-shell, and --code options can be used at a time."
+        )
 
     if chat and repl:
         raise BadArgumentUsage("--chat and --repl options cannot be used together.")
@@ -131,7 +140,11 @@ def main(
 
     client = OpenAIClient(cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY"))
 
-    role_class = DefaultRoles.get(shell, code) if not role else SystemRole.get(role)
+    role_class = (
+        DefaultRoles.get(shell, describe_shell, code)
+        if not role
+        else SystemRole.get(role)
+    )
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.

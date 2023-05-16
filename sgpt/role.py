@@ -18,6 +18,11 @@ If there is a lack of details, provide most logical solution.
 Ensure the output is a valid shell command.
 If multiple steps required try to combine them together."""
 
+DESCRIBE_SHELL_ROLE = """Provide a terse, single sentence description
+of the given shell command. Provide only plain text without Markdown formatting.
+Do not show any warnings or information regarding your capabilities.
+If you need to store any data, assume it will be stored in the chat."""
+
 CODE_ROLE = """Provide only code as output without any description.
 IMPORTANT: Provide only plain text without Markdown formatting.
 IMPORTANT: Do not include markdown formatting such as ```.
@@ -67,6 +72,7 @@ class SystemRole:
         for default_role in (
             SystemRole("default", DEFAULT_ROLE, "Answer", variables),
             SystemRole("shell", SHELL_ROLE, "Command", variables),
+            SystemRole("describe_shell", DESCRIBE_SHELL_ROLE, "Description", variables),
             SystemRole("code", CODE_ROLE, "Code"),
         ):
             if not default_role.exists:
@@ -112,7 +118,8 @@ class SystemRole:
     def create(cls, name: str) -> None:
         role = typer.prompt("Enter role description")
         expecting = typer.prompt(
-            "Enter expecting result, e.g. answer, code, shell command, etc."
+            "Enter expecting result, e.g. answer, code, \
+            shell command, command description, etc."
         )
         role = cls(name, role, expecting)
         role.save()
@@ -183,12 +190,15 @@ class SystemRole:
 class DefaultRoles(Enum):
     DEFAULT = "default"
     SHELL = "shell"
+    DESCRIBE_SHELL = "describe_shell"
     CODE = "code"
 
     @classmethod
-    def get(cls, shell: bool, code: bool) -> SystemRole:
+    def get(cls, shell: bool, describe_shell: bool, code: bool) -> SystemRole:
         if shell:
             return SystemRole.get(DefaultRoles.SHELL.value)
+        if describe_shell:
+            return SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
         if code:
             return SystemRole.get(DefaultRoles.CODE.value)
         return SystemRole.get(DefaultRoles.DEFAULT.value)
