@@ -8,6 +8,7 @@ shell commands directly from the interface.
 # To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
 import sys
+from typing import List
 
 import typer
 from click import BadArgumentUsage, MissingParameter
@@ -22,7 +23,7 @@ from sgpt.utils import ModelOptions, get_edited_prompt, run_command
 
 
 def main(
-    prompt: str = typer.Argument(
+    prompt: List[str] = typer.Argument(
         None,
         show_default=False,
         help="The prompt to generate completions for.",
@@ -118,10 +119,12 @@ def main(
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
-    if stdin_passed and not repl:
-        prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
+    joined_prompt = " ".join(prompt) if prompt else ""
 
-    if not prompt and not editor and not repl:
+    if stdin_passed and not repl:
+        joined_prompt = f"{sys.stdin.read()}\n\n{joined_prompt or ''}"
+
+    if not joined_prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
     if sum([shell, describe_shell, code]) > 1:
@@ -136,7 +139,7 @@ def main(
         raise BadArgumentUsage("--editor option cannot be used with stdin input.")
 
     if editor:
-        prompt = get_edited_prompt()
+        joined_prompt = get_edited_prompt()
 
     client = OpenAIClient(cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY"))
 
@@ -149,7 +152,7 @@ def main(
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
         ReplHandler(client, repl, role_class).handle(
-            prompt,
+            joined_prompt,
             model=model.value,
             temperature=temperature,
             top_probability=top_probability,
@@ -159,7 +162,7 @@ def main(
 
     if chat:
         full_completion = ChatHandler(client, chat, role_class).handle(
-            prompt,
+            joined_prompt,
             model=model.value,
             temperature=temperature,
             top_probability=top_probability,
@@ -168,7 +171,7 @@ def main(
         )
     else:
         full_completion = DefaultHandler(client, role_class).handle(
-            prompt,
+            joined_prompt,
             model=model.value,
             temperature=temperature,
             top_probability=top_probability,
