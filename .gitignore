@@ -1,0 +1,36 @@
+Create a new file named ".gitignore" in the root directory of your Python app and add the following lines:
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local development settings
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# Dependency directories
+venv/
+env/
+env.bak/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Compiled Python files
+*.pyc
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Other
+*.swp
+.DS_Store
+Thumbs.db
