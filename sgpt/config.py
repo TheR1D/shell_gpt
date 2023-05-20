@@ -28,6 +28,7 @@ DEFAULT_CONFIG = {
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     "SYSTEM_ROLES": os.getenv("SYSTEM_ROLES", "false"),
+    "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
     # New features might add their own config variables here.
 }
 

@@ -175,7 +175,14 @@ def main(
             caching=cache,
         )
 
-    if shell and not stdin_passed and typer.confirm("Execute shell command?"):
+    if (
+        shell
+        and not stdin_passed
+        and typer.confirm(
+            text="Execute shell command?",
+            default=cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true",
+        )
+    ):
         run_command(full_completion)
 
 
