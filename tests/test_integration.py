@@ -20,7 +20,6 @@ import typer
 from typer.testing import CliRunner
 
 from sgpt.app import main
-from sgpt.client import OpenAIClient
 from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
 from sgpt.role import SystemRole
@@ -160,12 +159,13 @@ class TestShellGpt(TestCase):
             "prompt": "git add",
             "--chat": f"test_{chat_name}",
             "--describe-shell": True,
-            "--temperature": 0,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "Add file contents to the index." in result.stdout
         dict_arguments["prompt"] = "'-A'"
+        # Prevent Too Many Requests.
+        sleep(1)
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
         assert "all" in result.stdout
@@ -367,10 +367,10 @@ class TestShellGpt(TestCase):
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
         role = SystemRole.get("default")
-        handler = Handler(OpenAIClient("test", "test"), role=role)
+        handler = Handler(role=role)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(OpenAIClient("test", "test"), role=role)
+        handler = Handler(role=role)
         assert handler.color == "red"
 
     def test_simple_stdin(self):
@@ -438,3 +438,14 @@ class TestShellGpt(TestCase):
         assert "password" in generated_json
         assert "email" in generated_json
         test_role.unlink(missing_ok=True)
+
+    def test_shell_command_run_description(self):
+        dict_arguments = {
+            "prompt": "say hello",
+            "--shell": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
+        assert result.exit_code == 0
+        # Cant really test it since stdin in disable for --shell flag.
+        # for word in ("prints", "hello", "console"):
+        #     assert word in result.stdout

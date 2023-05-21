@@ -5,7 +5,6 @@ from typing import Any, Callable, Dict, Generator, List, Optional
 import typer
 from click import BadArgumentUsage
 
-from ..client import OpenAIClient
 from ..config import cfg
 from ..role import SystemRole
 from .handler import Handler
@@ -91,15 +90,9 @@ class ChatSession:
 class ChatHandler(Handler):
     chat_session = ChatSession(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
-    def __init__(
-        self,
-        client: OpenAIClient,
-        chat_id: str,
-        role: SystemRole,
-    ) -> None:
-        super().__init__(client, role)
+    def __init__(self, chat_id: str, role: SystemRole) -> None:
+        super().__init__(role)
         self.chat_id = chat_id
-        self.client = client
         self.role = role
 
         if chat_id == "temp":

@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Dict, List
 
-from ..client import OpenAIClient
 from ..config import cfg
 from ..role import SystemRole
 from .handler import Handler
@@ -11,13 +10,8 @@ CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
 
 
 class DefaultHandler(Handler):
-    def __init__(
-        self,
-        client: OpenAIClient,
-        role: SystemRole,
-    ) -> None:
-        super().__init__(client, role)
-        self.client = client
+    def __init__(self, role: SystemRole) -> None:
+        super().__init__(role)
         self.role = role
 
     def make_prompt(self, prompt: str) -> str:

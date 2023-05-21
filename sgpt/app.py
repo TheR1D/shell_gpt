@@ -11,8 +11,8 @@ import sys
 
 import typer
 from click import BadArgumentUsage, MissingParameter
+from click.types import Choice
 
-from sgpt.client import OpenAIClient
 from sgpt.config import cfg
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
@@ -124,7 +124,7 @@ def main(
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
-    if sum([shell, describe_shell, code]) > 1:
+    if sum((shell, describe_shell, code)) > 1:
         raise BadArgumentUsage(
             "Only one of --shell, --describe-shell, and --code options can be used at a time."
         )
@@ -138,17 +138,15 @@ def main(
     if editor:
         prompt = get_edited_prompt()
 
-    client = OpenAIClient(cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY"))
-
     role_class = (
-        DefaultRoles.get(shell, describe_shell, code)
+        DefaultRoles.check_get(shell, describe_shell, code)
         if not role
         else SystemRole.get(role)
     )
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
-        ReplHandler(client, repl, role_class).handle(
+        ReplHandler(repl, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -158,7 +156,7 @@ def main(
         )
 
     if chat:
-        full_completion = ChatHandler(client, chat, role_class).handle(
+        full_completion = ChatHandler(chat, role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -167,7 +165,7 @@ def main(
             caching=cache,
         )
     else:
-        full_completion = DefaultHandler(client, role_class).handle(
+        full_completion = DefaultHandler(role_class).handle(
             prompt,
             model=model.value,
             temperature=temperature,
@@ -175,15 +173,27 @@ def main(
             caching=cache,
         )
 
-    if (
-        shell
-        and not stdin_passed
-        and typer.confirm(
-            text="Execute shell command?",
-            default=cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true",
+    while shell and not stdin_passed:
+        option = typer.prompt(
+            text="[E]xecute, [D]escribe, [A]bort",
+            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+            default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
+            show_choices=False,
+            show_default=False,
         )
-    ):
-        run_command(full_completion)
+        if option in ("e", "y"):
+            # "y" option is for keeping compatibility with old version.
+            run_command(full_completion)
+        elif option == "d":
+            DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role()).handle(
+                full_completion,
+                model=model.value,
+                temperature=temperature,
+                top_probability=top_probability,
+                caching=cache,
+            )
+            continue
+        break
 
 
 def entry_point() -> None:

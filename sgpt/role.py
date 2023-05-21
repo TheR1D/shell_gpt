@@ -194,7 +194,7 @@ class DefaultRoles(Enum):
     CODE = "code"
 
     @classmethod
-    def get(cls, shell: bool, describe_shell: bool, code: bool) -> SystemRole:
+    def check_get(cls, shell: bool, describe_shell: bool, code: bool) -> SystemRole:
         if shell:
             return SystemRole.get(DefaultRoles.SHELL.value)
         if describe_shell:
@@ -202,6 +202,9 @@ class DefaultRoles(Enum):
         if code:
             return SystemRole.get(DefaultRoles.CODE.value)
         return SystemRole.get(DefaultRoles.DEFAULT.value)
+
+    def get_role(self) -> SystemRole:
+        return SystemRole.get(self.value)
 
 
 SystemRole.create_defaults()
