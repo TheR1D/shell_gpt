@@ -8,8 +8,10 @@ from ..role import SystemRole
 
 
 class Handler:
-    def __init__(self, client: OpenAIClient, role: SystemRole) -> None:
-        self.client = client
+    def __init__(self, role: SystemRole) -> None:
+        self.client = OpenAIClient(
+            cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY")
+        )
         self.role = role
         self.color = cfg.get("DEFAULT_COLOR")
 

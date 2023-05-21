@@ -5,7 +5,7 @@ https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-
 
 ## Installation
 ```shell
-pip install shell-gpt==0.9.0
+pip install shell-gpt==0.9.1
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -45,25 +45,38 @@ Have you ever found yourself forgetting common shell commands, such as `chmod`, 
 ```shell
 sgpt --shell "make all files in current directory read only"
 # -> chmod 444 *
-# -> Execute shell command? [y/N]: y
-# ...
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
 ```
 Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
 ```shell
 sgpt -s "update my system"
 # -> sudo softwareupdate -i -a
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
 ```
 The same prompt, when used on Ubuntu, will generate a different suggestion:
 ```shell
 sgpt -s "update my system"
 # -> sudo apt update && sudo apt upgrade -y
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
+```
+We can ask GPT to describe suggested shell command, it will provide a short description of what the command does:
+```shell
+sgpt -s "show all txt files in current folder"
+# -> ls *.txt
+# -> [E]xecute, [D]escribe, [A]bort: d
+# -> List all files with .txt extension in current directory
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
 ```
 Let's try some docker containers:
 ```shell
 sgpt -s "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
 # -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
-# -> Execute shell command? [y/N]: y
-# ...
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
 ```
 We can still use pipes to pass input to `sgpt` and get shell commands as output:
 ```shell
@@ -76,8 +89,8 @@ ls
 # -> 1.mp4 2.mp4 3.mp4
 sgpt -s "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
-# -> Execute shell command? [y/N]: y
-# ...
+# -> [E]xecute, [D]escribe, [A]bort: e
+...
 ```
 ### Generating code
 With `--code` parameters we can query only code as output, for example:
@@ -200,7 +213,7 @@ ls
 ls -lh
 >>> Sort them by file sizes
 ls -lhS
->>> e (enter just e to execute commands)
+>>> e (enter just e to execute commands, or d to describe them)
 ...
 ```
 Example of using REPL mode to generate code:
@@ -308,6 +321,7 @@ Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/art
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Assistance Options ────────────────────────────────────────────────────────────────────────────────────────╮
 │ --shell  -s                 Generate and execute shell commands.                                            │
+│ --describe-shell  -d        Describe a shell command.                                                       │
 │ --code       --no-code      Generate only code. [default: no-code]                                          │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Chat Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
