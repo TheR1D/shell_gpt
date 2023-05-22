@@ -25,7 +25,9 @@ _sgpt_zsh() {
         # If there is a mismatch (text changed between toggles), then the
         # result must be recalculated with sgpt.
         _sgpt_prev_cmd=$BUFFER
-        BUFFER=$(_sgpt_translate_buffer "$BUFFER")
+        BUFFER="$BUFFER ⌛"
+        zle redisplay
+        BUFFER=$(_sgpt_translate_buffer "$_sgpt_prev_cmd")
         _sgpt_penult_cmd=$BUFFER
     fi
     # Move cursor to end of line
