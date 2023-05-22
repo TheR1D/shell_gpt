@@ -142,32 +142,38 @@ _sgpt_override_enter_bash() {
 # If the command is not destructive or the user confirms, then return 0.
 # Otherwise, return 1.
 _sgpt_handle_destructive_command() {
-    local no_confirm_config_option='SHELL_EXECUTE_NO_CONFIRM'
-
-    # Get no-confirm configuration
-    local no_confirm
-    if [[ -f ~/.config/shell_gpt/.sgptrc ]]; then
-        no_confirm=$(grep -E '^${no_confirm_config_option}=' ~/.config/shell_gpt/.sgptrc \
-                | cut -d'=' -f2- | tr -d '[:space:]')
+    local config_path=~/.config/shell_gpt/.sgptrc
+    declare -A config_options=(
+        [no_confirm]='SHELL_EXECUTE_NO_CONFIRM'
+        [default_execute]='DEFAULT_EXECUTE_SHELL_CMD'
+    )
+    if [[ -f $config_path ]]; then
+        config_options[no_confirm]=$(. $config_path && eval echo \$$config_options[no_confirm])
+        config_options[default_execute]=$(. $config_path && eval echo \$$config_options[default_execute])
     fi
+
+    local confirm_string=$([[ $config_options[default_execute] == true ]] \
+                            && echo 'Y/n' || echo 'y/N')
 
     # If the command is destructive, then prompt for confirmation
     if _sgpt_is_destructive_command "$1"; then
         # Then prompt for confirmation
         echo -e "\033[1;31m${1}\033[0m" # Print the command in red
-        echo -e "Execute \033[1mdestructive\033[0m shell command? [y/N]:" # destructive in bold
+        echo -e "Execute \033[1mdestructive\033[0m shell command? [$confirm_string]:"
         read confirmation < /dev/tty
         # If user types enter or a word starting with n or N, then exit unsuccessfully
-        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
+        if [[ ($config_options[default_execute] != true \
+            && -z $confirmation) || ${confirmation:0:1} == [nN] ]]; then
             return 1
         fi
-    elif [[ $no_confirm != 'true' ]]; then
+    elif [[ $config_options[no_confirm] != true ]]; then
         # If the command is not destructive, then prompt for confirmation only if the
         # no-confirm configuration is not set to true.
         echo $1 # Print the command in green
-        echo "Execute shell command? [y/N]:"
+        echo "Execute shell command? [$confirm_string]:"
         read confirmation < /dev/tty
-        if [[ -z $confirmation || ${confirmation:0:1} == [nN] ]]; then
+        if [[ ($config_options[default_execute] != true \
+            && -z $confirmation) || ${confirmation:0:1} == [nN] ]]; then
             return 1
         fi
     fi
