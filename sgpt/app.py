@@ -116,7 +116,11 @@ def main(
         rich_help_panel="Role Options",
     ),
 ) -> None:
-    stdin_passed = not sys.stdin.isatty()
+    if sys.stdin is not None:
+        stdin_passed = not sys.stdin.isatty()
+    else:
+        stdin_passed = False
+
 
     if stdin_passed and not repl:
         prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
