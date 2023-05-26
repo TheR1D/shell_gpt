@@ -142,18 +142,12 @@ _sgpt_override_enter_bash() {
 # If the command is not destructive or the user confirms, then return 0.
 # Otherwise, return 1.
 _sgpt_handle_destructive_command() {
-    local config_path=~/.config/shell_gpt/.sgptrc
-    declare -A config_options=(
-        [no_confirm]='SHELL_EXECUTE_NO_CONFIRM'
-        [default_execute]='DEFAULT_EXECUTE_SHELL_CMD'
+    local config_options=(
+        $(_sgpt_get_config_options SHELL_EXECUTE_NO_CONFIRM DEFAULT_EXECUTE_SHELL_CMD)
     )
-    if [[ -f $config_path ]]; then
-        config_options[no_confirm]=$(. $config_path && eval echo \$$config_options[no_confirm])
-        config_options[default_execute]=$(. $config_path && eval echo \$$config_options[default_execute])
-    fi
-
-    local confirm_string=$([[ $config_options[default_execute] == true ]] \
-                            && echo 'Y/n' || echo 'y/N')
+    local confirm_string=$(
+        [[ $config_options[2] == true ]] && echo 'Y/n' || echo 'y/N'
+    )
 
     # If the command is destructive, then prompt for confirmation
     if _sgpt_is_destructive_command "$1"; then
@@ -162,27 +156,43 @@ _sgpt_handle_destructive_command() {
         echo -e "Execute \033[1mdestructive\033[0m shell command? [$confirm_string]:"
         read confirmation < /dev/tty
         # If user types enter or a word starting with n or N, then exit unsuccessfully
-        if [[ ($config_options[default_execute] != true \
+        if [[ ($config_options[2] != true \
             && -z $confirmation) || ${confirmation:0:1} == [nN] ]]; then
             return 1
         fi
-    elif [[ $config_options[no_confirm] != true ]]; then
+    elif [[ $config_options[1] != true ]]; then
         # If the command is not destructive, then prompt for confirmation only if the
         # no-confirm configuration is not set to true.
         echo $1 # Print the command in green
         echo "Execute shell command? [$confirm_string]:"
         read confirmation < /dev/tty
-        if [[ ($config_options[default_execute] != true \
+        if [[ ($config_options[2] != true \
             && -z $confirmation) || ${confirmation:0:1} == [nN] ]]; then
             return 1
         fi
     fi
 }
 
+# Takes an array of config options and returns a space seperated
+# string of their values.
+_sgpt_get_config_options() {
+    local config_options=""
+    local config_path=~/.config/shell_gpt/.sgptrc
+
+    [[ -f $config_path ]] && . $config_path
+
+    for option in "$@"; do
+        value=$(eval echo \$$option)
+        [[ -z $value ]] && value='false'
+        config_options+="$value "
+    done
+    echo $config_options
+}
+
 # Decides whether or not a given command mutates the system.
 # Returns 0 if destructive, 1 if safe.
 _sgpt_is_destructive_command() {
-    local destructive_commands=(rm mv cp dd chown chmod fdisk git modprobe mkfs mkswap)
+    local destructive_commands=(sudo rm mv cp dd chown chmod fdisk git modprobe mkfs mkswap)
 
     declare -A safe_flags_for_destructive_commands=(
         [rm]='-i --interactive --help --version'
