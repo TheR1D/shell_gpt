@@ -1,11 +1,3 @@
-# Default keybindings: zsh and bash have different syntax for keybindings.
-declare -A KEYBINDINGS=(
-    [toggle_zsh]='^@' # Control-Space
-    [nl_execute_zsh]='[27;5;13~' # Control-Enter
-    [toggle_bash]='\C-@'
-    [nl_execute_bash]='[27;5;13~'
-)
-
 # Toggles the buffer between natural language and shell command, assuming
 # it executes in zsh.
 _sgpt_zsh() {
@@ -112,7 +104,10 @@ command_not_found_handle() {
 # First handle destructive commands, then execute the command, and add the
 # natural language to history.
 _sgpt_override_enter_zsh() {
-    local converted_command=$(sgpt --shell <<< $BUFFER)
+    local old_buffer=$BUFFER
+    BUFFER="$BUFFER ⌛"
+    zle redisplay
+    local converted_command=$(sgpt --shell <<< $old_buffer)
     zle -I
     if ! _sgpt_handle_destructive_command "$converted_command"; then
         BUFFER=''
@@ -122,7 +117,7 @@ _sgpt_override_enter_zsh() {
     # Execute the translated command, add the natural language 
     # to history, and clear the buffer
     eval "$converted_command"
-    print -s "$BUFFER"
+    print -s "$old_buffer"
     BUFFER=''
 }
 
@@ -174,7 +169,7 @@ _sgpt_handle_destructive_command() {
 }
 
 # Takes an array of config options and returns a space seperated
-# string of their values.
+# string of their values. If a value is not set, then it is set to false.
 _sgpt_get_config_options() {
     local config_options=""
     local config_path=~/.config/shell_gpt/.sgptrc
@@ -182,11 +177,11 @@ _sgpt_get_config_options() {
     [[ -f $config_path ]] && . $config_path
 
     for option in "$@"; do
-        value=$(eval echo \$$option)
+        value=$(eval echo -E \$$option)
         [[ -z $value ]] && value='false'
         config_options+="$value "
     done
-    echo $config_options
+    echo -E $config_options
 }
 
 # Decides whether or not a given command mutates the system.
@@ -223,13 +218,25 @@ _sgpt_is_destructive_command() {
     fi
 }
 
-# Determine the type of shell, and execute the appropriate keybinding commmand
+# Default keybindings
+declare -A KEYBINDINGS=(
+    [toggle_buffer]='\et' # Alt-t
+    [execute_natural_language]='\ee' # Alt-e
+)
+
+# Override default keybindings with user defined keybindings
+config_keybindings=($(_sgpt_get_config_options TOGGLE_BUFFER_KEYBINDING \
+    EXECUTE_NATURAL_LANGUAGE_KEYBINDING))
+[[ $config_keybindings[1] != false ]] && KEYBINDINGS[toggle_buffer]=$config_keybindings[1]
+[[ $config_keybindings[2] != false ]] && KEYBINDINGS[execute_natural_language]=$config_keybindings[2]
+
+# Determine the type of shell, and execute the appropriate binding commmand
 if [[ -n $ZSH_VERSION ]]; then
     zle -N _sgpt_zsh
     zle -N _sgpt_override_enter_zsh
-    bindkey "${KEYBINDINGS[toggle_zsh]}" _sgpt_zsh
-    bindkey "${KEYBINDINGS[nl_execute_zsh]}" _sgpt_override_enter_zsh
+    bindkey $KEYBINDINGS[toggle_buffer] _sgpt_zsh
+    bindkey $KEYBINDINGS[execute_natural_language] _sgpt_override_enter_zsh
 else
-    bind -x "\"${KEYBINDINGS[toggle_bash]}\": _sgpt_bash"
-    bind -x "\"${KEYBINDINGS[nl_execute_bash]}\": _sgpt_override_enter_bash"
+    bind -x "\"${KEYBINDINGS[toggle_buffer]}\": _sgpt_bash"
+    bind -x "\"${KEYBINDINGS[execute_natural_language]}\": _sgpt_override_enter_bash"
 fi
