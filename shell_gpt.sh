@@ -83,7 +83,9 @@ command_not_found_handler() {
     fi
 
     # Convert the natural language to shell
+    printf '⌛'
     local converted_command=$(sgpt --shell <<< "$@")
+    printf "\r"
 
     # If it's destructive, then prompt for confirmation.
     if ! _sgpt_handle_destructive_command "$converted_command"; then
