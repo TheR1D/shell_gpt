@@ -19,7 +19,7 @@ _sgpt_zsh() {
         _sgpt_prev_cmd=$BUFFER
         BUFFER="$BUFFER ⌛"
         zle redisplay
-        BUFFER=$(_sgpt_translate_buffer "$_sgpt_prev_cmd")
+        BUFFER=$(_sgpt_translate_buffer "$_sgpt_prev_cmd" $1)
         _sgpt_penult_cmd=$BUFFER
     fi
     # Move cursor to end of line
@@ -42,11 +42,19 @@ _sgpt_bash() {
         _sgpt_prev_cmd=$tmp
     else
         _sgpt_prev_cmd=$READLINE_LINE
-        READLINE_LINE=$(_sgpt_translate_buffer "$READLINE_LINE")
+        READLINE_LINE=$(_sgpt_translate_buffer "$READLINE_LINE" $1)
         _sgpt_penult_cmd=$READLINE_LINE
     fi
     # Move cursor to end of line
     READLINE_POINT=${#READLINE_LINE}
+}
+
+_sgpt_toggle_nl_zsh() {
+    _sgpt_zsh --toggle-nl
+}
+
+_sgpt_toggle_nl_bash() {
+    _sgpt_bash --toggle-nl
 }
 
 # Decides whether the buffer contains shell command or natural language, then translates
@@ -58,7 +66,7 @@ _sgpt_translate_buffer() {
 
     # Decide if the buffer contains command or natural language.
     # If the first letter is lowercase and the command exists, then it is a command.
-    if [[ ${1:0:1} = [[:lower:]] ]] && command -v $command_name > /dev/null; then
+    if [[ -z $2 && ${1:0:1} = [[:lower:]] ]] && command -v $command_name > /dev/null; then
         sgpt_flag='--describe-shell'
     fi
 
@@ -110,6 +118,8 @@ _sgpt_override_enter_zsh() {
     BUFFER="$BUFFER ⌛"
     zle redisplay
     local converted_command=$(sgpt --shell <<< $old_buffer)
+    BUFFER="$old_buffer"
+    zle redisplay
     zle -I
     if ! _sgpt_handle_destructive_command "$converted_command"; then
         BUFFER=''
@@ -224,21 +234,26 @@ _sgpt_is_destructive_command() {
 declare -A KEYBINDINGS=(
     [toggle_buffer]='\et' # Alt-t
     [execute_natural_language]='\ee' # Alt-e
+    [toggle_natural_language]='\eT' # Alt-T
 )
 
 # Override default keybindings with user defined keybindings
 config_keybindings=($(_sgpt_get_config_options TOGGLE_BUFFER_KEYBINDING \
-    EXECUTE_NATURAL_LANGUAGE_KEYBINDING))
+    EXECUTE_NATURAL_LANGUAGE_KEYBINDING TOGGLE_NATURAL_LANGUAGE_KEYBINDING))
 [[ $config_keybindings[1] != false ]] && KEYBINDINGS[toggle_buffer]=$config_keybindings[1]
 [[ $config_keybindings[2] != false ]] && KEYBINDINGS[execute_natural_language]=$config_keybindings[2]
+[[ $config_keybindings[3] != false ]] && KEYBINDINGS[toggle_natural_language]=$config_keybindings[3]
 
 # Determine the type of shell, and execute the appropriate binding commmand
 if [[ -n $ZSH_VERSION ]]; then
     zle -N _sgpt_zsh
     zle -N _sgpt_override_enter_zsh
+    zle -N _sgpt_toggle_nl_zsh
     bindkey $KEYBINDINGS[toggle_buffer] _sgpt_zsh
     bindkey $KEYBINDINGS[execute_natural_language] _sgpt_override_enter_zsh
+    bindkey $KEYBINDINGS[toggle_natural_language] _sgpt_toggle_nl_zsh
 else
     bind -x "\"${KEYBINDINGS[toggle_buffer]}\": _sgpt_bash"
     bind -x "\"${KEYBINDINGS[execute_natural_language]}\": _sgpt_override_enter_bash"
+    bind -x "\"${KEYBINDINGS[toggle_natural_language]}\": _sgpt_toggle_nl_bash"
 fi
