@@ -12,8 +12,8 @@ CONFIG_FOLDER = os.path.expanduser("~/.config")
 SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
 SHELL_GPT_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
 ROLE_STORAGE_PATH = SHELL_GPT_CONFIG_FOLDER / "roles"
-CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
-CACHE_PATH = Path(gettempdir()) / "cache"
+CHAT_CACHE_PATH = Path(gettempdir()) / f"sgpt-chat-cache-{os.getuid()}"
+CACHE_PATH = Path(gettempdir()) / f"sgpt-cache-{os.getuid()}"
 
 # TODO: Refactor ENV variables with SGPT_ prefix.
 DEFAULT_CONFIG = {
