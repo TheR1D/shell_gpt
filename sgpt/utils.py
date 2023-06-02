@@ -10,9 +10,16 @@ from click import BadParameter
 
 
 class ModelOptions(str, Enum):
-    GPT3 = "gpt-3.5-turbo"
-    GPT4 = "gpt-4"
-    GPT4_32K = "gpt-4-32k"
+    """
+    Model endpoint compatibility
+    https://platform.openai.com/docs/models/model-endpoint-compatibility
+    """
+    GPT4 = 'gpt-4'
+    GPT40314 = 'gpt-4-0314'
+    GPT432k = 'gpt-4-32k'
+    GPT432k0314 = 'gpt-4-32k-0314'
+    GPT35TURBO = 'gpt-3.5-turbo'
+    GPT35TURBO0301 = 'gpt-3.5-turbo-0301'
 
 
 def get_edited_prompt() -> str:
