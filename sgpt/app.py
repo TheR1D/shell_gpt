@@ -77,6 +77,8 @@ def main(
     ),
     repl: str = typer.Option(
         None,
+        "--repl",
+        "-r",
         help="Start a REPL (Read–eval–print loop) session.",
         rich_help_panel="Chat Options",
     ),

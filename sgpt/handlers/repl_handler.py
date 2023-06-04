@@ -30,6 +30,9 @@ class ReplHandler(ChatHandler):
         )
         typer.secho(info_message, fg="yellow")
 
+        if prompt:
+           super().handle(prompt, **kwargs)
+
         full_completion = ""
         while True:
             # Infinite loop until user exits with Ctrl+C.
