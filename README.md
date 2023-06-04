@@ -5,7 +5,7 @@ https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-
 
 ## Installation
 ```shell
-pip install shell-gpt==0.9.1
+pip install shell-gpt==0.9.2
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -100,6 +100,7 @@ https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abf
 To install shell integration, run:
 ```shell
 sgpt --install-integration
+# Restart your terminal to apply changes.
 ```
 This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke Shell-GPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and press `Enter` to execute.
 

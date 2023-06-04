@@ -68,7 +68,7 @@ def option_callback(func: Callable) -> Callable:  # type: ignore
 
 
 @option_callback
-def install_shell_integration(*_args) -> None:
+def install_shell_integration(*_args: Any) -> None:
     """
     Installs shell integration. Currently only supports Linux.
     Allows user to get shell completions in terminal by using hotkey.
@@ -80,4 +80,4 @@ def install_shell_integration(*_args) -> None:
         typer.echo("Windows is not supported yet.")
     else:
         url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh"
-        os.system(f"sh -c \"$(curl -fsSL {url})\"")
+        os.system(f'sh -c "$(curl -fsSL {url})"')

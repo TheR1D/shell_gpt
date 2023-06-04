@@ -21,8 +21,8 @@ from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
     ModelOptions,
     get_edited_prompt,
+    install_shell_integration,
     run_command,
-    install_shell_integration
 )
 
 
@@ -126,7 +126,6 @@ def main(
         callback=install_shell_integration,
         hidden=True,  # Hiding since should be used only once.
     ),
-
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
