@@ -3,7 +3,7 @@ Shell integration allows you to use Shell-GPT in your terminal with hotkeys. It 
 
 # Installation
 ```shell
-# TODO
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh)"
 ```
 
 # Usage
