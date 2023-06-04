@@ -18,7 +18,7 @@ _sgpt_zsh() {
         # result must be recalculated with sgpt.
         _sgpt_prev_cmd=$BUFFER
         BUFFER="$BUFFER ⌛"
-        zle redisplay
+        zle -I && zle redisplay
         BUFFER=$(_sgpt_translate_buffer "$_sgpt_prev_cmd" $1)
         _sgpt_penult_cmd=$BUFFER
     fi
@@ -116,7 +116,7 @@ command_not_found_handle() {
 _sgpt_override_enter_zsh() {
     local old_buffer=$BUFFER
     BUFFER="$BUFFER ⌛"
-    zle redisplay
+    zle -I && zle redisplay
     local converted_command=$(sgpt --shell <<< $old_buffer)
     BUFFER="$old_buffer"
     zle redisplay
@@ -232,9 +232,9 @@ _sgpt_is_destructive_command() {
 
 # Default keybindings
 declare -A KEYBINDINGS=(
-    [toggle_buffer]='\et' # Alt-t
-    [execute_natural_language]='\ee' # Alt-e
-    [toggle_natural_language]='\eT' # Alt-T
+    [toggle_buffer]='^t' # Alt-t
+    [execute_natural_language]='^e' # Alt-e
+    [toggle_natural_language]='^T' # Alt-T
 )
 
 # Override default keybindings with user defined keybindings
