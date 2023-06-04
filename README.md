@@ -92,6 +92,17 @@ sgpt -s "using ffmpeg combine multiple videos into one without audio. Video file
 # -> [E]xecute, [D]escribe, [A]bort: e
 ...
 ```
+### Shell integration
+Shell integration allows you to use Shell-GPT in your terminal with hotkeys. It is currently available for bash and zsh. It will allow you to have sgpt completions in your shell history, and also edit suggested commands right away.
+
+https://github-production-user-asset-6210df.s3.amazonaws.com/16740832/243205505-952125d1-f820-4782-8dbc-010d112f1bb6.mp4
+
+To install shell integration, run:
+```shell
+sgpt --install-integration
+```
+This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke Shell-GPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and press `Enter` to execute.
+
 ### Generating code
 With `--code` parameters we can query only code as output, for example:
 ```shell

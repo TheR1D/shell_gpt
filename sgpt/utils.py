@@ -65,3 +65,19 @@ def option_callback(func: Callable) -> Callable:  # type: ignore
         raise typer.Exit()
 
     return wrapper
+
+
+@option_callback
+def install_shell_integration(*_args) -> None:
+    """
+    Installs shell integration. Currently only supports Linux.
+    Allows user to get shell completions in terminal by using hotkey.
+    Allows user to edit shell command right away in terminal.
+    """
+    # TODO: Add support for Windows.
+    # TODO: Implement updates.
+    if platform.system() == "Windows":
+        typer.echo("Windows is not supported yet.")
+    else:
+        url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh"
+        os.system(f"sh -c \"$(curl -fsSL {url})\"")
