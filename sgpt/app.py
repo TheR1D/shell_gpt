@@ -18,7 +18,12 @@ from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.role import DefaultRoles, SystemRole
-from sgpt.utils import ModelOptions, get_edited_prompt, run_command
+from sgpt.utils import (
+    ModelOptions,
+    get_edited_prompt,
+    install_shell_integration,
+    run_command,
+)
 
 
 def main(
@@ -114,6 +119,12 @@ def main(
         help="List roles.",
         callback=SystemRole.list,
         rich_help_panel="Role Options",
+    ),
+    install_integration: bool = typer.Option(
+        False,
+        help="Install shell integration (ZSH and Bash only)",
+        callback=install_shell_integration,
+        hidden=True,  # Hiding since should be used only once.
     ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
