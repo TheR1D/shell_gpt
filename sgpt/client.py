@@ -37,6 +37,7 @@ class OpenAIClient:
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
         """
+
         data = {
             "messages": messages,
             "model": model,
@@ -44,13 +45,24 @@ class OpenAIClient:
             "top_p": top_probability,
             "stream": True,
         }
-        endpoint = f"{self.api_host}/v1/chat/completions"
+        # Check if self.api_host contains 'azure'
+        if "azure" in self.api_host:
+            # if self.api_host end with '/', remove it
+            if self.api_host.endswith("/"):
+                self.api_host = self.api_host[:-1]
+            endpoint = f"{self.api_host}/openai/deployments/{model}/chat/completions?api-version=2023-05-15"
+            auth_header = "api-key"
+            api_key = self.__api_key
+        else:
+            endpoint = f"{self.api_host}/v1/chat/completions"
+            auth_header = "Authorization"
+            api_key = f"Bearer {self.__api_key}"
         response = requests.post(
             endpoint,
             # Hide API key from Rich traceback.
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.__api_key}",
+                auth_header: api_key,
             },
             json=data,
             timeout=REQUEST_TIMEOUT,

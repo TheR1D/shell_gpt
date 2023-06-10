@@ -5,7 +5,7 @@ https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-
 
 ## Installation
 ```shell
-pip install shell-gpt==0.9.2
+pip install shell-gpt==0.9.3
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -293,7 +293,7 @@ You can setup some parameters in runtime configuration file `~/.config/shell_gpt
 ```text
 # API key, also it is possible to define OPENAI_API_KEY env.
 OPENAI_API_KEY=your_api_key
-# OpenAI host, useful if you would like to use proxy.
+# OpenAI host or Azure OpenAI Service endpoint, useful if you would like to use proxy.
 OPENAI_API_HOST=https://api.openai.com
 # Max amount of cached message per chat session.
 CHAT_CACHE_LENGTH=100
