@@ -11,6 +11,7 @@ from click import BadParameter
 
 class ModelOptions(str, Enum):
     GPT3 = "gpt-3.5-turbo"
+    GPT3_16k = "gpt-3.5-turbo-16k"
     GPT4 = "gpt-4"
     GPT4_32K = "gpt-4-32k"
 
