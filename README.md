@@ -156,7 +156,30 @@ for i in range(1, 101):
         print(i)
 ```
 
-### Chat
+### Conversational Modes - Overview
+
+Often it is important to preserve and recall a conversation and this is kept track of locally. `sgpt` creates conversational dialogue with each llm completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
+
+### Listing and Showing Chat Sessions 
+
+Dialogues had in both REPL and chat mode are saved as chat sessions.
+
+To list all the sessions from either conversational mode, use the `--list-chats` option:
+```shell
+sgpt --list-chats
+# .../shell_gpt/chat_cache/number
+# .../shell_gpt/chat_cache/python_request
+```
+To show all the messages related to a specific conversation, use the `--show-chat` option followed by the session name:
+```shell
+sgpt --show-chat number
+# user: please remember my favorite number: 4
+# assistant: I will remember that your favorite number is 4.
+# user: what would be my favorite number + 4?
+# assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
+```
+
+### Chat Mode
 To start a chat session, use the `--chat` option followed by a unique session name and a prompt. You can also use "temp" as a session name to start a temporary chat session.
 ```shell
 sgpt --chat number "please remember my favorite number: 4"
@@ -200,7 +223,7 @@ sgpt --chat sh "Convert the resulting file into an MP3"
 # -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
 ```
 
-### REPL
+### REPL Mode
 There is very handy REPL (read–eval–print loop) mode, which allows you to interactively chat with GPT models. To start a chat session in REPL mode, use the `--repl` option followed by a unique session name. You can also use "temp" as a session name to start a temporary REPL session. Note that `--chat` and `--repl` are using same chat sessions, so you can use `--chat` to start a chat session and then use `--repl` to continue the conversation in REPL mode. REPL mode will also show history of your conversation in the beginning.
 
 <p align="center">
@@ -242,21 +265,30 @@ response = requests.get('https://localhost:443')
 print(response.text)
 ```
 
-### Chat sessions
-To list all the current chat sessions, use the `--list-chats` option:
-```shell
-sgpt --list-chats
-# .../shell_gpt/chat_cache/number
-# .../shell_gpt/chat_cache/python_request
+### Picking up on a chat mode conversation with REPL mode
+
+```text
+sgpt --repl number
+───── Chat History──────
+user: ###
+Role name: default
+You are Command Line App ShellGPT, a programming and system administration assistant.
+You are managing Darwin/MacOS 13.3.1 operating system with zsh shell.
+Provide only plain text without Markdown formatting.
+Do not show any warnings or information regarding your capabilities.
+If you need to store any data, assume it will be stored in the chat.
+
+Request: please remember my favorite number: 4
+###
+assistant: Sure, I have stored your favorite number as 4.
+user: what would be my favorite number raised to the power of 4
+assistant: Your favorite number raised to the power of 4 would be 256.
+────────────────────────────────────────────────────────
+Entering REPL mode, press Ctrl+C to exit.
+>>> What is the sum of my favorite number and your previous response?
+The sum of your favorite number (4) and my previous response (256) would be 260.
 ```
-To show all the messages related to a specific chat session, use the `--show-chat` option followed by the session name:
-```shell
-sgpt --show-chat number
-# user: please remember my favorite number: 4
-# assistant: I will remember that your favorite number is 4.
-# user: what would be my favorite number + 4?
-# assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
-```
+
 
 ### Roles
 ShellGPT allows you to create custom roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
