@@ -16,16 +16,9 @@ class ModelOptions(str, Enum):
     """
 
     GPT4 = "gpt-4"
-    GPT40314 = "gpt-4-0314"  # discontinued 2023-09-13
-    GPT40613 = "gpt-4-0613"
     GPT432k = "gpt-4-32k"
-    GPT432k0314 = "gpt-4-32k-0314"  # discontinued 2023-09-13
-    GPT432k0613 = "gpt-4-32k-0613"
     GPT35TURBO = "gpt-3.5-turbo"
     GPT35TURBO16K = "gpt-3.5-turbo-16k"
-    GPT35TURBO16K0613 = "gpt-3.5-turbo-16k-0613"
-    GPT35TURBO0301 = "gpt-3.5-turbo-0301"  # discontinued 2023-09-13
-    GPT35TURBO0613 = "gpt-3.5-turbo-0613"
 
 
 def get_edited_prompt() -> str:
