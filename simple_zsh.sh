@@ -1,6 +1,6 @@
 # Shell-GPT integration ZSH v0.1
 _sgpt_zsh() {
-if [[ -n "$BUFFER"]]; then
+if [[ -n "$BUFFER" ]]; then
     _sgpt_prev_cmd=$BUFFER
     BUFFER+="⌛"
     zle -I && zle redisplay
