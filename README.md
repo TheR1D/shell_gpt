@@ -5,7 +5,7 @@ https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-
 
 ## Installation
 ```shell
-pip install shell-gpt==0.9.2
+pip install shell-gpt
 ```
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
@@ -324,7 +324,7 @@ Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/art
 │   prompt      [PROMPT]  The prompt to generate completions for.                                             │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            [gpt-3.5-turbo|gpt-4|gpt-4-32k]  OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
+│ --model    [gpt-4|gpt-4-32k|gpt-3.5|gpt-3.5-16k]    OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.1]          │
 │ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
 │ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
