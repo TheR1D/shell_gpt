@@ -93,3 +93,8 @@ ignore = [
     "C901",  # too complex.
     "B008",  # do not perform function calls in argument defaults.
 ]
+
+[tool.codespell]
+skip = '.git,*.pdf,*.svg'
+#
+# ignore-words-list = ''
