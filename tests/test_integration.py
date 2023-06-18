@@ -446,6 +446,6 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
         assert result.exit_code == 0
-        # Cant really test it since stdin in disable for --shell flag.
+        # Can't really test it since stdin in disable for --shell flag.
         # for word in ("prints", "hello", "console"):
         #     assert word in result.stdout
