@@ -134,7 +134,7 @@ python fizz_buzz.py
 ```
 We can also use pipes to pass input to `sgpt`:
 ```shell
-cat fizz_buzz.py | python -m sgpt --code "Generate comments for each line of my code"
+cat fizz_buzz.py | sgpt --code "Generate comments for each line of my code"
 ```
 ```python
 # Loop through numbers 1 to 100
