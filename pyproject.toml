@@ -52,6 +52,7 @@ test = [
     "black == 23.1.0",
     "mypy == 1.1.1",
     "types-requests == 2.28.11.17",
+    "codespell  >= 2.2.5, < 3.0.0"
 ]
 dev = [
     "ruff == 0.0.256",
@@ -95,6 +96,5 @@ ignore = [
 ]
 
 [tool.codespell]
-skip = '.git,*.pdf,*.svg'
-#
+skip = '.git,venv'
 # ignore-words-list = ''

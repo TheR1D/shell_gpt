@@ -7,3 +7,4 @@ mypy sgpt
 ruff sgpt tests scripts
 black sgpt tests --check
 isort sgpt tests scripts --check-only
+codespell
