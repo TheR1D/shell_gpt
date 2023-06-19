@@ -27,6 +27,8 @@ class Handler:
     def handle(self, prompt: str, **kwargs: Any) -> str:
         messages = self.make_messages(self.make_prompt(prompt))
         full_completion = ""
+        if cfg.get("DISABLE_STREAMING") == "true":
+            typer.echo("Loading...\r", nl=False)
         for word in self.get_completion(messages=messages, **kwargs):
             typer.secho(word, fg=self.color, bold=True, nl=False)
             full_completion += word
