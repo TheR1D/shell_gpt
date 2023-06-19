@@ -85,5 +85,5 @@ def install_shell_integration(*_args: Any) -> None:
     if platform.system() == "Windows":
         typer.echo("Windows is not supported yet.")
     else:
-        url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh"
+        url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/main/shell_integration/install.sh"
         os.system(f'sh -c "$(curl -fsSL {url})"')
