@@ -10,6 +10,7 @@ from .config import cfg
 CACHE_LENGTH = int(cfg.get("CACHE_LENGTH"))
 CACHE_PATH = Path(cfg.get("CACHE_PATH"))
 REQUEST_TIMEOUT = int(cfg.get("REQUEST_TIMEOUT"))
+DISABLE_STREAMING = str(cfg.get("DISABLE_STREAMING"))
 
 
 class OpenAIClient:
@@ -37,12 +38,13 @@ class OpenAIClient:
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
         """
+        stream = DISABLE_STREAMING == "false"
         data = {
             "messages": messages,
             "model": model,
             "temperature": temperature,
             "top_p": top_probability,
-            "stream": True,
+            "stream": stream,
         }
         endpoint = f"{self.api_host}/v1/chat/completions"
         response = requests.post(
@@ -54,11 +56,15 @@ class OpenAIClient:
             },
             json=data,
             timeout=REQUEST_TIMEOUT,
-            stream=True,
+            stream=stream,
         )
         response.raise_for_status()
         # TODO: Optimise.
         # https://github.com/openai/openai-python/blob/237448dc072a2c062698da3f9f512fae38300c1c/openai/api_requestor.py#L98
+        if not stream:
+            data = response.json()
+            yield data["choices"][0]["message"]["content"]  # type: ignore
+            return
         for line in response.iter_lines():
             data = line.lstrip(b"data: ").decode("utf-8")
             if data == "[DONE]":  # type: ignore

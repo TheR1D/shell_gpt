@@ -30,6 +30,11 @@ app.command()(main)
 
 
 class TestShellGpt(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Response streaming should be enabled for these tests.
+        assert cfg.get("DISABLE_STREAMING") == "false"
+
     def setUp(self) -> None:
         # Just to not spam the API.
         sleep(1)

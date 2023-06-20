@@ -313,6 +313,8 @@ DEFAULT_COLOR=magenta
 SYSTEM_ROLES=false
 # When in --shell mode, default to "Y" for no input.
 DEFAULT_EXECUTE_SHELL_CMD=false
+# Disable streaming of responses
+DISABLE_STREAMING=false
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 
