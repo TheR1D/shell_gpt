@@ -38,7 +38,7 @@ class OpenAIClient:
         :param top_probability: Float in 0.0 - 1.0 range.
         :return: Response body JSON.
         """
-        stream = False if DISABLE_STREAMING == "true" else True
+        stream = DISABLE_STREAMING == "false"
         data = {
             "messages": messages,
             "model": model,
@@ -61,21 +61,21 @@ class OpenAIClient:
         response.raise_for_status()
         # TODO: Optimise.
         # https://github.com/openai/openai-python/blob/237448dc072a2c062698da3f9f512fae38300c1c/openai/api_requestor.py#L98
-        if stream:
-            for line in response.iter_lines():
-                data = line.lstrip(b"data: ").decode("utf-8")
-                if data == "[DONE]":  # type: ignore
-                    break
-                if not data:
-                    continue
-                data = json.loads(data)  # type: ignore
-                delta = data["choices"][0]["delta"]  # type: ignore
-                if "content" not in delta:
-                    continue
-                yield delta["content"]
-        else:
+        if not stream:
             data = response.json()
             yield data["choices"][0]["message"]["content"]  # type: ignore
+            return
+        for line in response.iter_lines():
+            data = line.lstrip(b"data: ").decode("utf-8")
+            if data == "[DONE]":  # type: ignore
+                break
+            if not data:
+                continue
+            data = json.loads(data)  # type: ignore
+            delta = data["choices"][0]["delta"]  # type: ignore
+            if "content" not in delta:
+                continue
+            yield delta["content"]
 
     def get_completion(
         self,
