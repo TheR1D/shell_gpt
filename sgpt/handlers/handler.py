@@ -27,10 +27,11 @@ class Handler:
     def handle(self, prompt: str, **kwargs: Any) -> str:
         messages = self.make_messages(self.make_prompt(prompt))
         full_completion = ""
-        if cfg.get("DISABLE_STREAMING") == "true":
+        stream = cfg.get("DISABLE_STREAMING") == "false"
+        if not stream:
             typer.echo("Loading...\r", nl=False)
         for word in self.get_completion(messages=messages, **kwargs):
             typer.secho(word, fg=self.color, bold=True, nl=False)
             full_completion += word
-        typer.echo()
+        typer.echo("\033[K" if not stream else "")  # Overwrite "loading..."
         return full_completion
