@@ -1,5 +1,5 @@
 # ShellGPT
-A command-line productivity tool powered by OpenAI's GPT models. As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort. ShellGPT is cross-platform compatible and supports all major operating systems, including Linux, macOS, and Windows with all major shells, such as PowerShell, CMD, Bash, Zsh, Fish, and many others.
+A command-line productivity tool powered by AI large language models (LLM). As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort. ShellGPT is cross-platform compatible and supports all major operating systems, including Linux, macOS, and Windows with all major shells, such as PowerShell, CMD, Bash, Zsh, Fish, and many others.
 
 https://user-images.githubusercontent.com/16740832/231569156-a3a9f9d4-18b1-4fff-a6e1-6807651aa894.mp4
 
@@ -358,7 +358,7 @@ Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/art
 │   prompt      [PROMPT]  The prompt to generate completions for.                                             │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model    [gpt-4|gpt-4-32k|gpt-3.5|gpt-3.5-16k]    OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
+│ --model            TEXT                             OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.1]          │
 │ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
 │ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
@@ -383,6 +383,9 @@ Switch `SYSTEM_ROLES` to force use [system roles](https://help.openai.com/en/art
 │ --list-roles         List roles. [default: no-list-roles]                                                   │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
+
+## LocalAI
+By default, ShellGPT leverages OpenAI's large language models. However, it also provides the flexibility to use locally hosted models, which can be a cost-effective alternative. To use local models, you will need to run your own API server. You can accomplish this by using [LocalAI](https://github.com/go-skynet/LocalAI), a self-hosted, OpenAI-compatible API. Setting up LocalAI allows you to run language models on your own hardware, potentially without the need for an internet connection, depending on your usage. To set up your LocalAI, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/LocalAI). Remember that the performance of your local models may depend on the specifications of your hardware and the specific language model you choose to deploy.
 
 ## Docker
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
