@@ -3,6 +3,7 @@ import readline  # noqa: F401
 import sys
 
 import typer
+import tiktoken
 from click import BadArgumentUsage, MissingParameter
 from click.types import Choice
 
@@ -73,6 +74,10 @@ def main(
         help="Start a REPL (Read–eval–print loop) session.",
         rich_help_panel="Chat Options",
     ),
+    tokenize: bool = typer.Option(
+        False,
+        help="Calculate tokens for prompt.",
+    ),
     show_chat: str = typer.Option(
         None,
         help="Show all messages from provided chat id.",
@@ -142,6 +147,12 @@ def main(
         if not role
         else SystemRole.get(role)
     )
+    
+    if tokenize:
+        encoding = tiktoken.encoding_for_model(model)
+        number_of_tokens = len(encoding.encode(prompt))
+        typer.echo(f"Estimated Number of Tokens: {number_of_tokens}" )
+        return  
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
@@ -171,6 +182,8 @@ def main(
             top_probability=top_probability,
             caching=cache,
         )
+        
+
 
     while shell and not stdin_passed:
         option = typer.prompt(

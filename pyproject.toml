@@ -34,6 +34,7 @@ dependencies = [
     "rich >= 13.1.0, < 14.0.0",
     "distro >= 1.8.0, < 2.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
+    'tiktoken >=0.4.0, <=1.0.0',
 ]
 
 [project.scripts]
@@ -52,12 +53,9 @@ test = [
     "black == 23.1.0",
     "mypy == 1.1.1",
     "types-requests == 2.28.11.17",
-    "codespell  >= 2.2.5, < 3.0.0"
+    "codespell  >= 2.2.5, < 3.0.0",
 ]
-dev = [
-    "ruff == 0.0.256",
-    "pre-commit >= 3.1.1, < 4.0.0",
-]
+dev = ["ruff == 0.0.256", "pre-commit >= 3.1.1, < 4.0.0"]
 
 [tool.hatch.version]
 path = "sgpt/__init__.py"
@@ -66,33 +64,27 @@ path = "sgpt/__init__.py"
 only-include = ["sgpt"]
 
 [tool.hatch.build.targets.sdist]
-only-include = [
-    "sgpt",
-    "tests",
-    "README.md",
-    "LICENSE",
-    "pyproject.toml",
-]
+only-include = ["sgpt", "tests", "README.md", "LICENSE", "pyproject.toml"]
 
 [tool.isort]
 profile = "black"
-skip =  "__init__.py"
+skip = "__init__.py"
 
 [tool.mypy]
 strict = true
 
 [tool.ruff]
 select = [
-    "E",  # pycodestyle errors.
-    "W",  # pycodestyle warnings.
-    "F",  # pyflakes.
-    "C",  # flake8-comprehensions.
-    "B",  # flake8-bugbear.
+    "E", # pycodestyle errors.
+    "W", # pycodestyle warnings.
+    "F", # pyflakes.
+    "C", # flake8-comprehensions.
+    "B", # flake8-bugbear.
 ]
 ignore = [
-    "E501",  # line too long, handled by black.
-    "C901",  # too complex.
-    "B008",  # do not perform function calls in argument defaults.
+    "E501", # line too long, handled by black.
+    "C901", # too complex.
+    "B008", # do not perform function calls in argument defaults.
 ]
 
 [tool.codespell]
