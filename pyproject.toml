@@ -1,12 +1,16 @@
-[tool.poetry]
-name = "shell-gpt"
-version = "0.9.4"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shell_gpt"
 description = "A command-line productivity tool powered by OpenAI GPT models, will help you accomplish your tasks faster and more efficiently."
-authors = ["Farkhod Sadykov <farkhod@sadykov.dev>"]
-license = "MIT"
-readme = "README.md"
-packages = [{ include = "sgpt" }]
 keywords = ["shell", "gpt", "openai", "cli", "productivity", "cheet-sheet"]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.6"
+authors = [{ name = "Farkhod Sadykov", email = "farkhod@sadykov.dev" }]
+dynamic = ["version"]
 classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Software Development",
@@ -14,32 +18,47 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
     "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
+dependencies = [
+    "requests >= 2.28.2, < 3.0.0",
+    "typer >= 0.7.0, < 1.0.0",
+    "click >= 7.1.1, < 9.0.0",
+    "rich >= 13.1.0, < 14.0.0",
+    "distro >= 1.8.0, < 2.0.0",
+    'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
+    "tiktoken >= 0.4.0, <0.5.0"
+]
 
-[tool.poetry.dependencies]
-python = ">=3.8,<4.0"
-requests = "^2.31.0"
-typer = "^0.9.0"
-click = "^8.1.6"
-rich = "^13.5.2"
-distro = "^1.8.0"
-pyreadline3 = "^3.4.1"
-tiktoken = "^0.4.0"
+[project.scripts]
+sgpt = "sgpt:cli"
 
+[project.urls]
+homepage = "https://github.com/ther1d/shell_gpt"
+repository = "https://github.com/ther1d/shell_gpt"
+documentation = "https://github.com/TheR1D/shell_gpt/blob/main/README.md"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-requests-mock = { extras = ["fixture"], version = "^1.11.0" }
-isort = "^5.12.0"
-black = "^23.7.0"
-mypy = "^1.4.1"
-types-requests = "^2.31.0.2"
-codespell = "^2.2.5"
+[project.optional-dependencies]
+test = [
+    "pytest >= 7.2.2, < 8.0.0",
+    "requests-mock[fixture] >= 1.10.0, < 2.0.0",
+    "isort >= 5.12.0, < 6.0.0",
+    "black == 23.1.0",
+    "mypy == 1.1.1",
+    "types-requests == 2.28.11.17",
+    "codespell  >= 2.2.5, < 3.0.0"
+]
+dev = [
+    "ruff == 0.0.256",
+    "pre-commit >= 3.1.1, < 4.0.0",
+]
 
 [tool.hatch.version]
 path = "sgpt/__init__.py"
@@ -48,36 +67,35 @@ path = "sgpt/__init__.py"
 only-include = ["sgpt"]
 
 [tool.hatch.build.targets.sdist]
-only-include = ["sgpt", "tests", "README.md", "LICENSE", "pyproject.toml"]
+only-include = [
+    "sgpt",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
 
 [tool.isort]
 profile = "black"
-skip = "__init__.py"
+skip =  "__init__.py"
 
 [tool.mypy]
 strict = true
 
 [tool.ruff]
 select = [
-    "E", # pycodestyle errors.
-    "W", # pycodestyle warnings.
-    "F", # pyflakes.
-    "C", # flake8-comprehensions.
-    "B", # flake8-bugbear.
+    "E",  # pycodestyle errors.
+    "W",  # pycodestyle warnings.
+    "F",  # pyflakes.
+    "C",  # flake8-comprehensions.
+    "B",  # flake8-bugbear.
 ]
 ignore = [
-    "E501", # line too long, handled by black.
-    "C901", # too complex.
-    "B008", # do not perform function calls in argument defaults.
+    "E501",  # line too long, handled by black.
+    "C901",  # too complex.
+    "B008",  # do not perform function calls in argument defaults.
 ]
 
 [tool.codespell]
 skip = '.git,venv'
 # ignore-words-list = ''
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-sgpt = "sgpt.app:entry_point"
