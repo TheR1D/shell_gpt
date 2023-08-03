@@ -2,8 +2,8 @@
 import readline  # noqa: F401
 import sys
 
-import typer
 import tiktoken
+import typer
 from click import BadArgumentUsage, MissingParameter
 from click.types import Choice
 
@@ -147,12 +147,12 @@ def main(
         if not role
         else SystemRole.get(role)
     )
-    
+
     if tokenize:
         encoding = tiktoken.encoding_for_model(model)
         number_of_tokens = len(encoding.encode(prompt))
-        typer.echo(f"Estimated Number of Tokens: {number_of_tokens}" )
-        return  
+        typer.echo(f"Estimated Number of Tokens: {number_of_tokens}")
+        return
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
@@ -182,8 +182,6 @@ def main(
             top_probability=top_probability,
             caching=cache,
         )
-        
-
 
     while shell and not stdin_passed:
         option = typer.prompt(
