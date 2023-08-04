@@ -3,14 +3,17 @@ FROM python:3-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PIP_ROOT_USER_ACTION ignore
-WORKDIR /app
-COPY . /app
+
+USER root 
+RUN useradd -ms /bin/bash app
+
+WORKDIR /home/app
+COPY . /home/app/
 
 RUN pip install --no-cache --upgrade pip \
- && pip install --no-cache /app \
- && addgroup --system app && adduser --system --group app \
- && mkdir -p /tmp/shell_gpt \
- && chown -R app:app /tmp/shell_gpt
+    && pip install --no-cache /home/app \
+    && mkdir -p /tmp/shell_gpt \
+    && chown -R app:app /tmp/shell_gpt
 
 USER app
 

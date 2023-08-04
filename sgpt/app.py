@@ -7,7 +7,11 @@ import typer
 from click import BadArgumentUsage, MissingParameter
 from click.types import Choice
 
-from sgpt.config import cfg
+from rich import print
+from rich.console import Console
+from typing import Optional, Literal
+
+from sgpt.config import cfg, print_
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
@@ -151,7 +155,9 @@ def main(
     if tokenize:
         encoding = tiktoken.encoding_for_model(model)
         number_of_tokens = len(encoding.encode(prompt))
-        typer.echo(f"Estimated Number of Tokens: {number_of_tokens}")
+        print(
+            f"Estimated Number of Tokens: [bold red]{number_of_tokens}[/bold red] :boom:"
+        )
         return
 
     if repl:
@@ -207,7 +213,6 @@ def main(
 
 
 def entry_point() -> None:
-    # Python package entry point defined in setup.py
     typer.run(main)
 
 

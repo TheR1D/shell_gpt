@@ -9,6 +9,7 @@ from typing import Dict, Optional
 import typer
 from click import BadArgumentUsage
 from distro import name as distro_name
+from rich import print
 
 from .config import cfg
 from .utils import option_callback
@@ -133,12 +134,12 @@ class SystemRole:
         files = cls.storage.glob("*")
         # Sort files by last modification time in ascending order.
         for path in sorted(files, key=lambda f: f.stat().st_mtime):
-            typer.echo(path)
+            print(path)
 
     @classmethod
     @option_callback
     def show(cls, name: str) -> None:
-        typer.echo(cls.get(name).role)
+        print(cls.get(name).role)
 
     @property
     def exists(self) -> bool:

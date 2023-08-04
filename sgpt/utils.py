@@ -3,6 +3,7 @@ import platform
 import shlex
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable
+from rich import print
 
 import typer
 from click import BadParameter
@@ -70,7 +71,7 @@ def install_shell_integration(*_args: Any) -> None:
     # TODO: Add support for Windows.
     # TODO: Implement updates.
     if platform.system() == "Windows":
-        typer.echo("Windows is not supported yet.")
+        print("Windows is not supported yet.")
     else:
         url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh"
         os.system(f'sh -c "$(curl -fsSL {url})"')
