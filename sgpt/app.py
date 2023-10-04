@@ -3,6 +3,8 @@ import readline  # noqa: F401
 import sys
 
 import typer
+import pyperclip
+import readline
 from click import BadArgumentUsage, MissingParameter
 from click.types import Choice
 
@@ -174,8 +176,8 @@ def main(
 
     while shell and not stdin_passed:
         option = typer.prompt(
-            text="[E]xecute, [D]escribe, [A]bort",
-            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+            text="[E]xecute, Edi[t], [C]opy, [D]escribe, [A]bort",
+            type=Choice(("e", "t","c", "d", "a", "y"), case_sensitive=False),
             default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
             show_choices=False,
             show_default=False,
@@ -192,6 +194,17 @@ def main(
                 caching=cache,
             )
             continue
+        elif option == "c":
+            pyperclip.copy(full_completion)
+        elif option == 'ee':
+            # Set up the default text
+            readline.set_startup_hook(lambda: readline.insert_text(full_completion))
+            try:
+                new_command = input('')
+            finally:
+                # Ensure the hook is removed when done
+                readline.set_startup_hook()
+            run_command(new_command)
         break
 
 
