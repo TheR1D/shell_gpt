@@ -25,13 +25,13 @@ def main(
         help="Large language model to use.",
     ),
     temperature: float = typer.Option(
-        0.1,
+        cfg.get("DEFAULT_TEMPERATURE"),
         min=0.0,
         max=2.0,
         help="Randomness of generated output.",
     ),
     top_probability: float = typer.Option(
-        1.0,
+        cfg.get("DEFAULT_TOP_PROB"),
         min=0.1,
         max=1.0,
         help="Limits highest probable tokens (words).",
