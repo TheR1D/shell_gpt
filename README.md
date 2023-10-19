@@ -347,6 +347,10 @@ SYSTEM_ROLES=false
 DEFAULT_EXECUTE_SHELL_CMD=false
 # Disable streaming of responses
 DISABLE_STREAMING=false
+# Default temperature for OpenAI model to use.
+DEFAULT_TEMPERATURE=0.1
+# Default top probability for OpenAI model to use.
+DEFAULT_TOP_PROB=1
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 
