@@ -3,15 +3,21 @@ from typing import Any, Dict, Generator, List
 import typer
 
 from ..client import OpenAIClient
+from ..client import AzureOpenAIClient
 from ..config import cfg
 from ..role import SystemRole
 
 
 class Handler:
-    def __init__(self, role: SystemRole) -> None:
-        self.client = OpenAIClient(
-            cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY")
-        )
+    def __init__(self, role: SystemRole) -> None:       
+        if cfg.get("USE_AZURE_OPENAI") == "true":
+            self.client = AzureOpenAIClient(
+                cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY"), cfg.get("AZURE_OPENAI_DEPLOYMENT_NAME")
+            )
+        else:
+            self.client = OpenAIClient(
+                cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY")
+            )
         self.role = role
         self.color = cfg.get("DEFAULT_COLOR")
 

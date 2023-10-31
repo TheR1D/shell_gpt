@@ -11,6 +11,11 @@ You'll need an OpenAI API key, you can generate one [here](https://beta.openai.c
 
 If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`.
 
+This tool also supports [Azure OpenAI service](https://azure.microsoft.com/en-us/products/ai-services/openai-service). In order to use it you'll need to set additional environment variables:
+
+`$USE_AZURE_OPENAI=true` to use different APIs endpoint;
+`$AZURE_OPENAI_DEPLOYMENT_NAME` an Azure OpenAI model deployment name, you can follow the  [Microsoft documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource) to get one.
+
 ## Usage
 `sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
 ### Simple queries

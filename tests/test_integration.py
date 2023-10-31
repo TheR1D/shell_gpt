@@ -353,7 +353,11 @@ class TestShellGpt(TestCase):
         # assert "command not found" not in result.stdout
         # assert "hello world" in stdout.split("\n")[-1]
 
-    @patch("sgpt.client.OpenAIClient.get_completion")
+    if (cfg.get("USE_AZURE_OPENAI") == "false"):
+        patch_string = "sgpt.client.OpenAIClient.get_completion"
+    else:
+        patch_string = "sgpt.client.AzureOpenAIClient.get_completion"
+    @patch(patch_string)
     def test_model_option(self, mocked_get_completion):
         dict_arguments = {
             "prompt": "What is the capital of the Czech Republic?",
@@ -368,7 +372,7 @@ class TestShellGpt(TestCase):
             caching=False,
         )
         assert result.exit_code == 0
-
+    
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
         role = SystemRole.get("default")
