@@ -16,9 +16,10 @@ DISABLE_STREAMING = str(cfg.get("DISABLE_STREAMING"))
 class OpenAIClient:
     cache = Cache(CACHE_LENGTH, CACHE_PATH)
 
-    def __init__(self, api_host: str, api_key: str) -> None:
+    def __init__(self, api_host: str, api_key: str, referer: str) -> None:
         self.__api_key = api_key
         self.api_host = api_host
+        self.referer = referer
 
     @cache
     def _request(
@@ -53,6 +54,7 @@ class OpenAIClient:
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.__api_key}",
+                **({"Http-Referer": self.referer} if self.referer != "<none>" else {}),
             },
             json=data,
             timeout=REQUEST_TIMEOUT,
