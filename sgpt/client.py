@@ -66,6 +66,8 @@ class OpenAIClient:
             yield data["choices"][0]["message"]["content"]  # type: ignore
             return
         for line in response.iter_lines():
+            if line.startswith(b":"): # SSE comment
+                continue
             data = line.lstrip(b"data: ").decode("utf-8")
             if data == "[DONE]":  # type: ignore
                 break
