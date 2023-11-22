@@ -28,7 +28,7 @@ DEFAULT_CONFIG = {
     "SYSTEM_ROLES": os.getenv("SYSTEM_ROLES", "false"),
     "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
     "DISABLE_STREAMING": os.getenv("DISABLE_STREAMING", "false"),
-    "CODE_THEME": os.getenv("CODE_THEME", "one-dark"),
+    "CODE_THEME": os.getenv("CODE_THEME", "one-dark")
     # New features might add their own config variables here.
 }
 

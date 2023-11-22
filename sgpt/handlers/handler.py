@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Generator
+from typing import Any, Dict, Generator, List
+
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -30,7 +31,10 @@ class Handler:
         messages = self.make_messages(self.make_prompt(prompt))
         full_completion = ""
         with Live(Markdown('', code_theme=self.theme), console=self.console) as live:
+            stream = cfg.get("DISABLE_STREAMING") == "false"
+            if not stream:
+                live.update(Markdown("Loading...\r", code_theme=self.theme), refresh=True)
             for word in self.get_completion(messages=messages, **kwargs):
                 full_completion += word
-                live.update(Markdown(full_completion, code_theme=self.theme), refresh=True)
+                live.update(Markdown(full_completion, code_theme=self.theme), refresh=True if not stream else False)
         return full_completion
