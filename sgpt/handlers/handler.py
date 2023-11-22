@@ -1,11 +1,11 @@
-from typing import Any, Dict, Generator, List
-
-import typer
+from typing import Any, Dict, List, Generator
+from rich.console import Console
+from rich.live import Live
+from rich.markdown import Markdown
 
 from ..client import OpenAIClient
 from ..config import cfg
 from ..role import SystemRole
-
 
 class Handler:
     def __init__(self, role: SystemRole) -> None:
@@ -14,6 +14,7 @@ class Handler:
         )
         self.role = role
         self.color = cfg.get("DEFAULT_COLOR")
+        self.console = Console()
 
     def make_prompt(self, prompt: str) -> str:
         raise NotImplementedError
@@ -27,11 +28,9 @@ class Handler:
     def handle(self, prompt: str, **kwargs: Any) -> str:
         messages = self.make_messages(self.make_prompt(prompt))
         full_completion = ""
-        stream = cfg.get("DISABLE_STREAMING") == "false"
-        if not stream:
-            typer.echo("Loading...\r", nl=False)
-        for word in self.get_completion(messages=messages, **kwargs):
-            typer.secho(word, fg=self.color, bold=True, nl=False)
-            full_completion += word
-        typer.echo("\033[K" if not stream else "")  # Overwrite "loading..."
+        # Use Live display for streaming
+        with Live(Markdown(''), console=self.console) as live:
+            for word in self.get_completion(messages=messages, **kwargs):
+                full_completion += word
+                live.update(Markdown(full_completion, code_theme=cfg.get("THEME")), refresh=True)
         return full_completion
