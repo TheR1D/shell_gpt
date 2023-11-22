@@ -347,6 +347,8 @@ SYSTEM_ROLES=false
 DEFAULT_EXECUTE_SHELL_CMD=false
 # Disable streaming of responses
 DISABLE_STREAMING=false
+# The pygment theme to use for syntax highlighting
+CODE_THEME=one-dark
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 

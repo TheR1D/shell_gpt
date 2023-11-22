@@ -14,6 +14,7 @@ class Handler:
         )
         self.role = role
         self.color = cfg.get("DEFAULT_COLOR")
+        self.theme = cfg.get("CODE_THEME")
         self.console = Console()
 
     def make_prompt(self, prompt: str) -> str:
@@ -28,9 +29,8 @@ class Handler:
     def handle(self, prompt: str, **kwargs: Any) -> str:
         messages = self.make_messages(self.make_prompt(prompt))
         full_completion = ""
-        # Use Live display for streaming
-        with Live(Markdown(''), console=self.console) as live:
+        with Live(Markdown('', code_theme=self.theme), console=self.console) as live:
             for word in self.get_completion(messages=messages, **kwargs):
                 full_completion += word
-                live.update(Markdown(full_completion, code_theme=cfg.get("THEME")), refresh=True)
+                live.update(Markdown(full_completion, code_theme=self.theme), refresh=True)
         return full_completion
