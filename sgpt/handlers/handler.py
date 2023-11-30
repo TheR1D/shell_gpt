@@ -1,6 +1,7 @@
 from typing import Any, Dict, Generator, List
 
 import typer
+import re
 
 from ..client import OpenAIClient
 from ..config import cfg
@@ -31,6 +32,10 @@ class Handler:
         if not stream:
             typer.echo("Loading...\r", nl=False)
         for word in self.get_completion(messages=messages, **kwargs):
+            if self.role.name == "shell":
+                # take out code blocks if any
+                word = re.sub(r"```\w+\n", "", word)
+                word = re.sub(r"\n```", "", word)
             typer.secho(word, fg=self.color, bold=True, nl=False)
             full_completion += word
         typer.echo("\033[K" if not stream else "")  # Overwrite "loading..."
