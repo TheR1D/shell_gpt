@@ -68,7 +68,7 @@ class Config(dict):  # type: ignore
     def _read(self) -> None:
         with open(self.config_path, "r", encoding="utf-8") as file:
             for line in file:
-                if not line.startswith("#"):
+                if line.strip() and not line.startswith("#"): # if line is not empty and not a comment
                     key, value = line.strip().split("=")
                     self[key] = value
 
