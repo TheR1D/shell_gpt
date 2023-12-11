@@ -14,6 +14,20 @@ class ReplHandler(ChatHandler):
     def __init__(self, chat_id: str, role: SystemRole) -> None:
         super().__init__(chat_id, role)
 
+    def get_multiline_input(self) -> str:
+        info_message = (
+            "Entering REPL multiline mode, press '}' to confirm and end multiline prompt."
+        )
+        typer.secho(info_message, fg="yellow")        
+        
+        multiline_input = ""
+        while True:
+            user_input = typer.prompt("", prompt_suffix=" ")
+            multiline_input += user_input + "\n"
+            if user_input == "}":
+                break
+        return multiline_input
+
     def handle(self, prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:
             rich_print(Rule(title="Chat History", style="bold magenta"))
@@ -34,6 +48,8 @@ class ReplHandler(ChatHandler):
         while True:
             # Infinite loop until user exits with Ctrl+C.
             prompt = typer.prompt(">>>", prompt_suffix=" ")
+            if prompt == "{":
+                prompt = self.get_multiline_input()
             if prompt == "exit()":
                 # This is also useful during tests.
                 raise typer.Exit()
