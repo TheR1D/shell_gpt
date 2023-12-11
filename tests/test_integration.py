@@ -263,7 +263,7 @@ class TestShellGpt(TestCase):
         result = runner.invoke(
             app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
         )
-        print(result.stdout)
+
         assert result.exit_code == 0
         assert "{" in result.stdout
         assert "Please remember my favorite number: 6" in result.stdout
