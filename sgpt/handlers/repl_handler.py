@@ -15,14 +15,11 @@ class ReplHandler(ChatHandler):
         super().__init__(chat_id, role)
 
     def get_multiline_input(self) -> str:
-        info_message = "Entering REPL multiline mode, press '}' to confirm and end multiline prompt."
-        typer.secho(info_message, fg="yellow")
-
         multiline_input = ""
         while True:
-            user_input = typer.prompt("", prompt_suffix=" ")
+            user_input = typer.prompt("...", prompt_suffix="")
             multiline_input += user_input + "\n"
-            if user_input == "}":
+            if user_input == '"""':
                 break
         return multiline_input
 
@@ -46,7 +43,7 @@ class ReplHandler(ChatHandler):
         while True:
             # Infinite loop until user exits with Ctrl+C.
             prompt = typer.prompt(">>>", prompt_suffix=" ")
-            if prompt == "{":
+            if prompt == '"""':
                 prompt = self.get_multiline_input()
             if prompt == "exit()":
                 # This is also useful during tests.

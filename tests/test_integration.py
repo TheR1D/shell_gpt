@@ -254,10 +254,10 @@ class TestShellGpt(TestCase):
             "--repl": "temp",
         }
         inputs = [
-            "{",
+            '"""',
             "Please remember my favorite number: 6",
             "What is my favorite number + 2?",
-            "}",
+            '"""',
             "exit()",
         ]
         result = runner.invoke(
@@ -265,10 +265,10 @@ class TestShellGpt(TestCase):
         )
 
         assert result.exit_code == 0
-        assert "{" in result.stdout
+        assert '"""' in result.stdout
         assert "Please remember my favorite number: 6" in result.stdout
         assert "What is my favorite number + 2?" in result.stdout
-        assert "}" in result.stdout
+        assert '"""' in result.stdout
         assert "8" in result.stdout
 
     def test_repl_shell(self):
