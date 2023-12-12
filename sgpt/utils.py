@@ -7,7 +7,7 @@ from typing import Any, Callable
 import typer
 from click import BadParameter
 
-from sgpt.version import __version__
+from sgpt.__version__ import __version__
 
 
 def get_edited_prompt() -> str:

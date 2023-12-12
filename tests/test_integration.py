@@ -19,11 +19,11 @@ from uuid import uuid4
 import typer
 from typer.testing import CliRunner
 
+from sgpt.__version__ import __version__
 from sgpt.app import main
 from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
 from sgpt.role import SystemRole
-from sgpt.version import __version__
 
 runner = CliRunner()
 app = typer.Typer()
