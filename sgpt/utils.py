@@ -6,7 +6,9 @@ from typing import Any, Callable
 
 import typer
 from click import BadParameter
+
 from sgpt.version import __version__
+
 
 def get_edited_prompt() -> str:
     """
@@ -74,6 +76,7 @@ def install_shell_integration(*_args: Any) -> None:
     else:
         url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh"
         os.system(f'sh -c "$(curl -fsSL {url})"')
+
 
 @option_callback
 def get_sgpt_version(*_args: Any) -> None:
