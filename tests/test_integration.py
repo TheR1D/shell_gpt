@@ -247,6 +247,31 @@ class TestShellGpt(TestCase):
         assert ">>> What is my favorite number + 2?" in result.stdout
         assert "8" in result.stdout
 
+    def test_repl_multiline(
+        self,
+    ):
+        dict_arguments = {
+            "prompt": "",
+            "--repl": "temp",
+        }
+        inputs = [
+            '"""',
+            "Please remember my favorite number: 6",
+            "What is my favorite number + 2?",
+            '"""',
+            "exit()",
+        ]
+        result = runner.invoke(
+            app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
+        )
+
+        assert result.exit_code == 0
+        assert '"""' in result.stdout
+        assert "Please remember my favorite number: 6" in result.stdout
+        assert "What is my favorite number + 2?" in result.stdout
+        assert '"""' in result.stdout
+        assert "8" in result.stdout
+
     def test_repl_shell(self):
         # Temp chat session from previous test should be overwritten.
         dict_arguments = {
