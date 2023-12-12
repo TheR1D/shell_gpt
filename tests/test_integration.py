@@ -23,6 +23,7 @@ from sgpt.app import main
 from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
 from sgpt.role import SystemRole
+from sgpt.version import __version__
 
 runner = CliRunner()
 app = typer.Typer()
@@ -454,3 +455,19 @@ class TestShellGpt(TestCase):
         # Can't really test it since stdin in disable for --shell flag.
         # for word in ("prints", "hello", "console"):
         #     assert word in result.stdout
+
+    def test_version(self):
+        dict_arguments = {
+            "prompt": "",
+            "--version": True,
+        }
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
+        assert __version__ in result.stdout
+
+        dict_arguments = {
+            "prompt": "",
+            "-v": True,
+        }
+
+        result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
+        assert __version__ in result.stdout
