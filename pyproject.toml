@@ -60,7 +60,7 @@ dev = [
 ]
 
 [tool.hatch.version]
-path = "sgpt/__init__.py"
+path = "sgpt/__version__.py"
 
 [tool.hatch.build.targets.wheel]
 only-include = ["sgpt"]

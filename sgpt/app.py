@@ -11,7 +11,12 @@ from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.role import DefaultRoles, SystemRole
-from sgpt.utils import get_edited_prompt, install_shell_integration, run_command
+from sgpt.utils import (
+    get_edited_prompt,
+    get_sgpt_version,
+    install_shell_integration,
+    run_command,
+)
 
 
 def main(
@@ -62,6 +67,13 @@ def main(
     cache: bool = typer.Option(
         True,
         help="Cache completion results.",
+    ),
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-v",
+        help="Show version.",
+        callback=get_sgpt_version,
     ),
     chat: str = typer.Option(
         None,
