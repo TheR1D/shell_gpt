@@ -10,7 +10,6 @@ from sgpt.config import cfg
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
-from sgpt.handlers.handler import Handler
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import get_edited_prompt, install_shell_integration, run_command
 
