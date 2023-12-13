@@ -3,7 +3,6 @@ import readline  # noqa: F401
 import sys
 
 import typer
-import requests
 from click import BadArgumentUsage, MissingParameter
 from click.types import Choice
 
@@ -119,15 +118,22 @@ def main(
     reset_key : bool = typer.Option(
         False,
         "--reset-key",
-        help="Reset OpenAI API key.",
+        help="Resets OpenAI API key in config file. Note: the OPENAI_API_KEY environment variable will still be prioritized over the key in config file.",
     ),
 ) -> None:
+    if reset_key:
+        if cfg.reset_OPENAI_API_key():
+            typer.secho("Successfully reset OpenAI API key", fg="green")
+        else:
+            typer.secho("Reset OpenAI API key in config file. However, the existing OPENAI_API_KEY environement variable will still be used.", fg="yellow")
+        return
+
     stdin_passed = not sys.stdin.isatty()
 
     if stdin_passed and not repl:
         prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
 
-    if not prompt and not editor and not repl and not reset_key:
+    if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
 
     if sum((shell, describe_shell, code)) > 1:
@@ -149,33 +155,6 @@ def main(
         if not role
         else SystemRole.get(role)
     )
-
-    if reset_key:
-        valid_key = False
-        while not valid_key:
-            cfg.reset_OPENAI_API_key()
-            try:
-                full_completion = Handler(role_class).get_completion(
-                    messages=DefaultHandler(role_class).make_messages("test"),
-                    model=model,
-                    temperature=temperature,
-                    top_probability=top_probability,
-                    caching=False,
-                )
-                for word in full_completion:
-                    pass
-            except requests.exceptions.HTTPError as http_err:
-                # Check if the status code is 403 (Forbidden)
-                if http_err.response.status_code == 403 or http_err.response.status_code == 401:
-                    typer.secho("Invalid OpenAI API key.", fg="red")
-                else:
-                    typer.secho(f"HTTPError occurred: {http_err}", fg="red")
-            except Exception as err:
-                typer.secho(f"An error occurred: {err}", fg="red")
-            else:
-                valid_key = True
-                typer.secho("Successfully reset OpenAI API key", fg="green")
-        exit()
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
