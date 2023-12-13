@@ -79,14 +79,4 @@ class Config(dict):  # type: ignore
             raise UsageError(f"Missing config key: {key}")
         return value
 
-    def reset_OPENAI_API_key(self):
-        __api_key = getpass(prompt="Please enter your new OpenAI API key: ")
-        self["OPENAI_API_KEY"] = __api_key
-        self._write()
-        #if an env variable exists it will still be used
-        if os.getenv("OPENAI_API_KEY"):
-            return False
-        else:
-            return True
-
 cfg = Config(SHELL_GPT_CONFIG_PATH, **DEFAULT_CONFIG)

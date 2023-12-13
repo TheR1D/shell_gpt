@@ -114,19 +114,7 @@ def main(
         callback=install_shell_integration,
         hidden=True,  # Hiding since should be used only once.
     ),
-    reset_key : bool = typer.Option(
-        False,
-        "--reset-key",
-        help="Resets OpenAI API key in config file. Note: the OPENAI_API_KEY environment variable will still be prioritized over the key in config file.",
-    ),
 ) -> None:
-    if reset_key:
-        if cfg.reset_OPENAI_API_key():
-            typer.secho("Successfully reset OpenAI API key", fg="green")
-        else:
-            typer.secho("Reset OpenAI API key in config file. However, the existing OPENAI_API_KEY environement variable will still be used.", fg="yellow")
-        return
-
     stdin_passed = not sys.stdin.isatty()
 
     if stdin_passed and not repl:
