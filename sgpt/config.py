@@ -79,4 +79,5 @@ class Config(dict):  # type: ignore
             raise UsageError(f"Missing config key: {key}")
         return value
 
+
 cfg = Config(SHELL_GPT_CONFIG_PATH, **DEFAULT_CONFIG)
