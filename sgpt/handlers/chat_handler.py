@@ -7,6 +7,7 @@ from click import BadArgumentUsage
 
 from ..config import cfg
 from ..role import SystemRole
+from ..utils import option_callback
 from .handler import Handler
 
 CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
@@ -117,8 +118,7 @@ class ChatHandler(Handler):
     @property
     def initial_message(self) -> str:
         chat_history = self.chat_session.get_messages(self.chat_id)
-        index = 1 if cfg.get("SYSTEM_ROLES") == "true" else 0
-        return chat_history[index] if chat_history else ""
+        return chat_history[0] if chat_history else ""
 
     @property
     def is_same_role(self) -> bool:
@@ -126,19 +126,10 @@ class ChatHandler(Handler):
         return self.role.same_role(self.initial_message)
 
     @classmethod
-    def show_messages_callback(cls, chat_id: str) -> None:
-        if not chat_id:
-            return
-        cls.show_messages(chat_id)
-        raise typer.Exit()
-
-    @classmethod
+    @option_callback
     def show_messages(cls, chat_id: str) -> None:
         # Prints all messages from a specified chat ID to the console.
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
-            # Remove output type from the message, e.g. "text\nCommand:" -> "text"
-            if message.startswith("user:"):
-                message = "\n".join(message.splitlines()[:-1])
             color = "magenta" if index % 2 == 0 else "green"
             typer.secho(message, fg=color)
 
@@ -160,13 +151,9 @@ class ChatHandler(Handler):
                         f'since it was initiated as "{chat_role_name}" chat.'
                     )
 
-    def make_prompt(self, prompt: str) -> str:
-        prompt = prompt.strip()
-        return self.role.make_prompt(prompt, not self.initiated)
-
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
         messages = []
-        if not self.initiated and cfg.get("SYSTEM_ROLES") == "true":
+        if not self.initiated:
             messages.append({"role": "system", "content": self.role.role})
         messages.append({"role": "user", "content": prompt})
         return messages

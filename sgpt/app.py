@@ -30,14 +30,14 @@ def main(
         help="Large language model to use.",
     ),
     temperature: float = typer.Option(
-        0.1,
+        0.0,
         min=0.0,
         max=2.0,
         help="Randomness of generated output.",
     ),
     top_probability: float = typer.Option(
         1.0,
-        min=0.1,
+        min=0.0,
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
@@ -88,7 +88,7 @@ def main(
     show_chat: str = typer.Option(
         None,
         help="Show all messages from provided chat id.",
-        callback=ChatHandler.show_messages_callback,
+        callback=ChatHandler.show_messages,
         rich_help_panel="Chat Options",
     ),
     list_chats: bool = typer.Option(
