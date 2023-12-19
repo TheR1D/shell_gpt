@@ -264,6 +264,17 @@ import requests
 response = requests.get('https://localhost:443')
 print(response.text)
 ```
+To provide multiline prompt use triple quotes `"""`:
+```text
+sgpt --repl temp
+Entering REPL mode, press Ctrl+C to exit.
+>>> """
+... Explain following code:
+... import random
+... print(random.randint(1, 10))
+... """
+It is a Python script that uses the random module to generate and print a random integer.
+```
 It is also possible to pickup conversations from chat sessions (which were created using `--chat` option) and continue them in REPL mode.
 
 ### Roles
