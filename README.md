@@ -264,38 +264,13 @@ import requests
 response = requests.get('https://localhost:443')
 print(response.text)
 ```
-
-### Picking up on a chat mode conversation with REPL mode
-
-```text
-sgpt --repl number
-───── Chat History──────
-user: ###
-Role name: default
-You are Command Line App ShellGPT, a programming and system administration assistant.
-You are managing Darwin/MacOS 13.3.1 operating system with zsh shell.
-Provide only plain text without Markdown formatting.
-Do not show any warnings or information regarding your capabilities.
-If you need to store any data, assume it will be stored in the chat.
-
-Request: please remember my favorite number: 4
-###
-assistant: Sure, I have stored your favorite number as 4.
-user: what would be my favorite number raised to the power of 4
-assistant: Your favorite number raised to the power of 4 would be 256.
-────────────────────────────────────────────────────────
-Entering REPL mode, press Ctrl+C to exit.
->>> What is the sum of my favorite number and your previous response?
-The sum of your favorite number (4) and my previous response (256) would be 260.
-```
-
+It is also possible to pickup conversations from chat sessions (which were created using `--chat` option) and continue them in REPL mode.
 
 ### Roles
 ShellGPT allows you to create custom roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
 ```shell
-sgpt --create-role json
-# Enter role description: You are JSON generator, provide only valid json as response.
-# Enter expecting result, e.g. answer, code, shell command, etc.: json
+sgpt --create-role json_generator
+# Enter role description: Provide only valid json as response.
 sgpt --role json "random: user, password, email, address"
 {
   "user": "JohnDoe",
@@ -339,14 +314,17 @@ CACHE_PATH=/tmp/shell_gpt/cache
 REQUEST_TIMEOUT=60
 # Default OpenAI model to use.
 DEFAULT_MODEL=gpt-3.5-turbo
-# Default color for OpenAI completions.
+# Default color for shell and code completions.
 DEFAULT_COLOR=magenta
 # When in --shell mode, default to "Y" for no input.
 DEFAULT_EXECUTE_SHELL_CMD=false
 # Disable streaming of responses
 DISABLE_STREAMING=false
+# The pygment theme to view markdown (default/describe role).
+CODE_THEME=default
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
+Possible options for `CODE_THEME`: https://pygments.org/styles/
 
 ### Full list of arguments
 ```text
@@ -355,8 +333,8 @@ Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, 
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --model            TEXT                             OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
-│ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.1]          │
-│ --top-probability  FLOAT RANGE [0.1<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
+│ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.0]          │
+│ --top-probability  FLOAT RANGE [0.0<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
 │ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
 │ --cache                                             Cache completion results. [default: cache]              │
 │ --help                                              Show this message and exit.                             │

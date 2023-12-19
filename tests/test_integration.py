@@ -418,14 +418,14 @@ class TestShellGpt(TestCase):
         assert "sort" in result.stdout
 
     def test_role(self):
-        test_role = Path(cfg.get("ROLE_STORAGE_PATH")) / "test_json.json"
+        test_role = Path(cfg.get("ROLE_STORAGE_PATH")) / "json_generator.json"
         test_role.unlink(missing_ok=True)
         dict_arguments = {
             "prompt": "test",
-            "--create-role": "test_json",
+            "--create-role": "json_generator",
         }
         input = (
-            "You are a JSON generator, return only valid plain JSON as response. "
+            "Provide only valid plain JSON as response with valid field values. "
             + "Do not include any markdown formatting such as ```.\n"
         )
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input=input)
@@ -437,20 +437,20 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "test_json" in result.stdout
+        assert "json_generator" in result.stdout
 
         dict_arguments = {
             "prompt": "test",
-            "--show-role": "test_json",
+            "--show-role": "json_generator",
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "You are a JSON generator" in result.stdout
+        assert "You are json_generator" in result.stdout
 
         # Test with command line argument prompt.
         dict_arguments = {
             "prompt": "random username, password, email",
-            "--role": "test_json",
+            "--role": "json_generator",
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
@@ -462,7 +462,7 @@ class TestShellGpt(TestCase):
         # Test with stdin prompt.
         dict_arguments = {
             "prompt": "",
-            "--role": "test_json",
+            "--role": "json_generator",
         }
         stdin = "random username, password, email"
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
