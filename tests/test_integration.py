@@ -491,11 +491,3 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
         assert __version__ in result.stdout
-
-        dict_arguments = {
-            "prompt": "",
-            "-v": True,
-        }
-
-        result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
-        assert __version__ in result.stdout

@@ -71,7 +71,6 @@ def main(
     version: bool = typer.Option(
         False,
         "--version",
-        "-v",
         help="Show version.",
         callback=get_sgpt_version,
     ),
