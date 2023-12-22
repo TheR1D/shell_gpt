@@ -56,7 +56,7 @@ class SystemRole:
         self.name = name
         if variables:
             role = role.format(**variables)
-        self.role = ROLE_TEMPLATE.format(name=name, role=role)
+        self.role = role
 
     @classmethod
     def create_defaults(cls) -> None:
@@ -143,6 +143,8 @@ class SystemRole:
                 f'Role "{self.name}" already exists, overwrite it?',
                 abort=True,
             )
+
+        self.role = ROLE_TEMPLATE.format(name=self.name, role=self.role)
         self._file_path.write_text(json.dumps(self.__dict__), encoding="utf-8")
 
     def delete(self) -> None:
