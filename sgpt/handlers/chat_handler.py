@@ -6,7 +6,7 @@ import typer
 from click import BadArgumentUsage
 
 from ..config import cfg
-from ..role import SystemRole
+from ..role import DefaultRoles, SystemRole
 from ..utils import option_callback
 from .handler import Handler
 
@@ -102,15 +102,6 @@ class ChatHandler(Handler):
 
         self.validate()
 
-    @classmethod
-    def list_ids(cls, value: str) -> None:
-        if not value:
-            return
-        # Prints all existing chat IDs to the console.
-        for chat_id in cls.chat_session.list():
-            typer.echo(chat_id)
-        raise typer.Exit()
-
     @property
     def initiated(self) -> bool:
         return self.chat_session.exists(self.chat_id)
@@ -127,21 +118,31 @@ class ChatHandler(Handler):
 
     @classmethod
     @option_callback
+    def list_ids(cls, value: str) -> None:
+        # Prints all existing chat IDs to the console.
+        for chat_id in cls.chat_session.list():
+            typer.echo(chat_id)
+
+    @classmethod
     def show_messages(cls, chat_id: str) -> None:
         # Prints all messages from a specified chat ID to the console.
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
             color = "magenta" if index % 2 == 0 else "green"
             typer.secho(message, fg=color)
 
+    @classmethod
+    @option_callback
+    def show_messages_callback(cls, chat_id: str) -> None:
+        cls.show_messages(chat_id)
+
     def validate(self) -> None:
         if self.initiated:
-            # print("initial message:", self.initial_message)
             chat_role_name = self.role.get_role_name(self.initial_message)
             if not chat_role_name:
                 raise BadArgumentUsage(
                     f'Could not determine chat role of "{self.chat_id}"'
                 )
-            if self.role.name == "default":
+            if self.role.name == DefaultRoles.DEFAULT.value:
                 # If user didn't pass chat mode, we will use the one that was used to initiate the chat.
                 self.role = SystemRole.get(chat_role_name)
             else:

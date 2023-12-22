@@ -87,7 +87,7 @@ def main(
     show_chat: str = typer.Option(
         None,
         help="Show all messages from provided chat id.",
-        callback=ChatHandler.show_messages,
+        callback=ChatHandler.show_messages_callback,
         rich_help_panel="Chat Options",
     ),
     list_chats: bool = typer.Option(
