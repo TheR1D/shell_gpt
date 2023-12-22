@@ -1,22 +1,28 @@
+from pathlib import Path
 from typing import Any, Dict, Generator, List
 
 import typer
+from openai import OpenAI
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 
-from ..client import OpenAIClient
+from ..cache import Cache
 from ..config import cfg
 from ..role import SystemRole
+
+cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
 
 class Handler:
     def __init__(self, role: SystemRole) -> None:
-        self.client = OpenAIClient(
-            cfg.get("OPENAI_API_HOST"), cfg.get("OPENAI_API_KEY")
+        self.client = OpenAI(
+            base_url=cfg.get("OPENAI_BASE_URL"),
+            api_key=cfg.get("OPENAI_API_KEY"),
+            timeout=int(cfg.get("REQUEST_TIMEOUT")),
         )
         self.role = role
-        self.disable_stream = cfg.get("DISABLE_STREAMING") == "false"
+        self.disable_stream = cfg.get("DISABLE_STREAMING") == "true"
         self.color = cfg.get("DEFAULT_COLOR")
         self.theme_name = cfg.get("CODE_THEME")
 
@@ -28,7 +34,7 @@ class Handler:
             console=Console(),
             refresh_per_second=8,
         ) as live:
-            if not self.disable_stream:
+            if self.disable_stream:
                 live.update(
                     Markdown(markup="Loading...\r", code_theme=self.theme_name),
                     refresh=True,
@@ -44,7 +50,7 @@ class Handler:
     def _handle_with_plain_text(self, prompt: str, **kwargs: Any) -> str:
         messages = self.make_messages(prompt.strip())
         full_completion = ""
-        if not self.disable_stream:
+        if self.disable_stream:
             typer.echo("Loading...\r", nl=False)
         for word in self.get_completion(messages=messages, **kwargs):
             typer.secho(word, fg=self.color, bold=True, nl=False)
@@ -56,8 +62,15 @@ class Handler:
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
         raise NotImplementedError
 
+    @cache
     def get_completion(self, **kwargs: Any) -> Generator[str, None, None]:
-        yield from self.client.get_completion(**kwargs)
+        if self.disable_stream:
+            completion = self.client.chat.completions.create(**kwargs)
+            yield completion.choices[0].message.content
+            return
+
+        for chunk in self.client.chat.completions.create(**kwargs, stream=True):
+            yield from chunk.choices[0].delta.content or ""
 
     def handle(self, prompt: str, **kwargs: Any) -> str:
         if self.role.name == "ShellGPT" or self.role.name == "Shell Command Descriptor":
