@@ -22,7 +22,7 @@ DEFAULT_CONFIG = {
     "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
     "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-4-1106-preview"),
-    "OPENAI_API_HOST": os.getenv("OPENAI_API_HOST", "https://api.openai.com"),
+    "OPENAI_BASE_URL": os.getenv("OPENAI_API_HOST", "https://api.openai.com/v1"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),

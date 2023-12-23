@@ -378,7 +378,7 @@ class TestShellGpt(TestCase):
         # assert "command not found" not in result.stdout
         # assert "hello world" in stdout.split("\n")[-1]
 
-    @patch("sgpt.client.OpenAIClient.get_completion")
+    @patch("sgpt.handlers.handler.Handler.get_completion")
     def test_model_option(self, mocked_get_completion):
         dict_arguments = {
             "prompt": "What is the capital of the Czech Republic?",
@@ -389,7 +389,7 @@ class TestShellGpt(TestCase):
             messages=ANY,
             model="gpt-4",
             temperature=0.0,
-            top_probability=1.0,
+            top_p=1.0,
             caching=False,
         )
         assert result.exit_code == 0

@@ -160,7 +160,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_probability=top_probability,
+            top_p=top_probability,
             chat_id=repl,
             caching=cache,
         )
@@ -170,7 +170,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_probability=top_probability,
+            top_p=top_probability,
             chat_id=chat,
             caching=cache,
         )
@@ -179,7 +179,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_probability=top_probability,
+            top_p=top_probability,
             caching=cache,
         )
 
@@ -199,7 +199,7 @@ def main(
                 full_completion,
                 model=model,
                 temperature=temperature,
-                top_probability=top_probability,
+                top_p=top_probability,
                 caching=cache,
             )
             continue
@@ -207,7 +207,6 @@ def main(
 
 
 def entry_point() -> None:
-    # Python package entry point defined in setup.py
     typer.run(main)
 
 
