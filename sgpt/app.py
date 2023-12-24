@@ -175,6 +175,8 @@ def main(
                 ).decode("utf-8")
 
     max_tokens = None
+
+    # see: https://platform.openai.com/docs/guides/vision#:~:text=Currently%2C%20GPT%2D4%20Turbo%20with%20vision%20does%20not%20support%20the%20message.name%20parameter%2C%20functions/tools%2C%20response_format%20parameter%2C%20and%20we%20currently%20set%20a%20low%20max_tokens%20default%20which%20you%20can%20override.
     if model in ("gpt-4-vision-preview",):
         max_tokens = 4096
 
