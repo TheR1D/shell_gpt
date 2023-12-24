@@ -156,7 +156,8 @@ class ChatHandler(Handler):
         messages = []
         if not self.initiated:
             messages.append({"role": "system", "content": self.role.role})
-        messages.append({"role": "user", "content": prompt})
+
+        messages.append({"role": "user", "content": self.create_prompt(prompt)})
         return messages
 
     @chat_session

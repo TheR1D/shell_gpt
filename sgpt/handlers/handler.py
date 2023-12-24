@@ -15,13 +15,14 @@ cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
 
 class Handler:
-    def __init__(self, role: SystemRole) -> None:
+    def __init__(self, role: SystemRole, image_url: str | None = None) -> None:
         self.client = OpenAI(
             base_url=cfg.get("OPENAI_BASE_URL"),
             api_key=cfg.get("OPENAI_API_KEY"),
             timeout=int(cfg.get("REQUEST_TIMEOUT")),
         )
         self.role = role
+        self.model = cfg.get("DEFAULT_MODEL")
         self.disable_stream = cfg.get("DISABLE_STREAMING") == "true"
         self.color = cfg.get("DEFAULT_COLOR")
         self.theme_name = cfg.get("CODE_THEME")
@@ -62,8 +63,18 @@ class Handler:
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
         raise NotImplementedError
 
+    def create_prompt(self, prompt: str) -> List[Dict[str, Any]]:
+        prompt_content = [{"type": "text", "text": prompt}]
+
+        if self.image_url:
+            prompt_content.append(
+                {"type": "image_url", "image_url": {"url": self.image_url}}
+            )
+        return prompt_content
+
     @cache
     def get_completion(self, **kwargs: Any) -> Generator[str, None, None]:
+        self.disable_stram = True
         if self.disable_stream:
             completion = self.client.chat.completions.create(**kwargs)
             yield completion.choices[0].message.content
@@ -73,6 +84,8 @@ class Handler:
             yield from chunk.choices[0].delta.content or ""
 
     def handle(self, prompt: str, **kwargs: Any) -> str:
+        if "image_url" in kwargs:
+            self.image_url = kwargs.pop("image_url")
         if self.role.name == "ShellGPT" or self.role.name == "Shell Command Descriptor":
             return self._handle_with_markdown(prompt, **kwargs)
         return self._handle_with_plain_text(prompt, **kwargs)

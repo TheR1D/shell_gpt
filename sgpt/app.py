@@ -1,7 +1,7 @@
 # To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
 import sys
-
+import base64
 import tiktoken
 import typer
 from click import BadArgumentUsage, MissingParameter
@@ -84,6 +84,11 @@ def main(
         help="Follow conversation with id, " 'use "temp" for quick session.',
         rich_help_panel="Chat Options",
     ),
+    image: str = typer.Option(
+        None,
+        help="Path or URL to image to use as a prompt.",
+        rich_help_panel="Chat Options",
+    ),
     repl: str = typer.Option(
         None,
         help="Start a REPL (Read–eval–print loop) session.",
@@ -154,6 +159,25 @@ def main(
     if editor and stdin_passed:
         raise BadArgumentUsage("--editor option cannot be used with stdin input.")
 
+    image_url = None
+    if image:
+        # check if correct model is set
+        if model != "gpt-4-vision-preview":
+            raise BadArgumentUsage("--image prompt requires gpt-4-vision-preview model")
+
+        if "https://" in image or "http://" in image:
+            image_url = image
+        else:
+            # assume it's a path to an image file read and encode to base64
+            with open(image, "rb") as image_file:
+                image_url = "data:image/jpeg;base64," + base64.b64encode(
+                    image_file.read()
+                ).decode("utf-8")
+
+    max_tokens = None
+    if model in ("gpt-4-vision-preview",):
+        max_tokens = 4096
+
     if editor:
         prompt = get_edited_prompt()
 
@@ -185,19 +209,23 @@ def main(
     if chat:
         full_completion = ChatHandler(chat, role_class).handle(
             prompt,
+            image_url=image_url,
             model=model,
             temperature=temperature,
             top_p=top_probability,
             chat_id=chat,
             caching=cache,
+            max_tokens=max_tokens,
         )
     else:
         full_completion = DefaultHandler(role_class).handle(
             prompt,
+            image_url=image_url,
             model=model,
             temperature=temperature,
             top_p=top_probability,
             caching=cache,
+            max_tokens=max_tokens,
         )
 
     while shell and not stdin_passed:
@@ -215,6 +243,7 @@ def main(
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role()).handle(
                 full_completion,
                 model=model,
+                image_url=None,
                 temperature=temperature,
                 top_p=top_probability,
                 caching=cache,

@@ -17,6 +17,6 @@ class DefaultHandler(Handler):
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
         messages = [
             {"role": "system", "content": self.role.role},
-            {"role": "user", "content": prompt},
+            {"role": "user", "content": self.create_prompt(prompt)},
         ]
         return messages
