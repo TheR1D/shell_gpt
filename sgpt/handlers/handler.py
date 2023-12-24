@@ -15,7 +15,7 @@ cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
 
 class Handler:
-    def __init__(self, role: SystemRole, image_url: str | None = None) -> None:
+    def __init__(self, role: SystemRole) -> None:
         self.client = OpenAI(
             base_url=cfg.get("OPENAI_BASE_URL"),
             api_key=cfg.get("OPENAI_API_KEY"),
