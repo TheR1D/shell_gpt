@@ -22,6 +22,7 @@ class Handler:
             timeout=int(cfg.get("REQUEST_TIMEOUT")),
         )
         self.role = role
+        self.image_url = None
         self.model = cfg.get("DEFAULT_MODEL")
         self.disable_stream = cfg.get("DISABLE_STREAMING") == "true"
         self.color = cfg.get("DEFAULT_COLOR")
