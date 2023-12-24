@@ -33,6 +33,7 @@ dependencies = [
     "click >= 7.1.1, < 9.0.0",
     "rich >= 13.1.0, < 14.0.0",
     "distro >= 1.8.0, < 2.0.0",
+    "openai >= 1.6.1, < 2.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
     "tiktoken >= 0.4.0, <0.5.0"
 ]
@@ -61,7 +62,7 @@ dev = [
 ]
 
 [tool.hatch.version]
-path = "sgpt/__init__.py"
+path = "sgpt/__version__.py"
 
 [tool.hatch.build.targets.wheel]
 only-include = ["sgpt"]

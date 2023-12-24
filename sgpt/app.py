@@ -16,7 +16,12 @@ from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.role import DefaultRoles, SystemRole
-from sgpt.utils import get_edited_prompt, install_shell_integration, run_command
+from sgpt.utils import (
+    get_edited_prompt,
+    get_sgpt_version,
+    install_shell_integration,
+    run_command,
+)
 
 
 def main(
@@ -30,14 +35,14 @@ def main(
         help="Large language model to use.",
     ),
     temperature: float = typer.Option(
-        0.1,
+        0.0,
         min=0.0,
         max=2.0,
         help="Randomness of generated output.",
     ),
     top_probability: float = typer.Option(
         1.0,
-        min=0.1,
+        min=0.0,
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
@@ -67,6 +72,12 @@ def main(
     cache: bool = typer.Option(
         True,
         help="Cache completion results.",
+    ),
+    version: bool = typer.Option(
+        False,
+        "--version",
+        help="Show version.",
+        callback=get_sgpt_version,
     ),
     chat: str = typer.Option(
         None,
@@ -166,7 +177,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_probability=top_probability,
+            top_p=top_probability,
             chat_id=repl,
             caching=cache,
         )
@@ -176,7 +187,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_probability=top_probability,
+            top_p=top_probability,
             chat_id=chat,
             caching=cache,
         )
@@ -185,7 +196,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_probability=top_probability,
+            top_p=top_probability,
             caching=cache,
         )
 
@@ -205,7 +216,7 @@ def main(
                 full_completion,
                 model=model,
                 temperature=temperature,
-                top_probability=top_probability,
+                top_p=top_probability,
                 caching=cache,
             )
             continue

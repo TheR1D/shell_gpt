@@ -22,14 +22,13 @@ DEFAULT_CONFIG = {
     "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
-    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-3.5-turbo"),
-    "OPENAI_API_HOST": os.getenv("OPENAI_API_HOST", "https://api.openai.com"),
+    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-4-1106-preview"),
+    "OPENAI_BASE_URL": os.getenv("OPENAI_API_HOST", "https://api.openai.com/v1"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
-    "SYSTEM_ROLES": os.getenv("SYSTEM_ROLES", "false"),
     "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
     "DISABLE_STREAMING": os.getenv("DISABLE_STREAMING", "false"),
-    "FORCE_COLOR": os.getenv("FORCE_COLOR", "false")
+    "CODE_THEME": os.getenv("CODE_THEME", "dracula"),
     # New features might add their own config variables here.
 }
 
@@ -70,7 +69,7 @@ class Config(dict):  # type: ignore
     def _read(self) -> None:
         with open(self.config_path, "r", encoding="utf-8") as file:
             for line in file:
-                if not line.startswith("#"):
+                if line.strip() and not line.startswith("#"):
                     key, value = line.strip().split("=")
                     self[key] = value
 
