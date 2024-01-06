@@ -47,12 +47,7 @@ class Config(dict):  # type: ignore
                 self._write()
         else:
             config_path.parent.mkdir(parents=True, exist_ok=True)
-            # Don't write API key to config file if it is in the environment.
-            if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
-                __api_key = getpass(prompt="Please enter your OpenAI API key: ")
-                defaults["OPENAI_API_KEY"] = __api_key
-            super().__init__(**defaults)
-            self._write()
+            self._initialize_config(defaults)
 
     @property
     def _exists(self) -> bool:
@@ -71,6 +66,17 @@ class Config(dict):  # type: ignore
                 if line.strip() and not line.startswith("#"):
                     key, value = line.strip().split("=")
                     self[key] = value
+
+    def _initialize_config(self, defaults: Any) -> None:
+        # Don't write API key to config file if it is in the environment.
+        if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
+            __api_key = getpass(prompt="Please enter your OpenAI API key: ")
+            defaults["OPENAI_API_KEY"] = __api_key
+        for key, value in defaults.items():
+            if key.endswith("_PATH"):
+                value = os.path.expanduser(value)
+            self[key] = value
+        self._write()
 
     def get(self, key: str) -> str:  # type: ignore
         # Prioritize environment variables over config file.
