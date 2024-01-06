@@ -1,7 +1,7 @@
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort. ShellGPT is cross-platform compatible and supports all major operating systems, including Linux, macOS, and Windows with all major shells, such as PowerShell, CMD, Bash, Zsh, Fish, and many others.
 
-https://github-production-user-asset-6210df.s3.amazonaws.com/16740832/291779848-66392282-474e-4a84-8482-d20c53c8727d.mp4
+https://github.com/TheR1D/shell_gpt/assets/16740832/721ddb19-97e7-428f-a0ee-107d027ddd59
 
 ## Installation
 ```shell
@@ -277,6 +277,69 @@ It is a Python script that uses the random module to generate and print a random
 ```
 It is also possible to pickup conversations from chat sessions (which were created using `--chat` option) and continue them in REPL mode.
 
+### Function calling
+[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks.
+
+To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
+```shell
+sgpt --install-functions
+```
+
+ShellGPT has a convenient way to define functions and use them. In order to create your custom function, navigate to `~/.config/shell_gpt/functions` and create a new .py file with the function name. Inside this file, you can define your function using the following syntax:
+```python
+# execute_shell_command.py
+import subprocess
+from pydantic import Field
+from instructor import OpenAISchema
+
+
+class Function(OpenAISchema):
+    """
+    Executes a shell command and returns the output (result).
+    """
+    shell_command: str = Field(..., example="ls -la", descriptions="Shell command to execute.")
+
+    class Config:
+        title = "execute_shell_command"
+
+    @classmethod
+    def execute(cls, shell_command: str) -> str:
+        result = subprocess.run(shell_command.split(), capture_output=True, text=True)
+        return f"Exit code: {result.returncode}, Output:\n{result.stdout}"
+```
+
+The docstring comment inside the class will be passed to OpenAI API as a description for the function, along with the `title` attribute and parameters descriptions. The `execute` function will be called if LLM decides to use your function. In this case we are allowing LLM to execute any Shell commands in our system. Since we are returning the output of the command, LLM will be able to analyze it and decide if it is a good fit for the prompt. Here is an example how the function might be executed by LLM:
+```shell
+sgpt "What are the files in /tmp folder?"
+# -> @FunctionCall execute_shell_command(shell_command="ls /tmp")
+# -> The /tmp folder contains the following files and directories:
+# -> test.txt
+# -> test.json
+# ...
+```
+
+Note that if for some reason the function (execute_shell_command) will return an error, LLM might try to accomplish the task based on the output. Let's say we don't have installed `jq` in our system, and we ask LLM to parse JSON file:
+```shell
+sgpt "parse /tmp/test.json file using jq and return only email value"
+# -> @FunctionCall execute_shell_command(shell_command="jq -r '.email' /tmp/test.json")
+# -> It appears that jq is not installed on the system. Let me try to install it using brew.
+# -> @FunctionCall execute_shell_command(shell_command="brew install jq")
+# -> jq has been successfully installed. Let me try to parse the file again.
+# -> @FunctionCall execute_shell_command(shell_command="jq -r '.email' /tmp/test.json")
+# -> The email value in /tmp/test.json is johndoe@example.
+```
+
+It is also possible to chain multiple function calls in the prompt:
+```shell
+sgpt "Play music and open hacker news"
+# -> @FunctionCall play_music()
+# -> @FunctionCall open_url(url="https://news.ycombinator.com")
+# -> Music is now playing, and Hacker News has been opened in your browser. Enjoy!
+```
+
+This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/TheR1D/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions. 
+LLM might execute destructive commands, so please use it at your own risk❗️
+
 ### Roles
 ShellGPT allows you to create custom roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
 ```shell
@@ -333,40 +396,48 @@ DEFAULT_EXECUTE_SHELL_CMD=false
 DISABLE_STREAMING=false
 # The pygment theme to view markdown (default/describe role).
 CODE_THEME=default
+# Path to a directory with functions.
+OPENAI_FUNCTIONS_PATH=/Users/user/.config/shell_gpt/functions
+# Print output of functions when LLM uses them.
+SHOW_FUNCTIONS_OUTPUT=false
+# Allows LLM to use functions.
+OPENAI_USE_FUNCTIONS=true
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
 
 ### Full list of arguments
 ```text
-╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                             │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            TEXT                             OpenAI GPT model to use. [default: gpt-3.5-turbo]       │
-│ --temperature      FLOAT RANGE [0.0<=x<=2.0]        Randomness of generated output. [default: 0.0]          │
-│ --top-probability  FLOAT RANGE [0.0<=x<=1.0]        Limits highest probable tokens (words). [default: 1.0]  │
-│ --editor                                            Open $EDITOR to provide a prompt. [default: no-editor]  │
-│ --cache                                             Cache completion results. [default: cache]              │
-│ --help                                              Show this message and exit.                             │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Assistance Options ────────────────────────────────────────────────────────────────────────────────────────╮
-│ --shell  -s                 Generate and execute shell commands.                                            │
-│ --describe-shell  -d        Describe a shell command.                                                       │
-│ --code       --no-code      Generate only code. [default: no-code]                                          │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Chat Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --chat        TEXT  Follow conversation with id, use "temp" for quick session. [default: None]              │
-│ --repl        TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                            │
-│ --show-chat   TEXT  Show all messages from provided chat id. [default: None]                                │
-│ --list-chats        List all existing chat ids. [default: no-list-chats]                                    │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Role Options ──────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --role         TEXT  System role for GPT model. [default: None]                                             │
-│ --create-role  TEXT  Create role. [default: None]                                                           │
-│ --show-role    TEXT  Show role. [default: None]                                                             │
-│ --list-roles         List roles. [default: no-list-roles]                                                   │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────────────╮
+│   prompt      [PROMPT]  The prompt to generate completions for.                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --model            TEXT                       Large language model to use. [default: gpt-4-1106-preview] │
+│ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
+│ --top-probability  FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
+│ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]     │
+│ --cache                                       Cache completion results. [default: cache]                 │
+│ --version                                     Show version.                                              │
+│ --help                                        Show this message and exit.                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Assistance Options ─────────────────────────────────────────────────────────────────────────────────────╮
+│ --shell           -s                      Generate and execute shell commands.                           │
+│ --describe-shell  -d                      Describe a shell command.                                      │
+│ --code            -c                      Generate only code.                                            │
+│ --functions           --no-functions      Allow function calls. [default: functions]                     │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Chat Options ───────────────────────────────────────────────────────────────────────────────────────────╮
+│ --chat                 TEXT  Follow conversation with id, use "temp" for quick session. [default: None]  │
+│ --repl                 TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                │
+│ --show-chat            TEXT  Show all messages from provided chat id. [default: None]                    │
+│ --list-chats  -lc            List all existing chat ids.                                                 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Role Options ───────────────────────────────────────────────────────────────────────────────────────────╮
+│ --role                  TEXT  System role for GPT model. [default: None]                                 │
+│ --create-role           TEXT  Create role. [default: None]                                               │
+│ --show-role             TEXT  Show role. [default: None]                                                 │
+│ --list-roles   -lr            List roles.                                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## LocalAI
