@@ -36,6 +36,8 @@ class TestShellGpt(TestCase):
         assert cfg.get("DISABLE_STREAMING") == "false"
         # ShellGPT optimised and tested with gpt-4 turbo.
         assert cfg.get("DEFAULT_MODEL") == "gpt-4-1106-preview"
+        # Make sure we will not call any functions.
+        assert cfg.get("OPENAI_USE_FUNCTIONS") == "false"
 
     @staticmethod
     def get_arguments(prompt, **kwargs):
@@ -391,6 +393,7 @@ class TestShellGpt(TestCase):
             temperature=0.0,
             top_p=1.0,
             caching=False,
+            functions=None,
         )
         assert result.exit_code == 0
 
@@ -491,3 +494,5 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
         assert __version__ in result.stdout
+
+    # TODO: Implement function call tests.

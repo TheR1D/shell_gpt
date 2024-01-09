@@ -34,6 +34,7 @@ dependencies = [
     "rich >= 13.1.0, < 14.0.0",
     "distro >= 1.8.0, < 2.0.0",
     "openai >= 1.6.1, < 2.0.0",
+    "instructor >= 0.4.5, < 1.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
 ]
 
@@ -81,6 +82,7 @@ skip =  "__init__.py"
 
 [tool.mypy]
 strict = true
+exclude = ["function.py", "handler.py", "default_functions"]
 
 [tool.ruff]
 select = [

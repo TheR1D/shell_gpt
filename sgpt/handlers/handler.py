@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Any, Dict, Generator, List
 
@@ -9,7 +10,8 @@ from rich.markdown import Markdown
 
 from ..cache import Cache
 from ..config import cfg
-from ..role import SystemRole
+from ..function import get_function
+from ..role import DefaultRoles, SystemRole
 
 cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
@@ -23,6 +25,7 @@ class Handler:
         )
         self.role = role
         self.disable_stream = cfg.get("DISABLE_STREAMING") == "true"
+        self.show_functions_output = cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true"
         self.color = cfg.get("DEFAULT_COLOR")
         self.theme_name = cfg.get("CODE_THEME")
 
@@ -62,17 +65,77 @@ class Handler:
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
         raise NotImplementedError
 
+    def handle_function_call(
+        self,
+        messages: List[dict[str, str]],
+        name: str,
+        arguments: str,
+    ) -> Generator[str, None, None]:
+        messages.append(
+            {
+                "role": "assistant",
+                "content": "",
+                "function_call": {"name": name, "arguments": arguments},  # type: ignore
+            }
+        )
+
+        if messages and messages[-1]["role"] == "assistant":
+            yield "\n"
+
+        dict_args = json.loads(arguments)
+        joined_args = ", ".join(f'{k}="{v}"' for k, v in dict_args.items())
+        yield f"> @FunctionCall `{name}({joined_args})` \n\n"
+        result = get_function(name)(**dict_args)
+        if self.show_functions_output:
+            yield f"```text\n{result}\n```\n"
+        messages.append({"role": "function", "content": result, "name": name})
+
+    # TODO: Fix MyPy typing errors. This modules is excluded from MyPy checks.
     @cache
     def get_completion(self, **kwargs: Any) -> Generator[str, None, None]:
+        func_call = {"name": None, "arguments": ""}
+
+        is_shell_role = self.role.name == DefaultRoles.SHELL.value
+        is_code_role = self.role.name == DefaultRoles.CODE.value
+        is_dsc_shell_role = self.role.name == DefaultRoles.DESCRIBE_SHELL.value
+        if is_shell_role or is_code_role or is_dsc_shell_role:
+            kwargs["functions"] = None
+
         if self.disable_stream:
             completion = self.client.chat.completions.create(**kwargs)
-            yield completion.choices[0].message.content
+            message = completion.choices[0].message
+            if completion.choices[0].finish_reason == "function_call":
+                name, arguments = (
+                    message.function_call.name,
+                    message.function_call.arguments,
+                )
+                yield from self.handle_function_call(
+                    kwargs["messages"], name, arguments
+                )
+                yield from self.get_completion(**kwargs, caching=False)
+            yield message.content or ""
             return
 
         for chunk in self.client.chat.completions.create(**kwargs, stream=True):
-            yield from chunk.choices[0].delta.content or ""
+            delta = chunk.choices[0].delta
+            if delta.function_call:
+                if delta.function_call.name:
+                    func_call["name"] = delta.function_call.name
+                if delta.function_call.arguments:
+                    func_call["arguments"] += delta.function_call.arguments
+            if chunk.choices[0].finish_reason == "function_call":
+                name, arguments = func_call["name"], func_call["arguments"]
+                yield from self.handle_function_call(
+                    kwargs["messages"], name, arguments
+                )
+                yield from self.get_completion(**kwargs, caching=False)
+                return
+
+            yield delta.content or ""
 
     def handle(self, prompt: str, **kwargs: Any) -> str:
-        if self.role.name == "ShellGPT" or self.role.name == "Shell Command Descriptor":
+        default = DefaultRoles.DEFAULT.value
+        shell_descriptor = DefaultRoles.DESCRIBE_SHELL.value
+        if self.role.name == default or self.role.name == shell_descriptor:
             return self._handle_with_markdown(prompt, **kwargs)
         return self._handle_with_plain_text(prompt, **kwargs)

@@ -39,7 +39,8 @@ class Cache:
             for i in func(*args, **kwargs):
                 result += i
                 yield i
-            cache_file.write_text(result)
+            if "@FunctionCall" not in result:
+                cache_file.write_text(result)
             self._delete_oldest_files(self.length)  # type: ignore
 
         return wrapper
