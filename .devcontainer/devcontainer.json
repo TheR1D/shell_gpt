@@ -5,7 +5,6 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"python.linting.enabled": true,
 				"python.defaultInterpreterPath": "/usr/local/bin/python",
 				"cSpell.words": [
 					"OPENAI",
