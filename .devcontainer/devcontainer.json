@@ -1,0 +1,57 @@
+{
+	"name": "Python 3",
+	"image": "mcr.microsoft.com/devcontainers/python:0-3.9-bullseye",
+
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"cSpell.words": [
+					"OPENAI",
+					"secho",
+					"sgpt",
+					"Typer"
+				],
+				"[python]": {
+					"editor.defaultFormatter": "charliermarsh.ruff"
+				},
+				"files.exclude": {
+                    "**/.git/**": true,
+                    "**/.mypy_cache/**": true,
+                    "**/__pycache__/**": true
+                },
+                "files.watcherExclude": {
+                    "**/.git/**": true,
+                    "**/.mypy_cache/**": true,
+                    "**/.venv/**": true,
+                    "**/__pycache__/**": true
+                },
+				"launch": {
+					"configurations": [
+						{
+							"name": "Python: Module",
+							"type": "python",
+							"request": "launch",
+							"module": "sgpt",
+							"justMyCode": true,
+							"args": ["--chat", "init", "hello"]
+						}
+					]
+				}
+			},
+			"extensions": [
+				"GitHub.copilot",
+				"charliermarsh.ruff",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+                "ms-python.isort",
+                "ms-python.mypy-type-checker",
+                "ms-python.pylint"
+			]
+		}
+	},
+
+	"remoteUser": "vscode",
+	"postCreateCommand": "echo __pycache__ > ~/.gitignore && git config --global core.excludesfile ~/.gitignore && pip3 install -e .'[dev,test]'"
+}

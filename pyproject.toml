@@ -100,4 +100,3 @@ ignore = [
 
 [tool.codespell]
 skip = '.git,venv'
-# ignore-words-list = ''
