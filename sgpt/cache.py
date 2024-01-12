@@ -54,6 +54,7 @@ class Cache:
         """
         # Get all files in the folder.
         files = self.cache_path.glob("*")
+        files = (f for f in files if f.is_file())
         # Sort files by last modification time in ascending order.
         files = sorted(files, key=lambda f: f.stat().st_mtime)
         # Delete the oldest files if the number of files exceeds the limit.
