@@ -1,4 +1,5 @@
 # To allow users to use arrow keys in the REPL.
+import os
 import readline  # noqa: F401
 import sys
 
@@ -149,6 +150,15 @@ def main(
 
     if stdin_passed and not repl:
         prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
+        # Switch to stdin for interactive input.
+        try:
+            if os.name == "posix":
+                sys.stdin = open("/dev/tty", "r")
+            elif os.name == "nt":
+                sys.stdin = open("CON", "r")
+        except OSError:
+            # Non-interactive shell.
+            pass
 
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
@@ -207,7 +217,7 @@ def main(
             functions=function_schemas,
         )
 
-    while shell and not stdin_passed:
+    while shell:
         option = typer.prompt(
             text="[E]xecute, [D]escribe, [A]bort",
             type=Choice(("e", "d", "a", "y"), case_sensitive=False),
