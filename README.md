@@ -1,5 +1,5 @@
 # ShellGPT
-A command-line productivity tool powered by AI large language models (LLM). As developers, we can leverage AI capabilities to generate shell commands, code snippets, comments, and documentation, among other things. Forget about cheat sheets and notes, with this tool you can get accurate answers right in your terminal, and you'll probably find yourself reducing your daily Google searches, saving you valuable time and effort. ShellGPT is cross-platform compatible and supports all major operating systems, including Linux, macOS, and Windows with all major shells, such as PowerShell, CMD, Bash, Zsh, Fish, and many others.
+A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google searches). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/721ddb19-97e7-428f-a0ee-107d027ddd59
 
@@ -7,108 +7,94 @@ https://github.com/TheR1D/shell_gpt/assets/16740832/721ddb19-97e7-428f-a0ee-107d
 ```shell
 pip install shell-gpt
 ```
-You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys).
 
-If the`$OPENAI_API_KEY` environment variable is set it will be used, otherwise, you will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`.
+You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys). 
+You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. 
 
 ## Usage
-`sgpt` has a variety of use cases, including simple queries, shell queries, and code queries.
-### Simple queries
-We can use it as normal search engine, asking about anything:
+**ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
 ```shell
-sgpt "nginx default config file location"
-# -> The default configuration file for Nginx is located at /etc/nginx/nginx.conf.
+sgpt "What is the fibonacci sequence"
+# -> The Fibonacci sequence is a series of numbers where each number ...
 ```
-```shell
-sgpt "mass of sun"
-# -> = 1.99 × 10^30 kg
-```
-```shell
-sgpt "1 hour and 30 minutes to seconds"
-# -> 5,400 seconds
-```
-### Summarization and analyzing
-ShellGPT accepts prompt from both stdin and command line argument, you choose the most convenient input method for your preferences. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. This versatile feature is particularly useful when you need to pass file content or pipe output from other commands to the GPT models for summarization or analysis. For example, you can easily generate a git commit message based on a diff:
+
+ShellGPT accepts prompt from both stdin and command line argument. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. For example, you can easily generate a git commit message based on a diff:
 ```shell
 git diff | sgpt "Generate git commit message, for my changes"
-# -> Commit message: Implement Model enum and get_edited_prompt()
+# -> Added main feature details into README.md
 ```
-You can analyze logs from various sources by passing them using stdin or command line arguments, along with a user-friendly prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
+
+You can analyze logs from various sources by passing them using stdin, along with a prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
 ```shell
-docker logs -n 20 container_name | sgpt "check logs, find errors, provide possible solutions"
-# ...
+docker logs -n 20 my_app | sgpt "check logs, find errors, provide possible solutions"
 ```
-This powerful feature simplifies the process of managing and understanding data from different sources, making it easier for you to focus on what really matters: improving your projects and applications.
+```text
+Error Detected: Connection timeout at line 7.
+Possible Solution: Check network connectivity and firewall settings.
+Error Detected: Memory allocation failed at line 12.
+Possible Solution: Consider increasing memory allocation or optimizing application memory usage.
+```
+
 
 ### Shell commands
-Have you ever found yourself forgetting common shell commands, such as `chmod`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal.
+Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal.
 ```shell
-sgpt --shell "make all files in current directory read only"
-# -> chmod 444 *
+sgpt --shell "find all json files in current folder"
+# -> find . -type f -name "*.json"
 # -> [E]xecute, [D]escribe, [A]bort: e
-...
 ```
+
 Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
 ```shell
 sgpt -s "update my system"
 # -> sudo softwareupdate -i -a
 # -> [E]xecute, [D]escribe, [A]bort: e
-...
 ```
+
 The same prompt, when used on Ubuntu, will generate a different suggestion:
 ```shell
 sgpt -s "update my system"
 # -> sudo apt update && sudo apt upgrade -y
 # -> [E]xecute, [D]escribe, [A]bort: e
-...
 ```
-We can ask GPT to describe suggested shell command, it will provide a short description of what the command does:
+
+Let's try it with Docker:
 ```shell
-sgpt -s "show all txt files in current folder"
-# -> ls *.txt
-# -> [E]xecute, [D]escribe, [A]bort: d
-# -> List all files with .txt extension in current directory
+sgpt -s "start nginx container, mount ./index.html"
+# -> docker run -d -p 80:80 -v $(pwd)/index.html:/usr/share/nginx/html/index.html nginx
 # -> [E]xecute, [D]escribe, [A]bort: e
-...
 ```
-Let's try some docker containers:
-```shell
-sgpt -s "start nginx using docker, forward 443 and 80 port, mount current folder with index.html"
-# -> docker run -d -p 443:443 -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
-# -> [E]xecute, [D]escribe, [A]bort: e
-...
-```
+
 We can still use pipes to pass input to `sgpt` and get shell commands as output:
 ```shell
-cat data.json | sgpt -s "curl localhost with provided json"
-# -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2, "c": 3}' http://localhost
-````
-We can apply additional shell magic in our prompt, in this example passing file names to ffmpeg:
+cat data.json | sgpt -s "POST localhost with json"
+# -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2}' http://localhost
+# -> [E]xecute, [D]escribe, [A]bort: e
+```
+
+Applying additional shell magic in our prompt, in this example passing file names to ffmpeg:
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
-sgpt -s "using ffmpeg combine multiple videos into one without audio. Video file names: $(ls -m)"
+sgpt -s "ffmpeg combine $(ls -m) into one video file without audio."
 # -> ffmpeg -i 1.mp4 -i 2.mp4 -i 3.mp4 -filter_complex "[0:v] [1:v] [2:v] concat=n=3:v=1 [v]" -map "[v]" out.mp4
 # -> [E]xecute, [D]escribe, [A]bort: e
-...
 ```
+
+
 ### Shell integration
-Shell integration allows you to use Shell-GPT in your terminal with hotkeys. It is currently available for bash and zsh. It will allow you to have sgpt completions in your shell history, and also edit suggested commands right away.
+Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
 
-To install shell integration, run:
-```shell
-sgpt --install-integration
-# Restart your terminal to apply changes.
-```
-This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke Shell-GPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and press `Enter` to execute.
+To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke ShellGPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
 ### Generating code
-With `--code` parameters we can query only code as output, for example:
+By using the `--code` or `-c` parameter, you can specifically request pure code output, for instance:
 ```shell
-sgpt --code "Solve classic fizz buzz problem using Python"
+sgpt --code "solve fizz buzz problem using python"
 ```
+
 ```python
 for i in range(1, 101):
     if i % 3 == 0 and i % 5 == 0:
@@ -120,7 +106,7 @@ for i in range(1, 101):
     else:
         print(i)
 ```
-Since it is valid python code, we can redirect the output to file:
+Since it is valid python code, we can redirect the output to a file:  
 ```shell
 sgpt --code "solve classic fizz buzz problem using Python" > fizz_buzz.py
 python fizz_buzz.py
@@ -129,10 +115,10 @@ python fizz_buzz.py
 # Fizz
 # 4
 # Buzz
-# Fizz
 # ...
 ```
-We can also use pipes to pass input to `sgpt`:
+
+We can also use pipes to pass input:
 ```shell
 cat fizz_buzz.py | sgpt --code "Generate comments for each line of my code"
 ```
@@ -156,40 +142,20 @@ for i in range(1, 101):
         print(i)
 ```
 
-### Conversational Modes - Overview
+### Chat Mode 
+Often it is important to preserve and recall a conversation. `sgpt` creates conversational dialogue with each LLM completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
 
-Often it is important to preserve and recall a conversation and this is kept track of locally. `sgpt` creates conversational dialogue with each llm completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
-
-### Listing and Showing Chat Sessions 
-
-Dialogues had in both REPL and chat mode are saved as chat sessions.
-
-To list all the sessions from either conversational mode, use the `--list-chats` option:
+To start a conversation, use the `--chat` option followed by a unique session name and a prompt.
 ```shell
-sgpt --list-chats
-# .../shell_gpt/chat_cache/number
-# .../shell_gpt/chat_cache/python_request
-```
-To show all the messages related to a specific conversation, use the `--show-chat` option followed by the session name:
-```shell
-sgpt --show-chat number
-# user: please remember my favorite number: 4
-# assistant: I will remember that your favorite number is 4.
-# user: what would be my favorite number + 4?
-# assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
-```
-
-### Chat Mode
-To start a chat session, use the `--chat` option followed by a unique session name and a prompt. You can also use "temp" as a session name to start a temporary chat session.
-```shell
-sgpt --chat number "please remember my favorite number: 4"
+sgpt --chat conversation_1 "please remember my favorite number: 4"
 # -> I will remember that your favorite number is 4.
 sgpt --chat number "what would be my favorite number + 4?"
 # -> Your favorite number is 4, so if we add 4 to it, the result would be 8.
 ```
-You can also use chat sessions to iteratively improve GPT suggestions by providing additional clues.
+
+You can use chat sessions to iteratively improve GPT suggestions by providing additional details.  It is possible to use `--code` or `--shell` options to initiate `--chat`:
 ```shell
-sgpt --chat python_request --code "make an example request to localhost using Python"
+sgpt --chat conversation_2 --code "make a request to localhost using python"
 ```
 ```python
 import requests
@@ -197,9 +163,10 @@ import requests
 response = requests.get('http://localhost')
 print(response.text)
 ```
-Asking AI to add a cache to our request.
+
+Let's ask LLM to add caching to our request:
 ```shell
-sgpt --chat python_request --code "add caching"
+sgpt --chat conversation_2 --code "add caching"
 ```
 ```python
 import requests
@@ -211,11 +178,12 @@ cached_sess = CacheControl(sess)
 response = cached_sess.get('http://localhost')
 print(response.text)
 ```
-We can use `--code` or `--shell` options to initiate `--chat`, so you can keep refining the results:
+
+Same applies for shell commands:
 ```shell
-sgpt --chat sh --shell "What are the files in this directory?"
+sgpt --chat sh --shell "what is in current folder"
 # -> ls
-sgpt --chat sh "Sort them by name"
+sgpt --chat sh "Sort by name"
 # -> ls | sort
 sgpt --chat sh "Concatenate them using FFMPEG"
 # -> ffmpeg -i "concat:$(ls | sort | tr '\n' '|')" -codec copy output.mp4
@@ -223,8 +191,24 @@ sgpt --chat sh "Convert the resulting file into an MP3"
 # -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
 ```
 
-### REPL Mode
-There is very handy REPL (read–eval–print loop) mode, which allows you to interactively chat with GPT models. To start a chat session in REPL mode, use the `--repl` option followed by a unique session name. You can also use "temp" as a session name to start a temporary REPL session. Note that `--chat` and `--repl` are using same chat sessions, so you can use `--chat` to start a chat session and then use `--repl` to continue the conversation in REPL mode. REPL mode will also show history of your conversation in the beginning.
+To list all the sessions from either conversational mode, use the `--list-chats` or `lc` option:  
+```shell
+sgpt --list-chats
+# .../shell_gpt/chat_cache/conversation_1  
+# .../shell_gpt/chat_cache/conversation_2
+```
+
+To show all the messages related to a specific conversation, use the `--show-chat` option followed by the session name:
+```shell
+sgpt --show-chat conversation_1
+# user: please remember my favorite number: 4
+# assistant: I will remember that your favorite number is 4.
+# user: what would be my favorite number + 4?
+# assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
+```
+
+### REPL Mode  
+There is very handy REPL (read–eval–print loop) mode, which allows you to interactively chat with GPT models. To start a chat session in REPL mode, use the `--repl` option followed by a unique session name. You can also use "temp" as a session name to start a temporary REPL session. Note that `--chat` and `--repl` are using same underlying object, so you can use `--chat` to start a chat session and then pick it up with `--repl` to continue the conversation in REPL mode.
 
 <p align="center">
   <img src="https://s10.gifyu.com/images/repl-demo.gif" alt="gif">
@@ -238,6 +222,7 @@ REPL stands for Read-Eval-Print Loop. It is a programming environment ...
 >>> How can I use Python with REPL?
 To use Python with REPL, you can simply open a terminal or command prompt ...
 ```
+
 REPL mode can work with `--shell` and `--code` options, which makes it very handy for interactive shell commands and code generation:
 ```text
 sgpt --repl temp --shell
@@ -249,21 +234,8 @@ ls -lh
 >>> Sort them by file sizes
 ls -lhS
 >>> e (enter just e to execute commands, or d to describe them)
-...
 ```
-Example of using REPL mode to generate code:
-```text
-sgpt --repl temp --code
-Entering REPL mode, press Ctrl+C to exit.
->>> Using Python request localhost:80
-import requests
-response = requests.get('http://localhost:80')
-print(response.text)
->>> Change port to 443
-import requests
-response = requests.get('https://localhost:443')
-print(response.text)
-```
+
 To provide multiline prompt use triple quotes `"""`:
 ```text
 sgpt --repl temp
@@ -275,12 +247,9 @@ Entering REPL mode, press Ctrl+C to exit.
 ... """
 It is a Python script that uses the random module to generate and print a random integer.
 ```
-It is also possible to pickup conversations from chat sessions (which were created using `--chat` option) and continue them in REPL mode.
 
-### Function calling
-[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks.
-
-To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
+### Function calling  
+[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
 ```shell
 sgpt --install-functions
 ```
@@ -315,7 +284,6 @@ sgpt "What are the files in /tmp folder?"
 # -> The /tmp folder contains the following files and directories:
 # -> test.txt
 # -> test.json
-# ...
 ```
 
 Note that if for some reason the function (execute_shell_command) will return an error, LLM might try to accomplish the task based on the output. Let's say we don't have installed `jq` in our system, and we ask LLM to parse JSON file:
@@ -346,6 +314,8 @@ ShellGPT allows you to create custom roles, which can be utilized to generate co
 sgpt --create-role json_generator
 # Enter role description: Provide only valid json as response.
 sgpt --role json "random: user, password, email, address"
+```
+```json
 {
   "user": "JohnDoe",
   "password": "p@ssw0rd",
