@@ -1,5 +1,5 @@
 # ShellGPT
-A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google searches). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
+A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/721ddb19-97e7-428f-a0ee-107d027ddd59
 
@@ -37,7 +37,7 @@ Possible Solution: Consider increasing memory allocation or optimizing applicati
 
 
 ### Shell commands
-Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly find and execute the commands you need right in the terminal.
+Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly generate and execute the commands you need right in the terminal.
 ```shell
 sgpt --shell "find all json files in current folder"
 # -> find . -type f -name "*.json"
@@ -65,7 +65,7 @@ sgpt -s "start nginx container, mount ./index.html"
 # -> [E]xecute, [D]escribe, [A]bort: e
 ```
 
-We can still use pipes to pass input to `sgpt` and get shell commands as output:
+We can still use pipes to pass input to `sgpt` and get generate shell commands:
 ```shell
 cat data.json | sgpt -s "POST localhost with json"
 # -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2}' http://localhost
@@ -149,7 +149,7 @@ To start a conversation, use the `--chat` option followed by a unique session na
 ```shell
 sgpt --chat conversation_1 "please remember my favorite number: 4"
 # -> I will remember that your favorite number is 4.
-sgpt --chat number "what would be my favorite number + 4?"
+sgpt --chat conversation_1 "what would be my favorite number + 4?"
 # -> Your favorite number is 4, so if we add 4 to it, the result would be 8.
 ```
 
@@ -181,13 +181,13 @@ print(response.text)
 
 Same applies for shell commands:
 ```shell
-sgpt --chat sh --shell "what is in current folder"
+sgpt --chat conversation_3 --shell "what is in current folder"
 # -> ls
-sgpt --chat sh "Sort by name"
+sgpt --chat conversation_3 "Sort by name"
 # -> ls | sort
-sgpt --chat sh "Concatenate them using FFMPEG"
+sgpt --chat conversation_3 "Concatenate them using FFMPEG"
 # -> ffmpeg -i "concat:$(ls | sort | tr '\n' '|')" -codec copy output.mp4
-sgpt --chat sh "Convert the resulting file into an MP3"
+sgpt --chat conversation_3 "Convert the resulting file into an MP3"
 # -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
 ```
 
