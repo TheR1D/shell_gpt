@@ -56,7 +56,7 @@ class ReplHandler(ChatHandler):
                     full_completion,
                     model=kwargs.get("model"),
                     temperature=kwargs.get("temperature"),
-                    top_probability=kwargs.get("top_probability"),
+                    top_p=kwargs.get("top_p"),
                     caching=kwargs.get("caching"),
                 )
             else:

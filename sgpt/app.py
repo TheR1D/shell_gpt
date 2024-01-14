@@ -38,7 +38,7 @@ def main(
         max=2.0,
         help="Randomness of generated output.",
     ),
-    top_probability: float = typer.Option(
+    top_p: float = typer.Option(
         1.0,
         min=0.0,
         max=1.0,
@@ -191,7 +191,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_p=top_probability,
+            top_p=top_p,
             chat_id=repl,
             caching=cache,
             functions=function_schemas,
@@ -202,7 +202,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_p=top_probability,
+            top_p=top_p,
             chat_id=chat,
             caching=cache,
             functions=function_schemas,
@@ -212,7 +212,7 @@ def main(
             prompt,
             model=model,
             temperature=temperature,
-            top_p=top_probability,
+            top_p=top_p,
             caching=cache,
             functions=function_schemas,
         )
@@ -233,7 +233,7 @@ def main(
                 full_completion,
                 model=model,
                 temperature=temperature,
-                top_p=top_probability,
+                top_p=top_p,
                 caching=cache,
                 functions=function_schemas,
             )
