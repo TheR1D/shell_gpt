@@ -384,7 +384,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --model            TEXT                       Large language model to use. [default: gpt-4-1106-preview] │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
-│ --top-probability  FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
+│ --top-p            FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
 │ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]     │
 │ --cache                                       Cache completion results. [default: cache]                 │
 │ --version                                     Show version.                                              │

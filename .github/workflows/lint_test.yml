@@ -32,7 +32,7 @@ jobs:
       run: ruff sgpt tests scripts
 #    - name: mypy
 #      run: mypy sgpt --exclude function.py --exclude handler.py --exclude default_functions
-    - name: unittests
+    - name: tests
       run: |
         export OPENAI_API_KEY=test_api_key
-        pytest tests/test_unit.py
+        pytest tests/ -p no:warnings
