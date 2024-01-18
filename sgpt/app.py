@@ -19,8 +19,8 @@ from sgpt.utils import (
     get_sgpt_version,
     install_shell_integration,
     run_command,
+    copy_to_clipboard,
 )
-
 
 def main(
     prompt: str = typer.Argument(
@@ -219,8 +219,8 @@ def main(
 
     while shell:
         option = typer.prompt(
-            text="[E]xecute, [D]escribe, [A]bort",
-            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+            text="[E]xecute, [C]opy, [D]escribe, [A]bort",
+            type=Choice(("e", "c", "d", "a", "y"), case_sensitive=False),
             default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
             show_choices=False,
             show_default=False,
@@ -228,6 +228,9 @@ def main(
         if option in ("e", "y"):
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
+        if option in ("c"):
+            copy_to_clipboard(full_completion)
+            print("Command copied to clipboard!")
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role()).handle(
                 full_completion,

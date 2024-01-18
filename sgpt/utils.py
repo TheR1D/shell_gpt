@@ -1,5 +1,6 @@
 import os
 import platform
+import pyperclip
 import shlex
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable
@@ -61,6 +62,14 @@ def option_callback(func: Callable) -> Callable:  # type: ignore
 
     return wrapper
 
+def copy_to_clipboard(text: str) -> None:
+    """
+    Copies text to system clipboard
+    """
+    if os.name == 'posix' and 'TERMUX_VERSION' in os.environ:
+        os.system(f'termux-clipboard-set "{text}"')
+    else:
+        pyperclip.copy(text)
 
 @option_callback
 def install_shell_integration(*_args: Any) -> None:

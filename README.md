@@ -41,7 +41,7 @@ Have you ever found yourself forgetting common shell commands, such as `find`, a
 ```shell
 sgpt --shell "find all json files in current folder"
 # -> find . -type f -name "*.json"
-# -> [E]xecute, [D]escribe, [A]bort: e
+# -> [E]xecute, [C]Copy, [D]escribe, [A]bort: e
 ```
 
 Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
