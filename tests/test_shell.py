@@ -1,101 +1,101 @@
+import os
 from pathlib import Path
 from unittest.mock import patch
 
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, comp_args, comp_chunks, make_args, parametrize, runner
+from .utils import app, cmd_args, comp_args, comp_chunks, runner
 
 
-@parametrize("completion", ["git commit -m test"], indirect=True)
 @patch("openai.resources.chat.Completions.create")
-def test_shell(mock, completion):
+def test_shell(completion):
     role = SystemRole.get(DefaultRoles.SHELL.value)
-    mock.return_value = completion
+    completion.return_value = comp_chunks("git commit -m test")
 
     args = {"prompt": "make a commit using git", "--shell": True}
-    result = runner.invoke(app, make_args(**args))
+    result = runner.invoke(app, cmd_args(**args))
 
-    mock.assert_called_once_with(**comp_args(role, args["prompt"]))
+    completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
     assert "git commit" in result.stdout
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
-@parametrize("completion", ["ls -l | sort"], indirect=True)
 @patch("openai.resources.chat.Completions.create")
-def test_shell_stdin(mock, completion):
+def test_shell_stdin(completion):
+    completion.return_value = comp_chunks("ls -l | sort")
     role = SystemRole.get(DefaultRoles.SHELL.value)
-    mock.return_value = completion
 
     args = {"prompt": "Sort by name", "--shell": True}
     stdin = "What is in current folder"
-    result = runner.invoke(app, make_args(**args), input=stdin)
+    result = runner.invoke(app, cmd_args(**args), input=stdin)
 
     expected_prompt = f"{stdin}\n\n{args['prompt']}"
-    mock.assert_called_once_with(**comp_args(role, expected_prompt))
+    completion.assert_called_once_with(**comp_args(role, expected_prompt))
     assert result.exit_code == 0
     assert "ls -l | sort" in result.stdout
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
-@parametrize("completion", ["lists the contents of a folder"], indirect=True)
 @patch("openai.resources.chat.Completions.create")
-def test_describe_shell(mock, completion):
+def test_describe_shell(completion):
+    completion.return_value = comp_chunks("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
-    mock.return_value = completion
 
     args = {"prompt": "ls", "--describe-shell": True}
-    result = runner.invoke(app, make_args(**args))
+    result = runner.invoke(app, cmd_args(**args))
 
-    mock.assert_called_once_with(**comp_args(role, args["prompt"]))
+    completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
     assert "lists" in result.stdout
 
 
-@parametrize("completion", ["lists the contents of a folder"], indirect=True)
 @patch("openai.resources.chat.Completions.create")
-def test_describe_shell_stdin(mock, completion):
+def test_describe_shell_stdin(completion):
+    completion.return_value = comp_chunks("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
-    mock.return_value = completion
 
     args = {"--describe-shell": True}
     stdin = "What is in current folder"
-    result = runner.invoke(app, make_args(**args), input=stdin)
+    result = runner.invoke(app, cmd_args(**args), input=stdin)
 
     expected_prompt = f"{stdin}"
-    mock.assert_called_once_with(**comp_args(role, expected_prompt))
+    completion.assert_called_once_with(**comp_args(role, expected_prompt))
     assert result.exit_code == 0
     assert "lists" in result.stdout
 
 
-@parametrize("completion", ["echo hello"], indirect=True)
+@patch("os.system")
 @patch("openai.resources.chat.Completions.create")
-def test_shell_run_description(mock, completion):
-    mock.return_value = completion
+def test_shell_run_description(completion, system):
+    completion.side_effect = [comp_chunks("echo hello"), comp_chunks("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
-    result = runner.invoke(app, make_args(**args), input="d\n")
-    # TODO: Doesn't input "d" automatically.
+    inputs = "__sgpt__eof__\nd\ne\n"
+    result = runner.invoke(app, cmd_args(**args), input=inputs)
+    shell = os.environ.get("SHELL", "/bin/sh")
+    system.assert_called_once_with(f"{shell} -c 'echo hello'")
     assert result.exit_code == 0
-    # assert "prints hello" in result.stdout
+    assert "echo hello" in result.stdout
+    assert "prints hello" in result.stdout
 
 
 @patch("openai.resources.chat.Completions.create")
-def test_shell_chat(mock):
-    mock.side_effect = [comp_chunks("ls"), comp_chunks("ls | sort")]
+def test_shell_chat(completion):
+    completion.side_effect = [comp_chunks("ls"), comp_chunks("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
     chat_path.unlink(missing_ok=True)
 
     args = {"prompt": "list folder", "--shell": True, "--chat": chat_name}
-    result = runner.invoke(app, make_args(**args))
+    result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
     assert "ls" in result.stdout
     assert chat_path.exists()
 
     args["prompt"] = "sort by name"
-    result = runner.invoke(app, make_args(**args))
+    result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
     assert "ls | sort" in result.stdout
 
@@ -107,11 +107,11 @@ def test_shell_chat(mock):
         {"role": "assistant", "content": "ls | sort"},
     ]
     expected_args = comp_args(role, "", messages=expected_messages)
-    mock.assert_called_with(**expected_args)
-    assert mock.call_count == 2
+    completion.assert_called_with(**expected_args)
+    assert completion.call_count == 2
 
     args["--code"] = True
-    result = runner.invoke(app, make_args(**args))
+    result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
     assert "Error" in result.stdout
     chat_path.unlink()
@@ -120,17 +120,18 @@ def test_shell_chat(mock):
 
 @patch("os.system")
 @patch("openai.resources.chat.Completions.create")
-def test_shell_repl(mock_completion, mock_system):
-    mock_completion.side_effect = [comp_chunks("ls"), comp_chunks("ls | sort")]
+def test_shell_repl(completion, mock_system):
+    completion.side_effect = [comp_chunks("ls"), comp_chunks("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
     chat_path.unlink(missing_ok=True)
 
     args = {"--repl": chat_name, "--shell": True}
-    inputs = ["list folder", "sort by name", "e", "exit()"]
-    result = runner.invoke(app, make_args(**args), input="\n".join(inputs))
-    mock_system.called_once()
+    inputs = ["__sgpt__eof__", "list folder", "sort by name", "e", "exit()"]
+    result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
+    shell = os.environ.get("SHELL", "/bin/sh")
+    mock_system.called_once_with(f"{shell} -c 'ls | sort'")
 
     expected_messages = [
         {"role": "system", "content": role.role},
@@ -140,8 +141,8 @@ def test_shell_repl(mock_completion, mock_system):
         {"role": "assistant", "content": "ls | sort"},
     ]
     expected_args = comp_args(role, "", messages=expected_messages)
-    mock_completion.assert_called_with(**expected_args)
-    assert mock_completion.call_count == 2
+    completion.assert_called_with(**expected_args)
+    assert completion.call_count == 2
 
     assert result.exit_code == 0
     assert ">>> list folder" in result.stdout
@@ -151,10 +152,10 @@ def test_shell_repl(mock_completion, mock_system):
 
 
 @patch("openai.resources.chat.Completions.create")
-def test_shell_and_describe_shell(mock):
+def test_shell_and_describe_shell(completion):
     args = {"prompt": "ls", "--describe-shell": True, "--shell": True}
-    result = runner.invoke(app, make_args(**args))
+    result = runner.invoke(app, cmd_args(**args))
 
-    mock.assert_not_called()
+    completion.assert_not_called()
     assert result.exit_code == 2
     assert "Error" in result.stdout

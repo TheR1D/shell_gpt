@@ -21,7 +21,7 @@ class ReplHandler(ChatHandler):
             multiline_input += user_input + "\n"
         return multiline_input
 
-    def handle(self, prompt: str, **kwargs: Any) -> None:  # type: ignore
+    def handle(self, init_prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:
             rich_print(Rule(title="Chat History", style="bold magenta"))
             self.show_messages(self.chat_id)
@@ -37,6 +37,11 @@ class ReplHandler(ChatHandler):
         )
         typer.secho(info_message, fg="yellow")
 
+        if init_prompt:
+            rich_print(Rule(title="Input", style="bold purple"))
+            typer.echo(init_prompt)
+            rich_print(Rule(style="bold purple"))
+
         full_completion = ""
         while True:
             # Infinite loop until user exits with Ctrl+C.
@@ -46,6 +51,9 @@ class ReplHandler(ChatHandler):
             if prompt == "exit()":
                 # This is also useful during tests.
                 raise typer.Exit()
+            if init_prompt:
+                prompt = f"{init_prompt}\n\n\n{prompt}"
+                init_prompt = ""
             if self.role.name == DefaultRoles.SHELL.value and prompt == "e":
                 typer.echo()
                 run_command(full_completion)

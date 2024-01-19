@@ -8,11 +8,11 @@ from click import BadArgumentUsage, MissingParameter
 from click.types import Choice
 
 from sgpt.config import cfg
-from sgpt.default_functions.init_functions import install_functions as inst_funcs
 from sgpt.function import get_openai_schemas
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
+from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
     get_edited_prompt,
@@ -148,17 +148,25 @@ def main(
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
-    if stdin_passed and not repl:
-        prompt = f"{sys.stdin.read()}\n\n{prompt or ''}"
+    if stdin_passed:
+        stdin = ""
+        # TODO: This is very hacky.
+        # In some cases, we need to pass stdin along with inputs.
+        # When we want part of stdin to be used as a init prompt,
+        # but rest of the stdin to be used as a inputs. For example:
+        # echo "hello\n__sgpt__eof__\nThis is input" | sgpt --repl temp
+        # In this case, "hello" will be used as a init prompt, and
+        # "This is input" will be used as a input to the REPL.
+        for line in sys.stdin:
+            if "__sgpt__eof__" in line:
+                break
+            stdin += line
+        prompt = f"{stdin}\n\n{prompt}" if prompt else stdin
         # Switch to stdin for interactive input.
-        try:
-            if os.name == "posix":
-                sys.stdin = open("/dev/tty", "r")
-            elif os.name == "nt":
-                sys.stdin = open("CON", "r")
-        except OSError:
-            # Non-interactive shell.
-            pass
+        if os.name == "posix":
+            sys.stdin = open("/dev/tty", "r")
+        elif os.name == "nt":
+            sys.stdin = open("CON", "r")
 
     if not prompt and not editor and not repl:
         raise MissingParameter(param_hint="PROMPT", param_type="string")
