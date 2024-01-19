@@ -73,7 +73,7 @@ def test_shell_run_description(completion, system):
     args = {"prompt": "echo hello", "--shell": True}
     inputs = "__sgpt__eof__\nd\ne\n"
     result = runner.invoke(app, cmd_args(**args), input=inputs)
-    shell = os.environ["SHELL"]
+    shell = os.environ.get("SHELL", "/bin/sh")
     system.assert_called_once_with(f"{shell} -c 'echo hello'")
     assert result.exit_code == 0
     assert "echo hello" in result.stdout
@@ -130,7 +130,7 @@ def test_shell_repl(completion, mock_system):
     args = {"--repl": chat_name, "--shell": True}
     inputs = ["__sgpt__eof__", "list folder", "sort by name", "e", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
-    shell = os.environ["SHELL"]
+    shell = os.environ.get("SHELL", "/bin/sh")
     mock_system.called_once_with(f"{shell} -c 'ls | sort'")
 
     expected_messages = [
