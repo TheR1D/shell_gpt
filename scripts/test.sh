@@ -4,4 +4,4 @@ set -e
 set -x
 
 # shellcheck disable=SC2068
-pytest tests ${@}
+pytest tests ${@} -p no:warnings

@@ -191,7 +191,7 @@ sgpt --chat conversation_3 "Convert the resulting file into an MP3"
 # -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
 ```
 
-To list all the sessions from either conversational mode, use the `--list-chats` or `lc` option:  
+To list all the sessions from either conversational mode, use the `--list-chats` or `-lc` option:  
 ```shell
 sgpt --list-chats
 # .../shell_gpt/chat_cache/conversation_1  
@@ -313,7 +313,7 @@ ShellGPT allows you to create custom roles, which can be utilized to generate co
 ```shell
 sgpt --create-role json_generator
 # Enter role description: Provide only valid json as response.
-sgpt --role json "random: user, password, email, address"
+sgpt --role json_generator "random: user, password, email, address"
 ```
 ```json
 {

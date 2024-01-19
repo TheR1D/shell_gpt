@@ -1,6 +1,5 @@
 import datetime
 
-import pytest
 import typer
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from openai.types.chat.chat_completion_chunk import Choice as StreamChoice
@@ -13,7 +12,6 @@ from sgpt.config import cfg
 runner = CliRunner()
 app = typer.Typer()
 app.command()(main)
-parametrize = pytest.mark.parametrize
 
 
 def comp_chunks(tokens_string):
@@ -35,7 +33,7 @@ def comp_chunks(tokens_string):
     ]
 
 
-def make_args(prompt="", **kwargs):
+def cmd_args(prompt="", **kwargs):
     arguments = [prompt]
     for key, value in kwargs.items():
         arguments.append(key)
