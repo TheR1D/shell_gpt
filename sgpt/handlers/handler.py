@@ -35,7 +35,6 @@ class Handler:
         with Live(
             Markdown(markup="", code_theme=self.theme_name),
             console=Console(),
-            refresh_per_second=8,
         ) as live:
             if self.disable_stream:
                 live.update(
@@ -45,7 +44,7 @@ class Handler:
             for word in self.get_completion(messages=messages, **kwargs):
                 full_completion += word
                 live.update(
-                    Markdown(full_completion, code_theme=self.theme_name),
+                    Markdown(markup=full_completion, code_theme=self.theme_name),
                     refresh=not self.disable_stream,
                 )
         return full_completion

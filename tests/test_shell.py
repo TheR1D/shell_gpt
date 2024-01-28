@@ -159,3 +159,21 @@ def test_shell_and_describe_shell(completion):
     completion.assert_not_called()
     assert result.exit_code == 2
     assert "Error" in result.stdout
+
+
+@patch("openai.resources.chat.Completions.create")
+def test_shell_no_interaction(completion):
+    completion.return_value = comp_chunks("git commit -m test")
+    role = SystemRole.get(DefaultRoles.SHELL.value)
+
+    args = {
+        "prompt": "make a commit using git",
+        "--shell": True,
+        "--no-interaction": True,
+    }
+    result = runner.invoke(app, cmd_args(**args))
+
+    completion.assert_called_once_with(**comp_args(role, args["prompt"]))
+    assert result.exit_code == 0
+    assert "git commit" in result.stdout
+    assert "[E]xecute" not in result.stdout

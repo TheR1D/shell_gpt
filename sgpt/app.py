@@ -1,10 +1,11 @@
-# To allow users to use arrow keys in the REPL.
 import os
+
+# To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
 import sys
 
 import typer
-from click import BadArgumentUsage, MissingParameter
+from click import BadArgumentUsage
 from click.types import Choice
 
 from sgpt.config import cfg
@@ -24,7 +25,7 @@ from sgpt.utils import (
 
 def main(
     prompt: str = typer.Argument(
-        None,
+        "",
         show_default=False,
         help="The prompt to generate completions for.",
     ),
@@ -49,6 +50,11 @@ def main(
         "--shell",
         "-s",
         help="Generate and execute shell commands.",
+        rich_help_panel="Assistance Options",
+    ),
+    interaction: bool = typer.Option(
+        True,
+        help="Interactive mode for --shell option.",
         rich_help_panel="Assistance Options",
     ),
     describe_shell: bool = typer.Option(
@@ -156,20 +162,22 @@ def main(
         # but rest of the stdin to be used as a inputs. For example:
         # echo "hello\n__sgpt__eof__\nThis is input" | sgpt --repl temp
         # In this case, "hello" will be used as a init prompt, and
-        # "This is input" will be used as a input to the REPL.
+        # "This is input" will be used as "interactive" input to the REPL.
+        # This is useful to test REPL with some initial context.
         for line in sys.stdin:
             if "__sgpt__eof__" in line:
                 break
             stdin += line
         prompt = f"{stdin}\n\n{prompt}" if prompt else stdin
-        # Switch to stdin for interactive input.
-        if os.name == "posix":
-            sys.stdin = open("/dev/tty", "r")
-        elif os.name == "nt":
-            sys.stdin = open("CON", "r")
-
-    if not prompt and not editor and not repl:
-        raise MissingParameter(param_hint="PROMPT", param_type="string")
+        try:
+            # Switch to stdin for interactive input.
+            if os.name == "posix":
+                sys.stdin = open("/dev/tty", "r")
+            elif os.name == "nt":
+                sys.stdin = open("CON", "r")
+        except OSError:
+            # Non-interactive shell.
+            pass
 
     if sum((shell, describe_shell, code)) > 1:
         raise BadArgumentUsage(
@@ -225,7 +233,7 @@ def main(
             functions=function_schemas,
         )
 
-    while shell:
+    while shell and interaction:
         option = typer.prompt(
             text="[E]xecute, [D]escribe, [A]bort",
             type=Choice(("e", "d", "a", "y"), case_sensitive=False),
