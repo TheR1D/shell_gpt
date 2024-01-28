@@ -5,9 +5,10 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Callable
 
 import typer
-from click import BadParameter
+from click import BadParameter, UsageError
 
 from sgpt.__version__ import __version__
+from sgpt.integration import bash_integration, zsh_integration
 
 
 def get_edited_prompt() -> str:
@@ -65,17 +66,25 @@ def option_callback(func: Callable) -> Callable:  # type: ignore
 @option_callback
 def install_shell_integration(*_args: Any) -> None:
     """
-    Installs shell integration. Currently only supports Linux.
+    Installs shell integration. Currently only supports ZSH and Bash.
     Allows user to get shell completions in terminal by using hotkey.
-    Allows user to edit shell command right away in terminal.
+    Replaces current "buffer" of the shell with the completion.
     """
     # TODO: Add support for Windows.
     # TODO: Implement updates.
-    if platform.system() == "Windows":
-        typer.echo("Windows is not supported yet.")
+    shell = os.getenv("SHELL", "")
+    if shell == "/bin/zsh":
+        typer.echo("Installing ZSH integration...")
+        with open(os.path.expanduser("~/.zshrc"), "a", encoding="utf-8") as file:
+            file.write(zsh_integration)
+    elif shell == "/bin/bash":
+        typer.echo("Installing Bash integration...")
+        with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as file:
+            file.write(bash_integration)
     else:
-        url = "https://raw.githubusercontent.com/TheR1D/shell_gpt/shell-integrations/install.sh"
-        os.system(f'sh -c "$(curl -fsSL {url})"')
+        raise UsageError("ShellGPT integrations only available for ZSH and Bash.")
+
+    typer.echo("Done! Restart your shell to apply changes.")
 
 
 @option_callback

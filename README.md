@@ -1,7 +1,7 @@
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
-https://github.com/TheR1D/shell_gpt/assets/16740832/721ddb19-97e7-428f-a0ee-107d027ddd59
+https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
 
 ## Installation
 ```shell
@@ -35,6 +35,19 @@ Error Detected: Memory allocation failed at line 12.
 Possible Solution: Consider increasing memory allocation or optimizing application memory usage.
 ```
 
+You can also use all kind of redirection operators to pass input:
+```shell
+sgpt "summarise" < document.txt
+# -> The document discusses the impact...
+sgpt << EOF
+What is the best way to lear Golang.
+Provide simple hello world example.
+EOF
+# -> The best way to learn Golang...
+sgpt <<< "What is the best way to learn shell redirects?"
+# -> The best way to learn shell redirects is through...
+```
+
 
 ### Shell commands
 Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly generate and execute the commands you need right in the terminal.
@@ -65,14 +78,14 @@ sgpt -s "start nginx container, mount ./index.html"
 # -> [E]xecute, [D]escribe, [A]bort: e
 ```
 
-We can still use pipes to pass input to `sgpt` and get generate shell commands:
+We can still use pipes to pass input to `sgpt` and generate shell commands:
 ```shell
-cat data.json | sgpt -s "POST localhost with json"
+sgpt -s "POST localhost with" < data.json
 # -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2}' http://localhost
 # -> [E]xecute, [D]escribe, [A]bort: e
 ```
 
-Applying additional shell magic in our prompt, in this example passing file names to ffmpeg:
+Applying additional shell magic in our prompt, in this example passing file names to `ffmpeg`:
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
@@ -81,9 +94,14 @@ sgpt -s "ffmpeg combine $(ls -m) into one video file without audio."
 # -> [E]xecute, [D]escribe, [A]bort: e
 ```
 
+If you would like to pass generated shell command using pipe, you can use `--no-interaction` option. This will disable interactive mode and will print generated command to stdout. In this example we are using `pbcopy` to copy generated command to clipboard:
+```shell
+sgpt -s "find all json files in current folder" --no-interaction | pbcopy
+```
+
 
 ### Shell integration
-Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
+This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
 
@@ -248,6 +266,21 @@ Entering REPL mode, press Ctrl+C to exit.
 It is a Python script that uses the random module to generate and print a random integer.
 ```
 
+You can also enter REPL mode with initial prompt by passing it as an argument or stdin or even both:
+```shell
+sgpt --repl temp < my_app.py
+```
+```text
+Entering REPL mode, press Ctrl+C to exit.
+──────────────────────────────────── Input ────────────────────────────────────
+name = input("What is your name?")
+print(f"Hello {name}")
+───────────────────────────────────────────────────────────────────────────────
+>>> What is this code about?
+The snippet of code you've provided is written in Python. It prompts the user...
+>>> Follow up questions...
+```
+
 ### Function calling  
 [Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
 ```shell
@@ -392,6 +425,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Assistance Options ─────────────────────────────────────────────────────────────────────────────────────╮
 │ --shell           -s                      Generate and execute shell commands.                           │
+│ --interaction         --no-interaction    Interactive mode for --shell option. [default: interaction]    │
 │ --describe-shell  -d                      Describe a shell command.                                      │
 │ --code            -c                      Generate only code.                                            │
 │ --functions           --no-functions      Allow function calls. [default: functions]                     │
