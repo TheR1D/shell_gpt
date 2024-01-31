@@ -82,7 +82,7 @@ skip =  "__init__.py"
 
 [tool.mypy]
 strict = true
-exclude = ["function.py", "handler.py", "llm_functions"]
+exclude = ["llm_functions"]
 
 [tool.ruff]
 select = [

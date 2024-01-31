@@ -49,7 +49,6 @@ class ReplHandler(ChatHandler):
             if prompt == '"""':
                 prompt = self._get_multiline_input()
             if prompt == "exit()":
-                # This is also useful during tests.
                 raise typer.Exit()
             if init_prompt:
                 prompt = f"{init_prompt}\n\n\n{prompt}"
@@ -61,11 +60,7 @@ class ReplHandler(ChatHandler):
                 rich_print(Rule(style="bold magenta"))
             elif self.role.name == DefaultRoles.SHELL.value and prompt == "d":
                 DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role()).handle(
-                    full_completion,
-                    model=kwargs.get("model"),
-                    temperature=kwargs.get("temperature"),
-                    top_p=kwargs.get("top_p"),
-                    caching=kwargs.get("caching"),
+                    prompt=full_completion, **kwargs
                 )
             else:
-                full_completion = super().handle(prompt, **kwargs)
+                full_completion = super().handle(prompt=prompt, **kwargs)
