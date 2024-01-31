@@ -28,19 +28,17 @@ class Cache:
         """
 
         def wrapper(*args: Any, **kwargs: Any) -> Generator[str, None, None]:
-            # Exclude self instance from hashing.
-            cache_key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
-            cache_file = self.cache_path / cache_key
-            # TODO: Fix caching for chat, should hash last user message, (not entire history).
-            if kwargs.pop("caching", True) and cache_file.exists():
-                yield cache_file.read_text()
+            key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
+            file = self.cache_path / key
+            if kwargs.pop("caching") and file.exists():
+                yield file.read_text()
                 return
             result = ""
             for i in func(*args, **kwargs):
                 result += i
                 yield i
             if "@FunctionCall" not in result:
-                cache_file.write_text(result)
+                file.write_text(result)
             self._delete_oldest_files(self.length)  # type: ignore
 
         return wrapper

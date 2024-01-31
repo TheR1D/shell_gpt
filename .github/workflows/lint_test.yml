@@ -30,8 +30,8 @@ jobs:
       run: isort sgpt tests scripts --check-only
     - name: ruff
       run: ruff sgpt tests scripts
-#    - name: mypy
-#      run: mypy sgpt --exclude function.py --exclude handler.py --exclude llm_functions
+    - name: mypy
+      run: mypy sgpt --exclude llm_functions
     - name: tests
       run: |
         export OPENAI_API_KEY=test_api_key

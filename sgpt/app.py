@@ -204,28 +204,26 @@ def main(
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
         ReplHandler(repl, role_class).handle(
-            prompt,
+            init_prompt=prompt,
             model=model,
             temperature=temperature,
             top_p=top_p,
-            chat_id=repl,
             caching=cache,
             functions=function_schemas,
         )
 
     if chat:
         full_completion = ChatHandler(chat, role_class).handle(
-            prompt,
+            prompt=prompt,
             model=model,
             temperature=temperature,
             top_p=top_p,
-            chat_id=chat,
             caching=cache,
             functions=function_schemas,
         )
     else:
         full_completion = DefaultHandler(role_class).handle(
-            prompt,
+            prompt=prompt,
             model=model,
             temperature=temperature,
             top_p=top_p,

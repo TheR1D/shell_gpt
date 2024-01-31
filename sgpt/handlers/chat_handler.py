@@ -42,19 +42,20 @@ class ChatSession:
 
         def wrapper(*args: Any, **kwargs: Any) -> Generator[str, None, None]:
             chat_id = kwargs.pop("chat_id", None)
-            messages = kwargs["messages"]
-            if not chat_id:
-                yield from func(*args, **kwargs)
+            if not kwargs.get("messages"):
                 return
-            old_messages = self._read(chat_id)
-            for message in messages:
-                old_messages.append(message)
-            kwargs["messages"] = old_messages
+            if not chat_id:
+                yield from func(*args, **kwargs, caching=False)
+                return
+            previous_messages = self._read(chat_id)
+            for message in kwargs["messages"]:
+                previous_messages.append(message)
+            kwargs["messages"] = previous_messages
             response_text = ""
             for word in func(*args, **kwargs):
                 response_text += word
                 yield word
-            old_messages.append({"role": "assistant", "content": response_text})
+            previous_messages.append({"role": "assistant", "content": response_text})
             self._write(kwargs["messages"], chat_id)
 
         return wrapper
@@ -160,8 +161,8 @@ class ChatHandler(Handler):
         return messages
 
     @chat_session
-    def get_completion(
-        self,
-        **kwargs: Any,
-    ) -> Generator[str, None, None]:
+    def get_completion(self, **kwargs: Any) -> Generator[str, None, None]:
         yield from super().get_completion(**kwargs)
+
+    def handle(self, **kwargs: Any) -> str:  # type: ignore[override]
+        return super().handle(**kwargs, chat_id=self.chat_id)
