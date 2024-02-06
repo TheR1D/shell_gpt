@@ -1,3 +1,11 @@
+<h1 align="center">
+        ShellGpt
+    </h1>
+    <p align="center">
+        <p align="center">Create an AI-driven command-line tool for efficient shell commands, code snippets, and documentation generation.
+        <br>
+    </p>
+<h4 align="center"><a href="https://docs.litellm.ai/docs/simple_proxy" target="_blank">OpenAI Proxy Server</a></h4>
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
