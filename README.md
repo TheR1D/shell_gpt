@@ -5,13 +5,13 @@
         <p align="center">Create an AI-driven command-line tool for efficient shell commands, code snippets, and documentation generation.
         <br>
     </p>
-<h4 align="center"><a href="https://docs.litellm.ai/docs/simple_proxy" target="_blank">OpenAI Proxy Server</a></h4>
+
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
 
-## Installation
+# Installation
 ```shell
 pip install shell-gpt
 ```
@@ -19,7 +19,7 @@ pip install shell-gpt
 You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys). 
 You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. 
 
-## Usage
+# Usage
 **ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
 ```shell
 sgpt "What is the fibonacci sequence"
@@ -57,7 +57,7 @@ sgpt <<< "What is the best way to learn shell redirects?"
 ```
 
 
-### Shell commands
+## Shell commands
 Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly generate and execute the commands you need right in the terminal.
 ```shell
 sgpt --shell "find all json files in current folder"
@@ -108,14 +108,14 @@ sgpt -s "find all json files in current folder" --no-interaction | pbcopy
 ```
 
 
-### Shell integration
+## Shell integration
 This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
 
 To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke ShellGPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
-### Generating code
+## Generating code
 By using the `--code` or `-c` parameter, you can specifically request pure code output, for instance:
 ```shell
 sgpt --code "solve fizz buzz problem using python"
@@ -168,7 +168,7 @@ for i in range(1, 101):
         print(i)
 ```
 
-### Chat Mode 
+## Chat Mode 
 Often it is important to preserve and recall a conversation. `sgpt` creates conversational dialogue with each LLM completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
 
 To start a conversation, use the `--chat` option followed by a unique session name and a prompt.
@@ -289,7 +289,7 @@ The snippet of code you've provided is written in Python. It prompts the user...
 >>> Follow up questions...
 ```
 
-### Function calling  
+## Function calling  
 [Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
 ```shell
 sgpt --install-functions
@@ -452,7 +452,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-## LocalAI
+# LocalAI
 By default, ShellGPT leverages OpenAI's large language models. However, it also provides the flexibility to use locally hosted models, which can be a cost-effective alternative. To use local models, you will need to run your own API server. You can accomplish this by using [LocalAI](https://github.com/go-skynet/LocalAI), a self-hosted, OpenAI-compatible API. Setting up LocalAI allows you to run language models on your own hardware, potentially without the need for an internet connection, depending on your usage. To set up your LocalAI, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/LocalAI). Remember that the performance of your local models may depend on the specifications of your hardware and the specific language model you choose to deploy.
 
 ## Docker
