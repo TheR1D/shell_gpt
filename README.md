@@ -13,19 +13,19 @@ pip install shell-gpt
 You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. 
 
 # 💡 Usage
-**ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
+- **ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
 ```shell
 sgpt "What is the fibonacci sequence"
 # -> The Fibonacci sequence is a series of numbers where each number ...
 ```
 
-ShellGPT accepts prompt from both stdin and command line argument. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. For example, you can easily generate a git commit message based on a diff:
+- ShellGPT accepts prompt from both stdin and command line argument. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. For example, you can easily generate a git commit message based on a diff:
 ```shell
 git diff | sgpt "Generate git commit message, for my changes"
 # -> Added main feature details into README.md
 ```
 
-You can analyze logs from various sources by passing them using stdin, along with a prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
+- You can analyze logs from various sources by passing them using stdin, along with a prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
 ```shell
 docker logs -n 20 my_app | sgpt "check logs, find errors, provide possible solutions"
 ```
