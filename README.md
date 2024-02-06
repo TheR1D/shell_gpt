@@ -1,10 +1,3 @@
-<h1 align="center">
-        ShellGpt
-    </h1>
-    <p align="center">
-        <p align="center">Create an AI-driven command-line tool for efficient shell commands, code snippets, and documentation generation.
-        <br>
-    </p>
 
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
@@ -15,8 +8,8 @@ https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb7
 ```shell
 pip install shell-gpt
 ```
-
-You'll need an OpenAI API key, you can generate one [here](https://beta.openai.com/account/api-keys). 
+> [!IMPORTANT]
+> You'll need an `OpenAI API key`, you can generate one [here](https://beta.openai.com/account/api-keys). 
 You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. 
 
 # Usage
