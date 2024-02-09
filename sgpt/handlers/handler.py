@@ -81,6 +81,9 @@ class Handler:
             functions=functions,  # type: ignore
             stream=True,
         ):
+            # Some APIs return an empty list of choices
+            if not chunk.choices:
+                continue
             delta = chunk.choices[0].delta  # type: ignore
             if delta.function_call:
                 if delta.function_call.name:
