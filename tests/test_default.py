@@ -8,7 +8,7 @@ from sgpt import config, main
 from sgpt.__version__ import __version__
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, comp_chunks, runner
+from .utils import app, cmd_args, comp_args, comp_chunks, empty_chunk, runner
 
 role = SystemRole.get(DefaultRoles.DEFAULT.value)
 cfg = config.cfg
@@ -186,3 +186,15 @@ def test_version(completion):
 
     completion.assert_not_called()
     assert __version__ in result.stdout
+
+
+@patch("openai.resources.chat.Completions.create")
+def test_empty_chunk_handling(completion):
+    completion.return_value = [empty_chunk]
+
+    args = {"prompt": "capital of liechtenstein?"}
+    result = runner.invoke(app, cmd_args(**args))
+
+    completion.assert_called_once_with(**comp_args(role, **args))
+    assert result.exit_code == 0
+    assert not result.stdout.strip()

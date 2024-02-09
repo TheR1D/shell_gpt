@@ -13,6 +13,14 @@ runner = CliRunner()
 app = typer.Typer()
 app.command()(main)
 
+empty_chunk = ChatCompletionChunk(
+    id="foo",
+    model=cfg.get("DEFAULT_MODEL"),
+    object="chat.completion.chunk",
+    choices=[],
+    created=int(datetime.datetime.now().timestamp()),
+)
+
 
 def comp_chunks(tokens_string):
     return [
