@@ -8,15 +8,15 @@ from sgpt import config, main
 from sgpt.__version__ import __version__
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, comp_chunks, runner
+from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 role = SystemRole.get(DefaultRoles.DEFAULT.value)
 cfg = config.cfg
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_default(completion):
-    completion.return_value = comp_chunks("Prague")
+    completion.return_value = mock_comp("Prague")
 
     args = {"prompt": "capital of the Czech Republic?"}
     result = runner.invoke(app, cmd_args(**args))
@@ -26,9 +26,9 @@ def test_default(completion):
     assert "Prague" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_default_stdin(completion):
-    completion.return_value = comp_chunks("Prague")
+    completion.return_value = mock_comp("Prague")
 
     stdin = "capital of the Czech Republic?"
     result = runner.invoke(app, cmd_args(), input=stdin)
@@ -38,9 +38,9 @@ def test_default_stdin(completion):
     assert "Prague" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_default_chat(completion):
-    completion.side_effect = [comp_chunks("ok"), comp_chunks("4")]
+    completion.side_effect = [mock_comp("ok"), mock_comp("4")]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
     chat_path.unlink(missing_ok=True)
@@ -90,9 +90,9 @@ def test_default_chat(completion):
     chat_path.unlink()
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_default_repl(completion):
-    completion.side_effect = [comp_chunks("ok"), comp_chunks("8")]
+    completion.side_effect = [mock_comp("ok"), mock_comp("8")]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
     chat_path.unlink(missing_ok=True)
@@ -119,9 +119,9 @@ def test_default_repl(completion):
     assert "8" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_default_repl_stdin(completion):
-    completion.side_effect = [comp_chunks("ok init"), comp_chunks("ok another")]
+    completion.side_effect = [mock_comp("ok init"), mock_comp("ok another")]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
     chat_path.unlink(missing_ok=True)
@@ -153,9 +153,9 @@ def test_default_repl_stdin(completion):
     assert "ok another" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_llm_options(completion):
-    completion.return_value = comp_chunks("Berlin")
+    completion.return_value = mock_comp("Berlin")
 
     args = {
         "prompt": "capital of the Germany?",
@@ -179,7 +179,7 @@ def test_llm_options(completion):
     assert "Berlin" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_version(completion):
     args = {"--version": True}
     result = runner.invoke(app, cmd_args(**args))

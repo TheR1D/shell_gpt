@@ -5,13 +5,13 @@ from unittest.mock import patch
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, comp_chunks, runner
+from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell(completion):
     role = SystemRole.get(DefaultRoles.SHELL.value)
-    completion.return_value = comp_chunks("git commit -m test")
+    completion.return_value = mock_comp("git commit -m test")
 
     args = {"prompt": "make a commit using git", "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -22,9 +22,9 @@ def test_shell(completion):
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell_stdin(completion):
-    completion.return_value = comp_chunks("ls -l | sort")
+    completion.return_value = mock_comp("ls -l | sort")
     role = SystemRole.get(DefaultRoles.SHELL.value)
 
     args = {"prompt": "Sort by name", "--shell": True}
@@ -38,9 +38,9 @@ def test_shell_stdin(completion):
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_describe_shell(completion):
-    completion.return_value = comp_chunks("lists the contents of a folder")
+    completion.return_value = mock_comp("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
 
     args = {"prompt": "ls", "--describe-shell": True}
@@ -51,9 +51,9 @@ def test_describe_shell(completion):
     assert "lists" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_describe_shell_stdin(completion):
-    completion.return_value = comp_chunks("lists the contents of a folder")
+    completion.return_value = mock_comp("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
 
     args = {"--describe-shell": True}
@@ -67,9 +67,9 @@ def test_describe_shell_stdin(completion):
 
 
 @patch("os.system")
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell_run_description(completion, system):
-    completion.side_effect = [comp_chunks("echo hello"), comp_chunks("prints hello")]
+    completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
     inputs = "__sgpt__eof__\nd\ne\n"
     result = runner.invoke(app, cmd_args(**args), input=inputs)
@@ -80,9 +80,9 @@ def test_shell_run_description(completion, system):
     assert "prints hello" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell_chat(completion):
-    completion.side_effect = [comp_chunks("ls"), comp_chunks("ls | sort")]
+    completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
@@ -119,9 +119,9 @@ def test_shell_chat(completion):
 
 
 @patch("os.system")
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell_repl(completion, mock_system):
-    completion.side_effect = [comp_chunks("ls"), comp_chunks("ls | sort")]
+    completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
@@ -151,7 +151,7 @@ def test_shell_repl(completion, mock_system):
     assert "ls | sort" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell_and_describe_shell(completion):
     args = {"prompt": "ls", "--describe-shell": True, "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -161,9 +161,9 @@ def test_shell_and_describe_shell(completion):
     assert "Error" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_shell_no_interaction(completion):
-    completion.return_value = comp_chunks("git commit -m test")
+    completion.return_value = mock_comp("git commit -m test")
     role = SystemRole.get(DefaultRoles.SHELL.value)
 
     args = {

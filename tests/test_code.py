@@ -4,14 +4,14 @@ from unittest.mock import patch
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, comp_chunks, runner
+from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 role = SystemRole.get(DefaultRoles.CODE.value)
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_code_generation(mock):
-    mock.return_value = comp_chunks("print('Hello World')")
+    mock.return_value = mock_comp("print('Hello World')")
 
     args = {"prompt": "hello world python", "--code": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -21,9 +21,9 @@ def test_code_generation(mock):
     assert "print('Hello World')" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_code_generation_stdin(completion):
-    completion.return_value = comp_chunks("# Hello\nprint('Hello')")
+    completion.return_value = mock_comp("# Hello\nprint('Hello')")
 
     args = {"prompt": "make comments for code", "--code": True}
     stdin = "print('Hello')"
@@ -36,11 +36,11 @@ def test_code_generation_stdin(completion):
     assert "print('Hello')" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_code_chat(completion):
     completion.side_effect = [
-        comp_chunks("print('hello')"),
-        comp_chunks("print('hello')\nprint('world')"),
+        mock_comp("print('hello')"),
+        mock_comp("print('hello')\nprint('world')"),
     ]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
@@ -77,11 +77,11 @@ def test_code_chat(completion):
     # TODO: Code chat can be recalled without --code option.
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_code_repl(completion):
     completion.side_effect = [
-        comp_chunks("print('hello')"),
-        comp_chunks("print('hello')\nprint('world')"),
+        mock_comp("print('hello')"),
+        mock_comp("print('hello')\nprint('world')"),
     ]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
@@ -109,7 +109,7 @@ def test_code_repl(completion):
     assert "print('world')" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_code_and_shell(completion):
     args = {"--code": True, "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -119,7 +119,7 @@ def test_code_and_shell(completion):
     assert "Error" in result.stdout
 
 
-@patch("openai.resources.chat.Completions.create")
+@patch("litellm.completion")
 def test_code_and_describe_shell(completion):
     args = {"--code": True, "--describe-shell": True}
     result = runner.invoke(app, cmd_args(**args))
