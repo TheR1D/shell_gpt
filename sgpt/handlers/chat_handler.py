@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
-from rich.console import Console
-from rich.markdown import Markdown
 
 import typer
 from click import BadArgumentUsage
+from rich.console import Console
+from rich.markdown import Markdown
 
 from ..config import cfg
 from ..role import DefaultRoles, SystemRole
