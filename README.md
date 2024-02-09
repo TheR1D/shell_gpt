@@ -365,6 +365,8 @@ sgpt --role json_generator "random: user, password, email, address"
 }
 ```
 
+If the description of the role contains the words "APPLY MARKDOWN" (case sensitive), then chats will be displayed using markdown formatting.
+
 ### Request cache
 Control cache using `--cache` (default) and `--no-cache` options. This caching applies for all `sgpt` requests to OpenAI API:
 ```shell
