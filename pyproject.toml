@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "shell_gpt"
-description = "A command-line productivity tool powered by OpenAI GPT models, will help you accomplish your tasks faster and more efficiently."
-keywords = ["shell", "gpt", "openai", "cli", "productivity", "cheet-sheet"]
+description = "A command-line productivity tool powered by large language models, will help you accomplish your tasks faster and more efficiently."
+keywords = ["shell", "gpt", "openai", "ollama", "cli", "productivity", "cheet-sheet"]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.6"
@@ -28,23 +28,14 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "requests >= 2.28.2, < 3.0.0",
+    "litellm >= 1.20.1, < 2.0.0",
     "typer >= 0.7.0, < 1.0.0",
     "click >= 7.1.1, < 9.0.0",
     "rich >= 13.1.0, < 14.0.0",
     "distro >= 1.8.0, < 2.0.0",
-    "openai >= 1.6.1, < 2.0.0",
     "instructor >= 0.4.5, < 1.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
 ]
-
-[project.scripts]
-sgpt = "sgpt:cli"
-
-[project.urls]
-homepage = "https://github.com/ther1d/shell_gpt"
-repository = "https://github.com/ther1d/shell_gpt"
-documentation = "https://github.com/TheR1D/shell_gpt/blob/main/README.md"
 
 [project.optional-dependencies]
 test = [
@@ -60,6 +51,14 @@ dev = [
     "ruff == 0.0.256",
     "pre-commit >= 3.1.1, < 4.0.0",
 ]
+
+[project.scripts]
+sgpt = "sgpt:cli"
+
+[project.urls]
+homepage = "https://github.com/ther1d/shell_gpt"
+repository = "https://github.com/ther1d/shell_gpt"
+documentation = "https://github.com/TheR1D/shell_gpt/blob/main/README.md"
 
 [tool.hatch.version]
 path = "sgpt/__version__.py"

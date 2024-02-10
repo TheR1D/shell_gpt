@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional
 
-from openai import OpenAI
+import litellm  # type: ignore
 
 from ..cache import Cache
 from ..config import cfg
@@ -10,16 +10,13 @@ from ..function import get_function
 from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
 
+litellm.suppress_debug_info = True
+
 
 class Handler:
     cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
     def __init__(self, role: SystemRole) -> None:
-        self.client = OpenAI(
-            base_url=cfg.get("OPENAI_BASE_URL"),
-            api_key=cfg.get("OPENAI_API_KEY"),
-            timeout=int(cfg.get("REQUEST_TIMEOUT")),
-        )
         self.role = role
 
     @property
@@ -73,28 +70,30 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
-        for chunk in self.client.chat.completions.create(
+        for chunk in litellm.completion(
             model=model,
             temperature=temperature,
             top_p=top_p,
-            messages=messages,  # type: ignore
-            functions=functions,  # type: ignore
+            messages=messages,
+            functions=functions,
             stream=True,
+            api_key=cfg.get("OPENAI_API_KEY"),
         ):
-            delta = chunk.choices[0].delta  # type: ignore
-            if delta.function_call:
-                if delta.function_call.name:
-                    name = delta.function_call.name
-                if delta.function_call.arguments:
-                    arguments += delta.function_call.arguments
-            if chunk.choices[0].finish_reason == "function_call":  # type: ignore
+            delta = chunk.choices[0].delta
+            function_call = delta.get("function_call")
+            if function_call:
+                if function_call.name:
+                    name = function_call.name
+                if function_call.arguments:
+                    arguments += function_call.arguments
+            if chunk.choices[0].finish_reason == "function_call":
                 yield from self.handle_function_call(messages, name, arguments)
                 yield from self.get_completion(
                     model, temperature, top_p, messages, functions, caching=False
                 )
                 return
 
-            yield delta.content or ""
+            yield delta.get("content") or ""
 
     def handle(
         self,

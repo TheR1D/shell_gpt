@@ -16,8 +16,9 @@ https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb7
 ```shell
 pip install shell-gpt
 ```
+
 > [!IMPORTANT]
-By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
+>By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
 > [!TIP]
 > Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
@@ -37,7 +38,8 @@ git diff | sgpt "Generate git commit message, for my changes"
 # -> Added main feature details into README.md
 ```
 
-- You can analyze logs from various sources by passing them using stdin, along with a prompt. This enables you to quickly identify errors and get suggestions for possible solutions:
+
+-You can analyze logs from various sources by passing them using stdin, along with a prompt. For instance, we can use it to quickly analyze logs, identify errors and get suggestions for possible solutions:
 ```shell
 docker logs -n 20 my_app | sgpt "check logs, find errors, provide possible solutions"
 ```
@@ -53,7 +55,7 @@ You can also use all kind of redirection operators to pass input:
 sgpt "summarise" < document.txt
 # -> The document discusses the impact...
 sgpt << EOF
-What is the best way to lear Golang.
+What is the best way to lear Golang?
 Provide simple hello world example.
 EOF
 # -> The best way to learn Golang...
@@ -457,10 +459,8 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-# 🤖 LocalAI
-By default, ShellGPT leverages OpenAI's large language models. However, it also provides the flexibility to use locally hosted models, which can be a cost-effective alternative. To use local models, you will need to run your own API server. You can accomplish this by using [LocalAI](https://github.com/go-skynet/LocalAI), a self-hosted, OpenAI-compatible API. Setting up LocalAI allows you to run language models on your own hardware, potentially without the need for an internet connection, depending on your usage. To set up your LocalAI, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/LocalAI). Remember that the performance of your local models may depend on the specifications of your hardware and the specific language model you choose to deploy.
 
-<h2>Docker</h2>
+## Docker
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
 ```shell
 docker run --rm \
