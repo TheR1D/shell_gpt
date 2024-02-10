@@ -64,7 +64,7 @@ sgpt <<< "What is the best way to learn shell redirects?"
 ```
 
 
-##  💻 Shell commands
+###  💻 Shell commands
 Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly generate and execute the commands you need right in the terminal.
 ```shell
 sgpt --shell "find all json files in current folder"
@@ -115,14 +115,14 @@ sgpt -s "find all json files in current folder" --no-interaction | pbcopy
 ```
 
 
-## 🔗 Shell integration
+### 🔗 Shell integration
 This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
 
 To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke ShellGPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
-## ✨ Generating code
+### ✨ Generating code
 By using the `--code` or `-c` parameter, you can specifically request pure code output, for instance:
 ```shell
 sgpt --code "solve fizz buzz problem using python"
@@ -296,7 +296,7 @@ The snippet of code you've provided is written in Python. It prompts the user...
 >>> Follow up questions...
 ```
 
-## ⚡️ Function calling  
+### ⚡️ Function calling  
 [Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
 ```shell
 sgpt --install-functions
@@ -460,7 +460,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ```
 
 
-## Docker
+# Docker
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
 ```shell
 docker run --rm \
