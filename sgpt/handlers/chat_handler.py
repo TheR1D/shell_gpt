@@ -4,6 +4,8 @@ from typing import Any, Callable, Dict, Generator, List, Optional
 
 import typer
 from click import BadArgumentUsage
+from rich.console import Console
+from rich.markdown import Markdown
 
 from ..config import cfg
 from ..role import DefaultRoles, SystemRole
@@ -108,14 +110,14 @@ class ChatHandler(Handler):
         return self.chat_session.exists(self.chat_id)
 
     @property
-    def initial_message(self) -> str:
-        chat_history = self.chat_session.get_messages(self.chat_id)
-        return chat_history[0] if chat_history else ""
-
-    @property
     def is_same_role(self) -> bool:
         # TODO: Should be optimized for REPL mode.
-        return self.role.same_role(self.initial_message)
+        return self.role.same_role(self.initial_message(self.chat_id))
+
+    @classmethod
+    def initial_message(cls, chat_id: str) -> str:
+        chat_history = cls.chat_session.get_messages(chat_id)
+        return chat_history[0] if chat_history else ""
 
     @classmethod
     @option_callback
@@ -126,7 +128,15 @@ class ChatHandler(Handler):
 
     @classmethod
     def show_messages(cls, chat_id: str) -> None:
-        # Prints all messages from a specified chat ID to the console.
+        if "APPLY MARKDOWN" in cls.initial_message(chat_id):
+            for message in cls.chat_session.get_messages(chat_id):
+                if message.startswith("assistant:"):
+                    Console().print(Markdown(message))
+                else:
+                    typer.secho(message, fg=cfg.get("DEFAULT_COLOR"))
+                typer.echo()
+            return
+
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
             color = "magenta" if index % 2 == 0 else "green"
             typer.secho(message, fg=color)
@@ -138,7 +148,7 @@ class ChatHandler(Handler):
 
     def validate(self) -> None:
         if self.initiated:
-            chat_role_name = self.role.get_role_name(self.initial_message)
+            chat_role_name = self.role.get_role_name(self.initial_message(self.chat_id))
             if not chat_role_name:
                 raise BadArgumentUsage(
                     f'Could not determine chat role of "{self.chat_id}"'

@@ -38,6 +38,43 @@ def test_default_stdin(completion):
     assert "Prague" in result.stdout
 
 
+@patch("rich.console.Console.print")
+@patch("litellm.completion")
+def test_show_chat_use_markdown(completion, console_print):
+    completion.return_value = mock_comp("ok")
+    chat_name = "_test"
+    chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
+    chat_path.unlink(missing_ok=True)
+
+    args = {"prompt": "my number is 2", "--chat": chat_name}
+    result = runner.invoke(app, cmd_args(**args))
+    assert result.exit_code == 0
+    assert chat_path.exists()
+
+    result = runner.invoke(app, ["--show-chat", chat_name])
+    assert result.exit_code == 0
+    console_print.assert_called()
+
+
+@patch("rich.console.Console.print")
+@patch("litellm.completion")
+def test_show_chat_no_use_markdown(completion, console_print):
+    completion.return_value = mock_comp("ok")
+    chat_name = "_test"
+    chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
+    chat_path.unlink(missing_ok=True)
+
+    # Flag '--code' doesn't use markdown
+    args = {"prompt": "my number is 2", "--chat": chat_name, "--code": True}
+    result = runner.invoke(app, cmd_args(**args))
+    assert result.exit_code == 0
+    assert chat_path.exists()
+
+    result = runner.invoke(app, ["--show-chat", chat_name])
+    assert result.exit_code == 0
+    console_print.assert_not_called()
+
+
 @patch("litellm.completion")
 def test_default_chat(completion):
     completion.side_effect = [mock_comp("ok"), mock_comp("4")]
