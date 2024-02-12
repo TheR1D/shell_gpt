@@ -128,18 +128,20 @@ class ChatHandler(Handler):
 
     @classmethod
     def show_messages(cls, chat_id: str) -> None:
+        color = cfg.get("DEFAULT_COLOR")
         if "APPLY MARKDOWN" in cls.initial_message(chat_id):
+            theme = cfg.get("CODE_THEME")
             for message in cls.chat_session.get_messages(chat_id):
                 if message.startswith("assistant:"):
-                    Console().print(Markdown(message))
+                    Console().print(Markdown(message, code_theme=theme))
                 else:
-                    typer.secho(message, fg=cfg.get("DEFAULT_COLOR"))
+                    typer.secho(message, fg=color)
                 typer.echo()
             return
 
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
-            color = "magenta" if index % 2 == 0 else "green"
-            typer.secho(message, fg=color)
+            running_color = color if index % 2 == 0 else "green"
+            typer.secho(message, fg=running_color)
 
     @classmethod
     @option_callback
