@@ -22,6 +22,21 @@ def test_shell(completion):
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
+@patch("sgpt.printer.TextPrinter.live_print")
+@patch("sgpt.printer.MarkdownPrinter.live_print")
+@patch("litellm.completion")
+def test_shell_no_markdown(completion, markdown_printer, text_printer):
+    completion.return_value = mock_comp("git commit -m test")
+
+    args = {"prompt": "make a commit using git", "--shell": True, "--md": True}
+    result = runner.invoke(app, cmd_args(**args))
+
+    assert result.exit_code == 0
+    # Should ignore --md for --shell option and output text without markdown.
+    markdown_printer.assert_not_called()
+    text_printer.assert_called()
+
+
 @patch("litellm.completion")
 def test_shell_stdin(completion):
     completion.return_value = mock_comp("ls -l | sort")

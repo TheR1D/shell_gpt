@@ -10,15 +10,30 @@ role = SystemRole.get(DefaultRoles.CODE.value)
 
 
 @patch("litellm.completion")
-def test_code_generation(mock):
-    mock.return_value = mock_comp("print('Hello World')")
+def test_code_generation(completion):
+    completion.return_value = mock_comp("print('Hello World')")
 
     args = {"prompt": "hello world python", "--code": True}
     result = runner.invoke(app, cmd_args(**args))
 
-    mock.assert_called_once_with(**comp_args(role, args["prompt"]))
+    completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
     assert "print('Hello World')" in result.stdout
+
+
+@patch("sgpt.printer.TextPrinter.live_print")
+@patch("sgpt.printer.MarkdownPrinter.live_print")
+@patch("litellm.completion")
+def test_code_generation_no_markdown(completion, markdown_printer, text_printer):
+    completion.return_value = mock_comp("print('Hello World')")
+
+    args = {"prompt": "make a commit using git", "--code": True, "--md": True}
+    result = runner.invoke(app, cmd_args(**args))
+
+    assert result.exit_code == 0
+    # Should ignore --md for --code option and output code without markdown.
+    markdown_printer.assert_not_called()
+    text_printer.assert_called()
 
 
 @patch("litellm.completion")

@@ -45,6 +45,10 @@ def main(
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
+    md: bool = typer.Option(
+        cfg.get("PRETTIFY_MARKDOWN") == "true",
+        help="Prettify markdown output.",
+    ),
     shell: bool = typer.Option(
         False,
         "--shell",
@@ -203,7 +207,7 @@ def main(
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
-        ReplHandler(repl, role_class).handle(
+        ReplHandler(repl, role_class, md).handle(
             init_prompt=prompt,
             model=model,
             temperature=temperature,
@@ -213,7 +217,7 @@ def main(
         )
 
     if chat:
-        full_completion = ChatHandler(chat, role_class).handle(
+        full_completion = ChatHandler(chat, role_class, md).handle(
             prompt=prompt,
             model=model,
             temperature=temperature,
@@ -222,7 +226,7 @@ def main(
             functions=function_schemas,
         )
     else:
-        full_completion = DefaultHandler(role_class).handle(
+        full_completion = DefaultHandler(role_class, md).handle(
             prompt=prompt,
             model=model,
             temperature=temperature,
@@ -243,7 +247,7 @@ def main(
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
         elif option == "d":
-            DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role()).handle(
+            DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
                 full_completion,
                 model=model,
                 temperature=temperature,
