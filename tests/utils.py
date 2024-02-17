@@ -41,5 +41,7 @@ def comp_args(role, prompt, **kwargs):
         "functions": None,
         "stream": True,
         "api_key": ANY,
+        "base_url": ANY,
+        "timeout": ANY,
         **kwargs,
     }

@@ -382,8 +382,8 @@ You can setup some parameters in runtime configuration file `~/.config/shell_gpt
 ```text
 # API key, also it is possible to define OPENAI_API_KEY env.
 OPENAI_API_KEY=your_api_key
-# OpenAI host, useful if you would like to use proxy.
-OPENAI_API_HOST=https://api.openai.com
+# Base URL of the backend server. If "default" URL will be resolved based on --model.
+API_BASE_URL=default
 # Max amount of cached message per chat session.
 CHAT_CACHE_LENGTH=100
 # Chat cache folder.
