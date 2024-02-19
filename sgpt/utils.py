@@ -2,7 +2,7 @@ import os
 import platform
 import shlex
 from tempfile import NamedTemporaryFile
-from typing import Any, Callable
+from typing import Any, Callable, List, Tuple
 
 import typer
 from click import BadParameter, UsageError
@@ -52,6 +52,54 @@ def run_command(command: str) -> None:
 
     os.system(full_command)
 
+def list_scripts_with_content(directory: str) -> List[Tuple[str, str]]:
+    """
+    List all Python scripts in the given directory with their content.
+
+    :param directory: The directory to search for Python scripts.
+    :return: A list of tuples containing the script name and its content.
+    """
+    script_extensions = (
+         ".py",  # Python
+         ".js",  # JavaScript
+         ".java",  # Java
+         ".rb",  # Ruby
+         ".php",  # PHP
+         ".cpp", ".cc", ".cxx", ".c++", ".c",  # C++
+         ".cs",  # C#
+         ".go",  # Go
+         ".rs",  # Rust
+         ".swift",  # Swift
+         ".ts",  # TypeScript
+         ".sh",  # Shell script
+         # Add other extensions as needed
+     )
+    scripts = []
+    for filename in os.listdir(directory):
+        if filename.endswith(script_extensions):
+            filepath = os.path.join(directory, filename)
+            with open(filepath, 'r') as file:
+                content = file.read()
+            scripts.append((filename, content))
+    return scripts
+
+def modify_or_create_scripts(llm_output: str, directory: str) -> None:
+    """
+    Modify or create Python scripts based on the LLM output.
+
+    :param llm_output: The output from the language model, which includes instructions
+                       for modifying or creating scripts.
+    :param directory: The directory where the scripts are to be modified or created.
+    """
+    # Apply the modifications or create new scripts
+    for script in script_modifications:
+        filename = script['filename']
+        content = script['content']
+        filepath = os.path.join(directory, filename)
+
+        # Write the new content to the file, creating it if it does not exist
+        with open(filepath, 'w') as file:
+            file.write(content)
 
 def option_callback(func: Callable) -> Callable:  # type: ignore
     def wrapper(cls: Any, value: str) -> None:
