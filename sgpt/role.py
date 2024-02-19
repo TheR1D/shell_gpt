@@ -34,6 +34,17 @@ If there is a lack of details, provide most logical solution.
 You are not allowed to ask for more details.
 For example if the prompt is "Hello world Python", you should return "print('Hello world')"."""
 
+
+MULTISCRIPT_CODE_ROLE = """You are a Multi-Script Code Generator.
+You are provided with a prompt and a list of existing scripts with their content.
+Your task is to generate output that lists the modified or newly created scripts along with their full content.
+The output should be in a format that can be parsed to apply the changes to the scripts.
+Provide only code in plain text format without Markdown formatting.
+Do not include symbols such as ``` or ```python.
+If there is a lack of details, provide the most logical solution.
+You are not allowed to ask for more details.
+For example, if the prompt is "Add a new function to all scripts that prints 'Hello, World'", you should return a list of scripts with the new function added to their content."""
+
 DEFAULT_ROLE = """You are programming and system administration assistant.
 You are managing {os} operating system with {shell} shell.
 Provide short responses in about 100 words, unless you are specifically asked for more details.
@@ -45,6 +56,7 @@ ROLE_TEMPLATE = "You are {name}\n{role}"
 
 
 class SystemRole:
+    
     storage: Path = Path(cfg.get("ROLE_STORAGE_PATH"))
 
     def __init__(
@@ -68,6 +80,7 @@ class SystemRole:
             SystemRole("Shell Command Generator", SHELL_ROLE, variables),
             SystemRole("Shell Command Descriptor", DESCRIBE_SHELL_ROLE, variables),
             SystemRole("Code Generator", CODE_ROLE),
+            SystemRole("Multi-script Code Generator", MULTISCRIPT_CODE_ROLE),
         ):
             if not default_role._exists:
                 default_role._save()
@@ -167,15 +180,18 @@ class DefaultRoles(Enum):
     SHELL = "Shell Command Generator"
     DESCRIBE_SHELL = "Shell Command Descriptor"
     CODE = "Code Generator"
+    MULTISCRIPT_CODE = "Multi-script Code Generator"
 
     @classmethod
-    def check_get(cls, shell: bool, describe_shell: bool, code: bool) -> SystemRole:
+    def check_get(cls, shell: bool, describe_shell: bool, code: bool, multiscript_code: bool) -> SystemRole:
         if shell:
             return SystemRole.get(DefaultRoles.SHELL.value)
         if describe_shell:
             return SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
         if code:
             return SystemRole.get(DefaultRoles.CODE.value)
+        if multiscript_code:
+            return SystemRole.get(DefaultRoles.MULTISCRIPT_CODE.value)
         return SystemRole.get(DefaultRoles.DEFAULT.value)
 
     def get_role(self) -> SystemRole:
