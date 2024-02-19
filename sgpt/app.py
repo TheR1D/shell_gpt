@@ -13,6 +13,7 @@ from sgpt.function import get_openai_schemas
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
+from sgpt.handlers.multiscript_handler import MultiscriptHandler
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
@@ -69,6 +70,13 @@ def main(
         "--code",
         "-c",
         help="Generate only code.",
+        rich_help_panel="Assistance Options",
+    ),
+    multiscript_code: bool = typer.Option(
+        False,
+        "--multiscript-code",
+        "-mc",
+        help="Modify or create multiple scripts in the current directory.",
         rich_help_panel="Assistance Options",
     ),
     functions: bool = typer.Option(
@@ -179,7 +187,7 @@ def main(
             # Non-interactive shell.
             pass
 
-    if sum((shell, describe_shell, code)) > 1:
+    if sum((shell, describe_shell, code,multiscript_code)) > 1:
         raise BadArgumentUsage(
             "Only one of --shell, --describe-shell, and --code options can be used at a time."
         )
@@ -194,7 +202,7 @@ def main(
         prompt = get_edited_prompt()
 
     role_class = (
-        DefaultRoles.check_get(shell, describe_shell, code)
+        DefaultRoles.check_get(shell, describe_shell, code, multiscript_code)
         if not role
         else SystemRole.get(role)
     )
@@ -221,6 +229,16 @@ def main(
             caching=cache,
             functions=function_schemas,
         )
+    if multiscript_code:
+        MultiscriptHandler.handle(
+            prompt=prompt,
+            model=model,
+            temperature=temperature,
+            top_p=top_p,
+            caching=cache,
+            functions=function_schemas,
+        )
+
     else:
         full_completion = DefaultHandler(role_class).handle(
             prompt=prompt,
