@@ -1,3 +1,4 @@
+import json
 import os
 import platform
 import shlex
@@ -88,6 +89,11 @@ def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> 
     lines = completion.split('\n')
     current_file = None
     current_content = []
+    import pdb
+
+    modifications = json.loads(completion)
+    return modifications
+    '''
     for line in lines:
         if line.startswith('File: '):
             if current_file is not None:
@@ -99,7 +105,7 @@ def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> 
     if current_file is not None:
         modifications.append((current_file, '\n'.join(current_content)))
     return modifications
-
+    '''
 
 def modify_or_create_scripts(modifications: List, directory: str) -> None:
     """
@@ -110,9 +116,7 @@ def modify_or_create_scripts(modifications: List, directory: str) -> None:
     :param directory: The directory where the scripts are to be modified or created.
     """
     # Apply the modifications or create new scripts
-    for script in modifications:
-        filename = script[0]
-        content = script[1]
+    for filename,content in modifications.items():
         filepath = os.path.join(directory, filename)
 
         # Write the new content to the file, creating it if it does not exist
