@@ -19,10 +19,6 @@ class Handler:
     def __init__(self, role: SystemRole) -> None:
         self.role = role
 
-        api_base_url = cfg.get("API_BASE_URL")
-        self.base_url = None if api_base_url == "default" else api_base_url
-        self.timeout = int(cfg.get("REQUEST_TIMEOUT"))
-
     @property
     def printer(self) -> Printer:
         use_markdown = "APPLY MARKDOWN" in self.role.role
@@ -70,6 +66,7 @@ class Handler:
         name = arguments = ""
         is_shell_role = self.role.name == DefaultRoles.SHELL.value
         is_code_role = self.role.name == DefaultRoles.CODE.value
+        is_multiscript_code_role = self.role.name == DefaultRoles.MULTISCRIPT_CODE.value
         is_dsc_shell_role = self.role.name == DefaultRoles.DESCRIBE_SHELL.value
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
@@ -82,8 +79,6 @@ class Handler:
             functions=functions,
             stream=True,
             api_key=cfg.get("OPENAI_API_KEY"),
-            base_url=self.base_url,
-            timeout=self.timeout,
         ):
             delta = chunk.choices[0].delta
             function_call = delta.get("function_call")

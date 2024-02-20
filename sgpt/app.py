@@ -13,7 +13,7 @@ from sgpt.function import get_openai_schemas
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
-from sgpt.handlers.multiscript_handler import MultiscriptHandler
+from sgpt.handlers.multiscript_handler import MultiScriptHandler
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
@@ -79,6 +79,12 @@ def main(
         help="Modify or create multiple scripts in the current directory.",
         rich_help_panel="Assistance Options",
     ),
+    
+    project_path: str = typer.Option(
+        os.getcwd(),
+        help="path in which to run multiscript edition"
+    ),
+    
     functions: bool = typer.Option(
         cfg.get("OPENAI_USE_FUNCTIONS") == "true",
         help="Allow function calls.",
@@ -208,7 +214,6 @@ def main(
     )
 
     function_schemas = (get_openai_schemas() or None) if functions else None
-
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
         ReplHandler(repl, role_class).handle(
@@ -230,8 +235,9 @@ def main(
             functions=function_schemas,
         )
     if multiscript_code:
-        MultiscriptHandler.handle(
+        MultiScriptHandler(role_class).handle(
             prompt=prompt,
+            project_path = project_path,
             model=model,
             temperature=temperature,
             top_p=top_p,
