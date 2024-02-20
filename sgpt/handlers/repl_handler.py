@@ -11,8 +11,8 @@ from .default_handler import DefaultHandler
 
 
 class ReplHandler(ChatHandler):
-    def __init__(self, chat_id: str, role: SystemRole) -> None:
-        super().__init__(chat_id, role)
+    def __init__(self, chat_id: str, role: SystemRole, markdown: bool) -> None:
+        super().__init__(chat_id, role, markdown)
 
     @classmethod
     def _get_multiline_input(cls) -> str:
@@ -59,8 +59,8 @@ class ReplHandler(ChatHandler):
                 typer.echo()
                 rich_print(Rule(style="bold magenta"))
             elif self.role.name == DefaultRoles.SHELL.value and prompt == "d":
-                DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role()).handle(
-                    prompt=full_completion, **kwargs
-                )
+                DefaultHandler(
+                    DefaultRoles.DESCRIBE_SHELL.get_role(), self.markdown
+                ).handle(prompt=full_completion, **kwargs)
             else:
                 full_completion = super().handle(prompt=prompt, **kwargs)

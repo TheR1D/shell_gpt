@@ -223,3 +223,29 @@ def test_version(completion):
 
     completion.assert_not_called()
     assert __version__ in result.stdout
+
+
+@patch("sgpt.printer.TextPrinter.live_print")
+@patch("sgpt.printer.MarkdownPrinter.live_print")
+@patch("litellm.completion")
+def test_markdown(completion, markdown_printer, text_printer):
+    completion.return_value = mock_comp("pong")
+
+    args = {"prompt": "ping", "--md": True}
+    result = runner.invoke(app, cmd_args(**args))
+    assert result.exit_code == 0
+    markdown_printer.assert_called()
+    text_printer.assert_not_called()
+
+
+@patch("sgpt.printer.TextPrinter.live_print")
+@patch("sgpt.printer.MarkdownPrinter.live_print")
+@patch("litellm.completion")
+def test_no_markdown(completion, markdown_printer, text_printer):
+    completion.return_value = mock_comp("pong")
+
+    args = {"prompt": "ping", "--no-md": True}
+    result = runner.invoke(app, cmd_args(**args))
+    assert result.exit_code == 0
+    markdown_printer.assert_not_called()
+    text_printer.assert_called()

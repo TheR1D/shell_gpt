@@ -16,18 +16,23 @@ litellm.suppress_debug_info = True
 class Handler:
     cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
-    def __init__(self, role: SystemRole) -> None:
+    def __init__(self, role: SystemRole, markdown: bool) -> None:
         self.role = role
 
         api_base_url = cfg.get("API_BASE_URL")
         self.base_url = None if api_base_url == "default" else api_base_url
         self.timeout = int(cfg.get("REQUEST_TIMEOUT"))
 
+        self.markdown = "APPLY MARKDOWN" in self.role.role and markdown
+        self.code_theme, self.color = cfg.get("CODE_THEME"), cfg.get("DEFAULT_COLOR")
+
     @property
     def printer(self) -> Printer:
-        use_markdown = "APPLY MARKDOWN" in self.role.role
-        code_theme, color = cfg.get("CODE_THEME"), cfg.get("DEFAULT_COLOR")
-        return MarkdownPrinter(code_theme) if use_markdown else TextPrinter(color)
+        return (
+            MarkdownPrinter(self.code_theme)
+            if self.markdown
+            else TextPrinter(self.color)
+        )
 
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
         raise NotImplementedError
