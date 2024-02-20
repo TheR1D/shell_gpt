@@ -110,8 +110,6 @@ def modify_or_create_scripts(modifications: List, directory: str) -> None:
     :param directory: The directory where the scripts are to be modified or created.
     """
     # Apply the modifications or create new scripts
-    import pdb
-    pdb.set_trace()
     for script in modifications:
         filename = script[0]
         content = script[1]
