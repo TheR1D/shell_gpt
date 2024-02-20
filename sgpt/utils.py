@@ -83,7 +83,25 @@ def list_scripts_with_content(directory: str) -> List[Tuple[str, str]]:
             scripts.append((filename, content))
     return scripts
 
-def modify_or_create_scripts(llm_output: str, directory: str) -> None:
+def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    modifications = []
+    lines = completion.split('\n')
+    current_file = None
+    current_content = []
+    for line in lines:
+        if line.startswith('File: '):
+            if current_file is not None:
+                modifications.append((current_file, '\n'.join(current_content)))
+                current_content = []
+            current_file = line[len('File: '):].strip()
+        else:
+            current_content.append(line)
+    if current_file is not None:
+        modifications.append((current_file, '\n'.join(current_content)))
+    return modifications
+
+
+def modify_or_create_scripts(modifications: List, directory: str) -> None:
     """
     Modify or create Python scripts based on the LLM output.
 
@@ -92,9 +110,11 @@ def modify_or_create_scripts(llm_output: str, directory: str) -> None:
     :param directory: The directory where the scripts are to be modified or created.
     """
     # Apply the modifications or create new scripts
-    for script in script_modifications:
-        filename = script['filename']
-        content = script['content']
+    import pdb
+    pdb.set_trace()
+    for script in modifications:
+        filename = script[0]
+        content = script[1]
         filepath = os.path.join(directory, filename)
 
         # Write the new content to the file, creating it if it does not exist
