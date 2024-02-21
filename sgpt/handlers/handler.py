@@ -1,8 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
-
-import litellm  # type: ignore
+from typing import Any, Callable, Dict, Generator, List, Optional
 
 from ..cache import Cache
 from ..config import cfg
@@ -10,7 +8,26 @@ from ..function import get_function
 from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
 
-litellm.suppress_debug_info = True
+completion: Callable[..., Any] = lambda *args, **kwargs: None
+base_url = cfg.get("API_BASE_URL")
+use_litellm = cfg.get("USE_LITELLM") == "true"
+additional_kwargs = {
+    "timeout": int(cfg.get("REQUEST_TIMEOUT")),
+    "api_key": cfg.get("OPENAI_API_KEY"),
+    "base_url": None if base_url == "default" else base_url,
+}
+
+if use_litellm:
+    import litellm  # type: ignore
+
+    completion = litellm.completion
+    litellm.suppress_debug_info = True
+else:
+    from openai import OpenAI
+
+    client = OpenAI(**additional_kwargs)  # type: ignore
+    completion = client.chat.completions.create
+    additional_kwargs = {}
 
 
 class Handler:
@@ -79,19 +96,20 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
-        for chunk in litellm.completion(
+        for chunk in completion(
             model=model,
             temperature=temperature,
             top_p=top_p,
             messages=messages,
             functions=functions,
             stream=True,
-            api_key=cfg.get("OPENAI_API_KEY"),
-            base_url=self.base_url,
-            timeout=self.timeout,
+            **additional_kwargs,
         ):
             delta = chunk.choices[0].delta
-            function_call = delta.get("function_call")
+            # LiteLLM uses dict instead of Pydantic object like OpenAI does.
+            function_call = (
+                delta.get("function_call") if use_litellm else delta.function_call
+            )
             if function_call:
                 if function_call.name:
                     name = function_call.name
@@ -104,7 +122,7 @@ class Handler:
                 )
                 return
 
-            yield delta.get("content") or ""
+            yield delta.content or ""
 
     def handle(
         self,

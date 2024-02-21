@@ -410,6 +410,8 @@ OPENAI_FUNCTIONS_PATH=/Users/user/.config/shell_gpt/functions
 SHOW_FUNCTIONS_OUTPUT=false
 # Allows LLM to use functions.
 OPENAI_USE_FUNCTIONS=true
+# Enforce LiteLLM usage (for local LLMs).
+USE_LITELLM=false
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
@@ -423,6 +425,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 │ --model            TEXT                       Large language model to use. [default: gpt-4-1106-preview] │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
 │ --top-p            FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
+│ --md             --no-md                      Prettify markdown output. [default: md]                    │
 │ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]     │
 │ --cache                                       Cache completion results. [default: cache]                 │
 │ --version                                     Show version.                                              │
