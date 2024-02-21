@@ -32,7 +32,7 @@ class ReplHandler(ChatHandler):
             if not self.role.name == DefaultRoles.SHELL.value
             else (
                 "Entering shell REPL mode, type [e] to execute commands "
-                "or [d] to describe the commands, press Ctrl+C to exit."
+                "[d] to describe the commands or [q] to quit."
             )
         )
         typer.secho(info_message, fg="yellow")
@@ -48,7 +48,7 @@ class ReplHandler(ChatHandler):
             prompt = typer.prompt(">>>", prompt_suffix=" ")
             if prompt == '"""':
                 prompt = self._get_multiline_input()
-            if prompt == "exit()":
+            if prompt == "exit()" or prompt == "q":
                 raise typer.Exit()
             if init_prompt:
                 prompt = f"{init_prompt}\n\n\n{prompt}"
