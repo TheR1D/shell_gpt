@@ -85,27 +85,19 @@ def list_scripts_with_content(directory: str) -> List[Tuple[str, str]]:
     return scripts
 
 def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
-    modifications = []
-    lines = completion.split('\n')
-    current_file = None
-    current_content = []
     import pdb
+    pdb.set_trace()
+    files_dict = {}
+    files = completion.split('FILE:')
 
-    modifications = json.loads(completion)
-    return modifications
-    '''
-    for line in lines:
-        if line.startswith('File: '):
-            if current_file is not None:
-                modifications.append((current_file, '\n'.join(current_content)))
-                current_content = []
-            current_file = line[len('File: '):].strip()
-        else:
-            current_content.append(line)
-    if current_file is not None:
-        modifications.append((current_file, '\n'.join(current_content)))
-    return modifications
-    '''
+    for f in files:
+       
+        file_name=f.split('\n')[0].strip()
+        if len(file_name)<4: continue
+        file_content ='\n'.join(f.split('\n')[1:]).strip()
+        files_dict[file_name]=file_content
+
+    return files_dict
 
 def modify_or_create_scripts(modifications: List, directory: str) -> None:
     """

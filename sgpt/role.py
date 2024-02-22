@@ -35,10 +35,17 @@ You are not allowed to ask for more details.
 For example if the prompt is "Hello world Python", you should return "print('Hello world')"."""
 
 
-MULTISCRIPT_CODE_ROLE = """You are a Multi-Script Code Generator.
+MULTISCRIPT_CODE_ROLE = """
 You are provided with a prompt and a list of existing scripts with their content.
 Your task is to generate output that lists the modified or newly created scripts along with their full content.
-The output should be in dictionary format, where each file path is a key and its content is the corresponding value ias a string.
+The output should be in the following format:
+FILE:\tfilename1.py
+#content of the first file
+import ..
+...
+FILE:\tfilename2.py
+# content of the second file
+...
 Provide only code in plain text format without Markdown formatting.
 Do not include symbols such as ``` or ```python.
 If there is a lack of details, provide the most logical solution.

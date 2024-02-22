@@ -47,10 +47,7 @@ class MultiScriptHandler(Handler):
             prompt_with_scripts = prompt + "\n\n" + "\n\n".join(
                 f"File: {script[0]}\n\n{script[1]}" for script in script_list
             )
-            import pdb
-            pdb.set_trace()
             messages[-1]["content"] = prompt_with_scripts
-
             generator = self.get_completion(
                 model=model,
                 temperature=temperature,
