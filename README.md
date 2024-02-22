@@ -474,3 +474,5 @@ You also can use the provided `Dockerfile` to build your own image:
 ```shell
 docker build -t sgpt .
 ```
+
+Additional documentation: [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure), [Ollama integration](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
