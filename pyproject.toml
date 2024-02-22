@@ -28,7 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "litellm == 1.24.5",
+    "openai >= 1.6.1, < 2.0.0",
     "typer >= 0.7.0, < 1.0.0",
     "click >= 7.1.1, < 9.0.0",
     "rich >= 13.1.0, < 14.0.0",
@@ -38,6 +38,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+litellm = [
+    "litellm == 1.24.5"
+]
 test = [
     "pytest >= 7.2.2, < 8.0.0",
     "requests-mock[fixture] >= 1.10.0, < 2.0.0",
@@ -95,6 +98,7 @@ ignore = [
     "E501",  # line too long, handled by black.
     "C901",  # too complex.
     "B008",  # do not perform function calls in argument defaults.
+    "E731",  # do not assign a lambda expression, use a def.
 ]
 
 [tool.codespell]

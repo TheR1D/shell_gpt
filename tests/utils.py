@@ -1,7 +1,9 @@
-from unittest.mock import ANY
+from datetime import datetime
 
 import typer
-from litellm import completion as completion
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
+from openai.types.chat.chat_completion_chunk import Choice as StreamChoice
+from openai.types.chat.chat_completion_chunk import ChoiceDelta
 from typer.testing import CliRunner
 
 from sgpt import main
@@ -13,8 +15,22 @@ app.command()(main)
 
 
 def mock_comp(tokens_string):
-    model = cfg.get("DEFAULT_MODEL")
-    return completion(model=model, mock_response=tokens_string, stream=True)
+    return [
+        ChatCompletionChunk(
+            id="foo",
+            model=cfg.get("DEFAULT_MODEL"),
+            object="chat.completion.chunk",
+            choices=[
+                StreamChoice(
+                    index=0,
+                    finish_reason=None,
+                    delta=ChoiceDelta(content=token, role="assistant"),
+                ),
+            ],
+            created=int(datetime.now().timestamp()),
+        )
+        for token in tokens_string
+    ]
 
 
 def cmd_args(prompt="", **kwargs):
@@ -40,8 +56,5 @@ def comp_args(role, prompt, **kwargs):
         "top_p": 1.0,
         "functions": None,
         "stream": True,
-        "api_key": ANY,
-        "base_url": ANY,
-        "timeout": ANY,
         **kwargs,
     }
