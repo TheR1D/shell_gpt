@@ -8,7 +8,7 @@ from sgpt.role import DefaultRoles, SystemRole
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_shell(completion):
     role = SystemRole.get(DefaultRoles.SHELL.value)
     completion.return_value = mock_comp("git commit -m test")
@@ -22,7 +22,22 @@ def test_shell(completion):
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
-@patch("litellm.completion")
+@patch("sgpt.printer.TextPrinter.live_print")
+@patch("sgpt.printer.MarkdownPrinter.live_print")
+@patch("sgpt.handlers.handler.completion")
+def test_shell_no_markdown(completion, markdown_printer, text_printer):
+    completion.return_value = mock_comp("git commit -m test")
+
+    args = {"prompt": "make a commit using git", "--shell": True, "--md": True}
+    result = runner.invoke(app, cmd_args(**args))
+
+    assert result.exit_code == 0
+    # Should ignore --md for --shell option and output text without markdown.
+    markdown_printer.assert_not_called()
+    text_printer.assert_called()
+
+
+@patch("sgpt.handlers.handler.completion")
 def test_shell_stdin(completion):
     completion.return_value = mock_comp("ls -l | sort")
     role = SystemRole.get(DefaultRoles.SHELL.value)
@@ -38,7 +53,7 @@ def test_shell_stdin(completion):
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
 
 
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_describe_shell(completion):
     completion.return_value = mock_comp("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
@@ -51,7 +66,7 @@ def test_describe_shell(completion):
     assert "lists" in result.stdout
 
 
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_describe_shell_stdin(completion):
     completion.return_value = mock_comp("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
@@ -67,7 +82,7 @@ def test_describe_shell_stdin(completion):
 
 
 @patch("os.system")
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_shell_run_description(completion, system):
     completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
@@ -80,7 +95,7 @@ def test_shell_run_description(completion, system):
     assert "prints hello" in result.stdout
 
 
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_shell_chat(completion):
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
@@ -119,7 +134,7 @@ def test_shell_chat(completion):
 
 
 @patch("os.system")
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_shell_repl(completion, mock_system):
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
@@ -151,7 +166,7 @@ def test_shell_repl(completion, mock_system):
     assert "ls | sort" in result.stdout
 
 
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_shell_and_describe_shell(completion):
     args = {"prompt": "ls", "--describe-shell": True, "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -161,7 +176,7 @@ def test_shell_and_describe_shell(completion):
     assert "Error" in result.stdout
 
 
-@patch("litellm.completion")
+@patch("sgpt.handlers.handler.completion")
 def test_shell_no_interaction(completion):
     completion.return_value = mock_comp("git commit -m test")
     role = SystemRole.get(DefaultRoles.SHELL.value)

@@ -10,8 +10,8 @@ CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
 
 
 class DefaultHandler(Handler):
-    def __init__(self, role: SystemRole) -> None:
-        super().__init__(role)
+    def __init__(self, role: SystemRole, markdown: bool) -> None:
+        super().__init__(role, markdown)
         self.role = role
 
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:

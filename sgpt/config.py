@@ -32,6 +32,8 @@ DEFAULT_CONFIG = {
     "OPENAI_USE_FUNCTIONS": os.getenv("OPENAI_USE_FUNCTIONS", "true"),
     "SHOW_FUNCTIONS_OUTPUT": os.getenv("SHOW_FUNCTIONS_OUTPUT", "false"),
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
+    "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
+    "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
     # New features might add their own config variables here.
 }
 

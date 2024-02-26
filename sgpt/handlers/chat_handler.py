@@ -94,8 +94,8 @@ class ChatSession:
 class ChatHandler(Handler):
     chat_session = ChatSession(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
-    def __init__(self, chat_id: str, role: SystemRole) -> None:
-        super().__init__(role)
+    def __init__(self, chat_id: str, role: SystemRole, markdown: bool) -> None:
+        super().__init__(role, markdown)
         self.chat_id = chat_id
         self.role = role
 
