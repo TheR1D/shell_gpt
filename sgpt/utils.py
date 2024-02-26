@@ -85,8 +85,6 @@ def list_scripts_with_content(directory: str) -> List[Tuple[str, str]]:
     return scripts
 
 def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
-    import pdb
-    pdb.set_trace()
     files_dict = {}
     files = completion.split('FILE:')
 
