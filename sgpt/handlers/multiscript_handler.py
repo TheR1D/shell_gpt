@@ -31,14 +31,14 @@ class MultiScriptHandler(Handler):
     
     def handle(self,
             prompt: str,
-            project_path: str,
             model: str,
             temperature: float,
             top_p: float,
             caching: bool,
             functions: Optional[List[Dict[str, str]]] = None,
             **kwargs: Any,
-        ) -> None:
+        ) -> str:
+            project_path = kwargs.get('project_path', '')
             disable_stream = cfg.get("DISABLE_STREAMING") == "true"
             messages = self.make_messages(prompt.strip())
 
@@ -54,12 +54,13 @@ class MultiScriptHandler(Handler):
                 top_p=top_p,
                 messages=messages,
                 functions=functions,
-                caching=caching,
-                **kwargs,
+                caching=caching
             )
             completion = "".join(generator)
             modifications = parse_modifications(completion, script_list)
 
             # Apply the modifications to the scripts
             modify_or_create_scripts(modifications=modifications,directory=project_path)
-
+            
+            modified_scripts_message = "Scripts modified: "+"\n".join(list(modifications.keys())) 
+            return modified_scripts_message

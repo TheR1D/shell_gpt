@@ -239,14 +239,14 @@ def main(
             functions=function_schemas,
         )
     if multiscript_code:
-        MultiScriptHandler(role_class).handle(
+        full_completion = MultiScriptHandler(role_class).handle(
             prompt=prompt,
-            project_path = project_path,
             model=model,
             temperature=temperature,
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
+            project_path = project_path,
         )
 
     else:

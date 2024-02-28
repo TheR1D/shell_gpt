@@ -3,7 +3,7 @@ import os
 import platform
 import shlex
 from tempfile import NamedTemporaryFile
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, List, Dict, Tuple
 
 import typer
 from click import BadParameter, UsageError
@@ -84,7 +84,7 @@ def list_scripts_with_content(directory: str) -> List[Tuple[str, str]]:
             scripts.append((filename, content))
     return scripts
 
-def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> Dict[str,str]:
     files_dict = {}
     files = completion.split('FILE:')
 
@@ -97,7 +97,7 @@ def parse_modifications(completion: str, script_list: List[Tuple[str, str]]) -> 
 
     return files_dict
 
-def modify_or_create_scripts(modifications: List, directory: str) -> None:
+def modify_or_create_scripts(modifications: Dict[str,str], directory: str) -> None:
     """
     Modify or create Python scripts based on the LLM output.
 
