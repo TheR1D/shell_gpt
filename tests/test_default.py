@@ -70,7 +70,7 @@ def test_show_chat_no_use_markdown(completion, console_print):
     assert result.exit_code == 0
     assert chat_path.exists()
 
-    result = runner.invoke(app, ["--show-chat", chat_name])
+    result = runner.invoke(app, ["--show-chat", chat_name, "--no-md"])
     assert result.exit_code == 0
     console_print.assert_not_called()
 
