@@ -96,7 +96,7 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
-        for chunk in completion(
+        response = completion(
             model=model,
             temperature=temperature,
             top_p=top_p,
@@ -104,25 +104,30 @@ class Handler:
             functions=functions,
             stream=True,
             **additional_kwargs,
-        ):
-            delta = chunk.choices[0].delta
-            # LiteLLM uses dict instead of Pydantic object like OpenAI does.
-            function_call = (
-                delta.get("function_call") if use_litellm else delta.function_call
-            )
-            if function_call:
-                if function_call.name:
-                    name = function_call.name
-                if function_call.arguments:
-                    arguments += function_call.arguments
-            if chunk.choices[0].finish_reason == "function_call":
-                yield from self.handle_function_call(messages, name, arguments)
-                yield from self.get_completion(
-                    model, temperature, top_p, messages, functions, caching=False
-                )
-                return
+        )
 
-            yield delta.content or ""
+        try:
+            for chunk in response:
+                delta = chunk.choices[0].delta
+                # LiteLLM uses dict instead of Pydantic object like OpenAI does.
+                function_call = (
+                    delta.get("function_call") if use_litellm else delta.function_call
+                )
+                if function_call:
+                    if function_call.name:
+                        name = function_call.name
+                    if function_call.arguments:
+                        arguments += function_call.arguments
+                if chunk.choices[0].finish_reason == "function_call":
+                    yield from self.handle_function_call(messages, name, arguments)
+                    yield from self.get_completion(
+                        model, temperature, top_p, messages, functions, caching=False
+                    )
+                    return
+
+                yield delta.content or ""
+        except KeyboardInterrupt:
+            response.close()
 
     def handle(
         self,
