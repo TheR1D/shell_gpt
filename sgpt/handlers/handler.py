@@ -13,7 +13,6 @@ base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
 additional_kwargs = {
     "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("OPENAI_API_KEY"),
     "base_url": None if base_url == "default" else base_url,
 }
 
@@ -25,7 +24,7 @@ if use_litellm:
 else:
     from openai import OpenAI
 
-    client = OpenAI(**additional_kwargs)  # type: ignore
+    client = OpenAI(api_key=cfg.get("OPENAI_API_KEY"), **additional_kwargs)  # type: ignore
     completion = client.chat.completions.create
     additional_kwargs = {}
 
