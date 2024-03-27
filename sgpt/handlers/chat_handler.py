@@ -47,7 +47,7 @@ class ChatSession:
             if not kwargs.get("messages"):
                 return
             if not chat_id:
-                yield from func(*args, **kwargs, caching=False)
+                yield from func(*args, **kwargs)
                 return
             previous_messages = self._read(chat_id)
             for message in kwargs["messages"]:
