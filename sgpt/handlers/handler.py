@@ -121,7 +121,12 @@ class Handler:
                 if chunk.choices[0].finish_reason == "function_call":
                     yield from self.handle_function_call(messages, name, arguments)
                     yield from self.get_completion(
-                        model, temperature, top_p, messages, functions, caching=False
+                        model=model,
+                        temperature=temperature,
+                        top_p=top_p,
+                        messages=messages,
+                        functions=functions,
+                        caching=False,
                     )
                     return
 
