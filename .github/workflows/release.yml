@@ -24,8 +24,6 @@ jobs:
         pip install
         hatchling
         --user
-    - name: Get ShellGPT version
-      run: echo "SGPT_VERSION=$(python3 -m hatchling version)" >> $GITHUB_ENV
     - name: Build a binary wheel and a source tarball
       run: python3 -m hatchling build
     - name: Store the distribution packages
@@ -70,6 +68,10 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    - name: Get ShellGPT version
+      run: >-
+        echo "SGPT_VERSION=$(find dist -type f -name '*.tar.gz' | grep -oP '\d+.\d+.\d+')" >> $GITHUB_ENV
+        echo "Release version $SGPT_VERSION"
     - name: Sign the dists with Sigstore
       uses: sigstore/gh-action-sigstore-python@v1.2.3
       with:
