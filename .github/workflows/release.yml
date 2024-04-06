@@ -69,7 +69,7 @@ jobs:
         name: python-package-distributions
         path: dist/
     - name: Get ShellGPT version
-      run: >-
+      run: |
         echo "SGPT_VERSION=$(find dist -type f -name '*.tar.gz' | grep -oP '\d+.\d+.\d+')" >> $GITHUB_ENV
         echo "Release version $SGPT_VERSION"
     - name: Sign the dists with Sigstore
