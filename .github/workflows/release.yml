@@ -17,13 +17,15 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: '3.11'
     - name: Install pypa/build
       run: >-
         python3 -m
         pip install
         hatchling
         --user
+    - name: Get ShellGPT version
+      run: echo "SGPT_VERSION=$(python3 -m hatchling version)" >> $GITHUB_ENV
     - name: Build a binary wheel and a source tarball
       run: python3 -m hatchling build
     - name: Store the distribution packages
@@ -34,7 +36,6 @@ jobs:
 
   publish-to-pypi:
     name: Publish to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest
@@ -80,9 +81,9 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
       run: >-
         gh release create
-        '${{ github.ref_name }}'
+        "$SGPT_VERSION"
         --repo '${{ github.repository }}'
-        --notes ""
+        --notes "$SGPT_VERSION"
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -91,5 +92,5 @@ jobs:
       # sigstore-produced signatures and certificates.
       run: >-
         gh release upload
-        '${{ github.ref_name }}' dist/**
+        "$SGPT_VERSION" dist/**
         --repo '${{ github.repository }}'
