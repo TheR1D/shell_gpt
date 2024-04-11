@@ -57,7 +57,7 @@ def main(
         rich_help_panel="Assistance Options",
     ),
     interaction: bool = typer.Option(
-        True,
+        True if cfg.get("IN_CONTAINER") == "false" else False,
         help="Interactive mode for --shell option.",
         rich_help_panel="Assistance Options",
     ),
