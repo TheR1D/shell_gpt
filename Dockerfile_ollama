@@ -1,0 +1,20 @@
+FROM python:3-slim
+
+ENV DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
+ENV API_BASE_URL=http://127.0.0.1:11434
+ENV USE_LITELLM=true
+ENV OPENAI_API_KEY=bad_key
+ENV PRETTIFY_MARKDOWN=false
+
+ENV IN_CONTAINER=true
+ENV OS_OUTSIDE_CONTAINER="Linux/Red Hat Enterprise Linux 8.8 (Ootpa)"
+
+WORKDIR /app
+COPY . /app
+
+RUN apt-get update && apt-get install -y gcc
+RUN pip install --no-cache /app[litellm] && mkdir -p /tmp/shell_gpt
+
+VOLUME /tmp/shell_gpt
+
+ENTRYPOINT ["sgpt"]
