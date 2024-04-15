@@ -34,9 +34,9 @@ DEFAULT_CONFIG = {
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
-    "IN_CONTAINER": os.getenv("IN_CONTAINER", "false"),
-    "OS_OUTSIDE_CONTAINER": os.getenv("OS_OUTSIDE_CONTAINER", "Linux/Debian 12 (bookworm)"),
-    "SHELL_OUTSIDE_CONTAINER": os.getenv("SHELL_OUTSIDE_CONTAINER", "/bin/bash"),
+    "SHELL_INTERACTION ": os.getenv("SHELL_INTERACTION ", "true"),
+    "OVERWRITE_OS_NAME": os.getenv("OVERWRITE_OS_NAME", ""),
+    "OVERWRITE_SHELL_NAME ": os.getenv("OVERWRITE_SHELL_NAME", ""),
     # New features might add their own config variables here.
 }
 

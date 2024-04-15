@@ -62,10 +62,7 @@ class SystemRole:
     @classmethod
     def create_defaults(cls) -> None:
         cls.storage.parent.mkdir(parents=True, exist_ok=True)
-        if cfg.get("IN_CONTAINER") != "true":
-            variables = {"shell": cls._shell_name(), "os": cls._os_name()}
-        else:  # running in container
-            variables = {"shell": cfg.get("SHELL_OUTSIDE_CONTAINER"), "os": cfg.get("OS_OUTSIDE_CONTAINER")}
+        variables = {"shell": cls._shell_name(), "os": cls._os_name()}
         for default_role in (
             SystemRole("ShellGPT", DEFAULT_ROLE, variables),
             SystemRole("Shell Command Generator", SHELL_ROLE, variables),
@@ -116,22 +113,28 @@ class SystemRole:
 
     @classmethod
     def _os_name(cls) -> str:
-        current_platform = platform.system()
-        if current_platform == "Linux":
-            return "Linux/" + distro_name(pretty=True)
-        if current_platform == "Windows":
-            return "Windows " + platform.release()
-        if current_platform == "Darwin":
-            return "Darwin/MacOS " + platform.mac_ver()[0]
-        return current_platform
+        if cfg.get("OVERWRITE_OS_NAME") != "":
+            return cfg.get("OVERWRITE_OS_NAME")
+        else:
+            current_platform = platform.system()
+            if current_platform == "Linux":
+                return "Linux/" + distro_name(pretty=True)
+            if current_platform == "Windows":
+                return "Windows " + platform.release()
+            if current_platform == "Darwin":
+                return "Darwin/MacOS " + platform.mac_ver()[0]
+            return current_platform
 
     @classmethod
     def _shell_name(cls) -> str:
-        current_platform = platform.system()
-        if current_platform in ("Windows", "nt"):
-            is_powershell = len(getenv("PSModulePath", "").split(pathsep)) >= 3
-            return "powershell.exe" if is_powershell else "cmd.exe"
-        return basename(getenv("SHELL", "/bin/sh"))
+        if cfg.get("OVERWRITE_SHELL_NAME") != "":
+            return cfg.get("OVERWRITE_SHELL_NAME")
+        else:
+            current_platform = platform.system()
+            if current_platform in ("Windows", "nt"):
+                is_powershell = len(getenv("PSModulePath", "").split(pathsep)) >= 3
+                return "powershell.exe" if is_powershell else "cmd.exe"
+            return basename(getenv("SHELL", "/bin/sh"))
 
     @property
     def _exists(self) -> bool:
