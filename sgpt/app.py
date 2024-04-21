@@ -75,6 +75,13 @@ def main(
         help="Generate only code.",
         rich_help_panel="Assistance Options",
     ),
+    raw: bool = typer.Option(
+        False,
+        "-r",
+        "--raw",
+        help="Use the LLM as-is without a specific role or system message.",
+        rich_help_panel="Assistance Options",
+    ),
     functions: bool = typer.Option(
         cfg.get("OPENAI_USE_FUNCTIONS") == "true",
         help="Allow function calls.",
@@ -183,9 +190,9 @@ def main(
             # Non-interactive shell.
             pass
 
-    if sum((shell, describe_shell, code)) > 1:
+    if sum((shell, describe_shell, code, raw)) > 1:
         raise BadArgumentUsage(
-            "Only one of --shell, --describe-shell, and --code options can be used at a time."
+            "Only one of --shell, --describe-shell, --code and --raw options can be used at a time."
         )
 
     if chat and repl:
@@ -198,7 +205,7 @@ def main(
         prompt = get_edited_prompt()
 
     role_class = (
-        DefaultRoles.check_get(shell, describe_shell, code)
+        DefaultRoles.check_get(shell, describe_shell, code, raw)
         if not role
         else SystemRole.get(role)
     )

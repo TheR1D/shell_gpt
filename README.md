@@ -436,6 +436,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 │ --interaction         --no-interaction    Interactive mode for --shell option. [default: interaction]    │
 │ --describe-shell  -d                      Describe a shell command.                                      │
 │ --code            -c                      Generate only code.                                            │
+│ --raw             -r                      Use the LLM as-is without a specific role or system message.   │
 │ --functions           --no-functions      Allow function calls. [default: functions]                     │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Chat Options ───────────────────────────────────────────────────────────────────────────────────────────╮

@@ -39,6 +39,8 @@ You are managing {os} operating system with {shell} shell.
 Provide short responses in about 100 words, unless you are specifically asked for more details.
 If you need to store any data, assume it will be stored in the conversation.
 APPLY MARKDOWN formatting when possible."""
+
+RAW_ROLE = """APPLY MARKDOWN formatting when possible."""
 # Note that output for all roles containing "APPLY MARKDOWN" will be formatted as Markdown.
 
 ROLE_TEMPLATE = "You are {name}\n{role}"
@@ -68,6 +70,7 @@ class SystemRole:
             SystemRole("Shell Command Generator", SHELL_ROLE, variables),
             SystemRole("Shell Command Descriptor", DESCRIBE_SHELL_ROLE, variables),
             SystemRole("Code Generator", CODE_ROLE),
+            SystemRole("GPT", RAW_ROLE),
         ):
             if not default_role._exists:
                 default_role._save()
@@ -167,15 +170,20 @@ class DefaultRoles(Enum):
     SHELL = "Shell Command Generator"
     DESCRIBE_SHELL = "Shell Command Descriptor"
     CODE = "Code Generator"
+    RAW = "GPT"
 
     @classmethod
-    def check_get(cls, shell: bool, describe_shell: bool, code: bool) -> SystemRole:
+    def check_get(
+        cls, shell: bool, describe_shell: bool, code: bool, raw: bool
+    ) -> SystemRole:
         if shell:
             return SystemRole.get(DefaultRoles.SHELL.value)
         if describe_shell:
             return SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
         if code:
             return SystemRole.get(DefaultRoles.CODE.value)
+        if raw:
+            return SystemRole.get(DefaultRoles.RAW.value)
         return SystemRole.get(DefaultRoles.DEFAULT.value)
 
     def get_role(self) -> SystemRole:
