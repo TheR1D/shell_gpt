@@ -126,14 +126,13 @@ class SystemRole:
 
     @classmethod
     def _shell_name(cls) -> str:
-        if cfg.get("OVERWRITE_SHELL_NAME") != "":
+        if cfg.get("OVERWRITE_SHELL_NAME") != "default":
             return cfg.get("OVERWRITE_SHELL_NAME")
-        else:
-            current_platform = platform.system()
-            if current_platform in ("Windows", "nt"):
-                is_powershell = len(getenv("PSModulePath", "").split(pathsep)) >= 3
-                return "powershell.exe" if is_powershell else "cmd.exe"
-            return basename(getenv("SHELL", "/bin/sh"))
+        current_platform = platform.system()
+        if current_platform in ("Windows", "nt"):
+            is_powershell = len(getenv("PSModulePath", "").split(pathsep)) >= 3
+            return "powershell.exe" if is_powershell else "cmd.exe"
+        return basename(getenv("SHELL", "/bin/sh"))
 
     @property
     def _exists(self) -> bool:
