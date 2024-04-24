@@ -113,17 +113,16 @@ class SystemRole:
 
     @classmethod
     def _os_name(cls) -> str:
-        if cfg.get("OVERWRITE_OS_NAME") != "":
+        if cfg.get("OVERWRITE_OS_NAME") != "default":
             return cfg.get("OVERWRITE_OS_NAME")
-        else:
-            current_platform = platform.system()
-            if current_platform == "Linux":
-                return "Linux/" + distro_name(pretty=True)
-            if current_platform == "Windows":
-                return "Windows " + platform.release()
-            if current_platform == "Darwin":
-                return "Darwin/MacOS " + platform.mac_ver()[0]
-            return current_platform
+        current_platform = platform.system()
+        if current_platform == "Linux":
+            return "Linux/" + distro_name(pretty=True)
+        if current_platform == "Windows":
+            return "Windows " + platform.release()
+        if current_platform == "Darwin":
+            return "Darwin/MacOS " + platform.mac_ver()[0]
+        return current_platform
 
     @classmethod
     def _shell_name(cls) -> str:
