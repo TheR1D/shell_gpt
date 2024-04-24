@@ -470,7 +470,7 @@ set the environment variables `OVERWRITE_OS_NAME` and `OVERWRITE_SHELL_NAME` acc
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --env OPENAI_API_KEY --env SHELL_INTERACTION=false OVERWRITE_OS_NAME=Debian --env OVERWRITE_SHELL_NAME=bash --volume gpt-cache:/tmp/shell_gpt ghcr.io/ther1d/shell_gpt"
+alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OVERWRITE_OS_NAME=$(grep -oP '^PRETTY_NAME="\K[^"]+' /etc/os-release) --env OVERWRITE_SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
