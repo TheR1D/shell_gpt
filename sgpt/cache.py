@@ -1,7 +1,7 @@
-import json
 from hashlib import md5
+import json
 from pathlib import Path
-from typing import Any, Callable, Generator, no_type_check
+from typing import Any, Callable, Dict, Generator, List, no_type_check
 
 
 class Cache:
@@ -39,9 +39,18 @@ class Cache:
                 yield i
             if "@FunctionCall" not in result:
                 file.write_text(result)
+                self._cache_last_chat(kwargs, result)
             self._delete_oldest_files(self.length)  # type: ignore
 
         return wrapper
+
+    def _cache_last_chat(self, kwargs: Dict[str, Any], response: str):
+        messages = kwargs.get("messages")
+        if not messages:
+            return
+        messages.append({"role": "assistant", "content": response})
+        file = self.cache_path / "last_chat"
+        json.dump(messages, file.open("w"))
 
     @no_type_check
     def _delete_oldest_files(self, max_files: int) -> None:
