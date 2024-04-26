@@ -2,13 +2,13 @@ import os
 
 # To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
+import shutil
 import sys
+from pathlib import Path
 
 import typer
-import shutil
 from click import BadArgumentUsage
 from click.types import Choice
-from pathlib import Path
 
 from sgpt.config import cfg
 from sgpt.function import get_openai_schemas
@@ -276,7 +276,7 @@ def main(
         break
 
 
-def register_last_chat(new_chat_id: str):
+def register_last_chat(new_chat_id: str) -> None:
     """
     Registers the last default chat as an actual chat in the ChatSessions.
 

@@ -1,5 +1,5 @@
-from hashlib import md5
 import json
+from hashlib import md5
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, no_type_check
 
@@ -44,7 +44,7 @@ class Cache:
 
         return wrapper
 
-    def _cache_last_chat(self, kwargs: Dict[str, Any], response: str):
+    def _cache_last_chat(self, kwargs: Dict[str, Any], response: str) -> None:
         messages = kwargs.get("messages")
         if not messages:
             return
