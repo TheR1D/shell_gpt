@@ -155,6 +155,11 @@ def main(
         callback=inst_funcs,
         hidden=True,  # Hiding since should be used only once.
     ),
+    force_user_role: bool = typer.Option(
+        cfg.get("FORCE_USER_ROLE") == "true",
+        help="Force role: user in API calls",
+        rich_help_panel="Chat Options",
+    ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
