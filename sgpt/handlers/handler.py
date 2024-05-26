@@ -9,7 +9,6 @@ from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
 
 completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
-
 base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
 additional_kwargs = {
@@ -104,7 +103,6 @@ class Handler:
             top_p=top_p,
             messages=messages,
             tools=functions,
-            tool_choice="auto",
             stream=True,
             **additional_kwargs,
         )
@@ -149,15 +147,29 @@ class Handler:
         functions: Optional[List[Dict[str, str]]] = None,
         **kwargs: Any,
     ) -> str:
+        import time
         disable_stream = cfg.get("DISABLE_STREAMING") == "true"
         messages = self.make_messages(prompt.strip())
-        generator = self.get_completion(
-            model=model,
-            temperature=temperature,
-            top_p=top_p,
-            messages=messages,
-            functions=functions,
-            caching=caching,
-            **kwargs,
-        )
-        return self.printer(generator, not disable_stream)
+        
+        max_retries = 3
+        backoff_factor = 2
+        retry_delay = 1
+
+        for attempt in range(max_retries):
+            try:
+                generator = self.get_completion(
+                    model=model,
+                    temperature=temperature,
+                    top_p=top_p,
+                    messages=messages,
+                    functions=functions,
+                    caching=caching,
+                    **kwargs,
+                )
+                return self.printer(generator, not disable_stream)
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    retry_delay *= backoff_factor
+                else:
+                    raise e
