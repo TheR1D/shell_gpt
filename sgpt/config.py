@@ -22,7 +22,7 @@ DEFAULT_CONFIG = {
     "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
-    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-4-1106-preview"),
+    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gemini/gemini-1.5-flash"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
@@ -33,7 +33,7 @@ DEFAULT_CONFIG = {
     "SHOW_FUNCTIONS_OUTPUT": os.getenv("SHOW_FUNCTIONS_OUTPUT", "false"),
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
-    "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
+    "USE_LITELLM": os.getenv("USE_LITELLM", "true"),
     # New features might add their own config variables here.
 }
 
@@ -57,6 +57,10 @@ class Config(dict):  # type: ignore
             if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
                 __api_key = getpass(prompt="Please enter your OpenAI API key: ")
                 defaults["OPENAI_API_KEY"] = __api_key
+            # Don't write Gemini API key to config file if it is in the environment.
+            if not defaults.get("GEMINI_API_KEY") and not os.getenv("GEMINI_API_KEY"):
+                __api_key = getpass(prompt="Please enter your Gemini API key: ")
+                defaults["GEMINI_API_KEY"] = __api_key
             super().__init__(**defaults)
             self._write()
 
