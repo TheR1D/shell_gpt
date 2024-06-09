@@ -8,7 +8,7 @@ import typer
 from click import BadParameter, UsageError
 
 from sgpt.__version__ import __version__
-from sgpt.integration import bash_integration, zsh_integration
+from sgpt.integration import bash_integration, fish_integration, zsh_integration
 
 
 def get_edited_prompt() -> str:
@@ -66,7 +66,7 @@ def option_callback(func: Callable) -> Callable:  # type: ignore
 @option_callback
 def install_shell_integration(*_args: Any) -> None:
     """
-    Installs shell integration. Currently only supports ZSH and Bash.
+    Installs shell integration. Currently only supports ZSH, bash and fish.
     Allows user to get shell completions in terminal by using hotkey.
     Replaces current "buffer" of the shell with the completion.
     """
@@ -81,8 +81,12 @@ def install_shell_integration(*_args: Any) -> None:
         typer.echo("Installing Bash integration...")
         with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as file:
             file.write(bash_integration)
+    elif "fish" in shell:
+        typer.echo("Installing Fish integration...")
+        with open(os.path.expanduser("~/.config/fish/config.fish"), "a", encoding="utf-8") as file:
+            file.write(fish_integration)
     else:
-        raise UsageError("ShellGPT integrations only available for ZSH and Bash.")
+        raise UsageError("ShellGPT integrations only available for ZSH, Bash and fish.")
 
     typer.echo("Done! Restart your shell to apply changes.")
 

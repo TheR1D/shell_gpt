@@ -1,5 +1,5 @@
 # ShellGPT
-A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
+A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, fish etc.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
 
@@ -104,11 +104,11 @@ sgpt -s "find all json files in current folder" --no-interaction | pbcopy
 
 
 ### Shell integration
-This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
+This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by Bash, ZSH and fish shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
 
-To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke ShellGPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
+To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc`, `.zshrc` or `config.fish` file. After that, you can use `Ctrl+l` (default for ZSH and Bash) or `Ctrl+/` (default for fish) to invoke ShellGPT. When you press `Ctrl+l` or `Ctrl+/` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
 ### Generating code
 By using the `--code` or `-c` parameter, you can specifically request pure code output, for instance:
@@ -127,7 +127,7 @@ for i in range(1, 101):
     else:
         print(i)
 ```
-Since it is valid python code, we can redirect the output to a file:  
+Since it is valid python code, we can redirect the output to a file:
 ```shell
 sgpt --code "solve classic fizz buzz problem using Python" > fizz_buzz.py
 python fizz_buzz.py
@@ -163,7 +163,7 @@ for i in range(1, 101):
         print(i)
 ```
 
-### Chat Mode 
+### Chat Mode
 Often it is important to preserve and recall a conversation. `sgpt` creates conversational dialogue with each LLM completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
 
 To start a conversation, use the `--chat` option followed by a unique session name and a prompt.
@@ -212,10 +212,10 @@ sgpt --chat conversation_3 "Convert the resulting file into an MP3"
 # -> ffmpeg -i output.mp4 -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 final_output.mp3
 ```
 
-To list all the sessions from either conversational mode, use the `--list-chats` or `-lc` option:  
+To list all the sessions from either conversational mode, use the `--list-chats` or `-lc` option:
 ```shell
 sgpt --list-chats
-# .../shell_gpt/chat_cache/conversation_1  
+# .../shell_gpt/chat_cache/conversation_1
 # .../shell_gpt/chat_cache/conversation_2
 ```
 
@@ -228,7 +228,7 @@ sgpt --show-chat conversation_1
 # assistant: Your favorite number is 4, so if we add 4 to it, the result would be 8.
 ```
 
-### REPL Mode  
+### REPL Mode
 There is very handy REPL (read–eval–print loop) mode, which allows you to interactively chat with GPT models. To start a chat session in REPL mode, use the `--repl` option followed by a unique session name. You can also use "temp" as a session name to start a temporary REPL session. Note that `--chat` and `--repl` are using same underlying object, so you can use `--chat` to start a chat session and then pick it up with `--repl` to continue the conversation in REPL mode.
 
 <p align="center">
@@ -284,7 +284,7 @@ The snippet of code you've provided is written in Python. It prompts the user...
 >>> Follow up questions...
 ```
 
-### Function calling  
+### Function calling
 [Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
 ```shell
 sgpt --install-functions
@@ -341,7 +341,7 @@ sgpt "Play music and open hacker news"
 # -> Music is now playing, and Hacker News has been opened in your browser. Enjoy!
 ```
 
-This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/TheR1D/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions. 
+This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/TheR1D/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions.
 LLM might execute destructive commands, so please use it at your own risk❗️
 
 ### Roles
