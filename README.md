@@ -1,12 +1,15 @@
 # ShellGPT
+
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, fish etc.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
 
 ## Installation
+
 ```shell
 pip install shell-gpt
 ```
+
 By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
 > [!TIP]
@@ -15,22 +18,27 @@ By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, 
 > **❗️Note that ShellGPT is not optimized for local models and may not work as expected.**
 
 ## Usage
+
 **ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
+
 ```shell
 sgpt "What is the fibonacci sequence"
 # -> The Fibonacci sequence is a series of numbers where each number ...
 ```
 
 ShellGPT accepts prompt from both stdin and command line argument. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. For example, you can easily generate a git commit message based on a diff:
+
 ```shell
 git diff | sgpt "Generate git commit message, for my changes"
 # -> Added main feature details into README.md
 ```
 
 You can analyze logs from various sources by passing them using stdin, along with a prompt. For instance, we can use it to quickly analyze logs, identify errors and get suggestions for possible solutions:
+
 ```shell
 docker logs -n 20 my_app | sgpt "check logs, find errors, provide possible solutions"
 ```
+
 ```text
 Error Detected: Connection timeout at line 7.
 Possible Solution: Check network connectivity and firewall settings.
@@ -39,6 +47,7 @@ Possible Solution: Consider increasing memory allocation or optimizing applicati
 ```
 
 You can also use all kind of redirection operators to pass input:
+
 ```shell
 sgpt "summarise" < document.txt
 # -> The document discusses the impact...
@@ -51,9 +60,10 @@ sgpt <<< "What is the best way to learn shell redirects?"
 # -> The best way to learn shell redirects is through...
 ```
 
-
 ### Shell commands
+
 Have you ever found yourself forgetting common shell commands, such as `find`, and needing to look up the syntax online? With `--shell` or shortcut `-s` option, you can quickly generate and execute the commands you need right in the terminal.
+
 ```shell
 sgpt --shell "find all json files in current folder"
 # -> find . -type f -name "*.json"
@@ -61,6 +71,7 @@ sgpt --shell "find all json files in current folder"
 ```
 
 Shell GPT is aware of OS and `$SHELL` you are using, it will provide shell command for specific system you have. For instance, if you ask `sgpt` to update your system, it will return a command based on your OS. Here's an example using macOS:
+
 ```shell
 sgpt -s "update my system"
 # -> sudo softwareupdate -i -a
@@ -68,6 +79,7 @@ sgpt -s "update my system"
 ```
 
 The same prompt, when used on Ubuntu, will generate a different suggestion:
+
 ```shell
 sgpt -s "update my system"
 # -> sudo apt update && sudo apt upgrade -y
@@ -75,6 +87,7 @@ sgpt -s "update my system"
 ```
 
 Let's try it with Docker:
+
 ```shell
 sgpt -s "start nginx container, mount ./index.html"
 # -> docker run -d -p 80:80 -v $(pwd)/index.html:/usr/share/nginx/html/index.html nginx
@@ -82,6 +95,7 @@ sgpt -s "start nginx container, mount ./index.html"
 ```
 
 We can still use pipes to pass input to `sgpt` and generate shell commands:
+
 ```shell
 sgpt -s "POST localhost with" < data.json
 # -> curl -X POST -H "Content-Type: application/json" -d '{"a": 1, "b": 2}' http://localhost
@@ -89,6 +103,7 @@ sgpt -s "POST localhost with" < data.json
 ```
 
 Applying additional shell magic in our prompt, in this example passing file names to `ffmpeg`:
+
 ```shell
 ls
 # -> 1.mp4 2.mp4 3.mp4
@@ -98,12 +113,13 @@ sgpt -s "ffmpeg combine $(ls -m) into one video file without audio."
 ```
 
 If you would like to pass generated shell command using pipe, you can use `--no-interaction` option. This will disable interactive mode and will print generated command to stdout. In this example we are using `pbcopy` to copy generated command to clipboard:
+
 ```shell
 sgpt -s "find all json files in current folder" --no-interaction | pbcopy
 ```
 
-
 ### Shell integration
+
 This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by Bash, ZSH and fish shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
@@ -111,7 +127,9 @@ https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abf
 To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc`, `.zshrc` or `config.fish` file. After that, you can use `Ctrl+l` (default for ZSH and Bash) or `Ctrl+/` (default for fish) to invoke ShellGPT. When you press `Ctrl+l` or `Ctrl+/` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
 ### Generating code
+
 By using the `--code` or `-c` parameter, you can specifically request pure code output, for instance:
+
 ```shell
 sgpt --code "solve fizz buzz problem using python"
 ```
@@ -127,7 +145,9 @@ for i in range(1, 101):
     else:
         print(i)
 ```
+
 Since it is valid python code, we can redirect the output to a file:
+
 ```shell
 sgpt --code "solve classic fizz buzz problem using Python" > fizz_buzz.py
 python fizz_buzz.py
@@ -140,9 +160,11 @@ python fizz_buzz.py
 ```
 
 We can also use pipes to pass input:
+
 ```shell
 cat fizz_buzz.py | sgpt --code "Generate comments for each line of my code"
 ```
+
 ```python
 # Loop through numbers 1 to 100
 for i in range(1, 101):
@@ -164,9 +186,11 @@ for i in range(1, 101):
 ```
 
 ### Chat Mode
+
 Often it is important to preserve and recall a conversation. `sgpt` creates conversational dialogue with each LLM completion requested. The dialogue can develop one-by-one (chat mode) or interactively, in a REPL loop (REPL mode). Both ways rely on the same underlying object, called a chat session. The session is located at the [configurable](#runtime-configuration-file) `CHAT_CACHE_PATH`.
 
 To start a conversation, use the `--chat` option followed by a unique session name and a prompt.
+
 ```shell
 sgpt --chat conversation_1 "please remember my favorite number: 4"
 # -> I will remember that your favorite number is 4.
@@ -175,9 +199,11 @@ sgpt --chat conversation_1 "what would be my favorite number + 4?"
 ```
 
 You can use chat sessions to iteratively improve GPT suggestions by providing additional details.  It is possible to use `--code` or `--shell` options to initiate `--chat`:
+
 ```shell
 sgpt --chat conversation_2 --code "make a request to localhost using python"
 ```
+
 ```python
 import requests
 
@@ -186,9 +212,11 @@ print(response.text)
 ```
 
 Let's ask LLM to add caching to our request:
+
 ```shell
 sgpt --chat conversation_2 --code "add caching"
 ```
+
 ```python
 import requests
 from cachecontrol import CacheControl
@@ -201,6 +229,7 @@ print(response.text)
 ```
 
 Same applies for shell commands:
+
 ```shell
 sgpt --chat conversation_3 --shell "what is in current folder"
 # -> ls
@@ -213,6 +242,7 @@ sgpt --chat conversation_3 "Convert the resulting file into an MP3"
 ```
 
 To list all the sessions from either conversational mode, use the `--list-chats` or `-lc` option:
+
 ```shell
 sgpt --list-chats
 # .../shell_gpt/chat_cache/conversation_1
@@ -220,6 +250,7 @@ sgpt --list-chats
 ```
 
 To show all the messages related to a specific conversation, use the `--show-chat` option followed by the session name:
+
 ```shell
 sgpt --show-chat conversation_1
 # user: please remember my favorite number: 4
@@ -229,6 +260,7 @@ sgpt --show-chat conversation_1
 ```
 
 ### REPL Mode
+
 There is very handy REPL (read–eval–print loop) mode, which allows you to interactively chat with GPT models. To start a chat session in REPL mode, use the `--repl` option followed by a unique session name. You can also use "temp" as a session name to start a temporary REPL session. Note that `--chat` and `--repl` are using same underlying object, so you can use `--chat` to start a chat session and then pick it up with `--repl` to continue the conversation in REPL mode.
 
 <p align="center">
@@ -245,6 +277,7 @@ To use Python with REPL, you can simply open a terminal or command prompt ...
 ```
 
 REPL mode can work with `--shell` and `--code` options, which makes it very handy for interactive shell commands and code generation:
+
 ```text
 sgpt --repl temp --shell
 Entering shell REPL mode, type [e] to execute commands or press Ctrl+C to exit.
@@ -258,6 +291,7 @@ ls -lhS
 ```
 
 To provide multiline prompt use triple quotes `"""`:
+
 ```text
 sgpt --repl temp
 Entering REPL mode, press Ctrl+C to exit.
@@ -270,9 +304,11 @@ It is a Python script that uses the random module to generate and print a random
 ```
 
 You can also enter REPL mode with initial prompt by passing it as an argument or stdin or even both:
+
 ```shell
 sgpt --repl temp < my_app.py
 ```
+
 ```text
 Entering REPL mode, press Ctrl+C to exit.
 ──────────────────────────────────── Input ────────────────────────────────────
@@ -285,12 +321,15 @@ The snippet of code you've provided is written in Python. It prompts the user...
 ```
 
 ### Function calling
+
 [Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
+
 ```shell
 sgpt --install-functions
 ```
 
 ShellGPT has a convenient way to define functions and use them. In order to create your custom function, navigate to `~/.config/shell_gpt/functions` and create a new .py file with the function name. Inside this file, you can define your function using the following syntax:
+
 ```python
 # execute_shell_command.py
 import subprocess
@@ -314,6 +353,7 @@ class Function(OpenAISchema):
 ```
 
 The docstring comment inside the class will be passed to OpenAI API as a description for the function, along with the `title` attribute and parameters descriptions. The `execute` function will be called if LLM decides to use your function. In this case we are allowing LLM to execute any Shell commands in our system. Since we are returning the output of the command, LLM will be able to analyze it and decide if it is a good fit for the prompt. Here is an example how the function might be executed by LLM:
+
 ```shell
 sgpt "What are the files in /tmp folder?"
 # -> @FunctionCall execute_shell_command(shell_command="ls /tmp")
@@ -323,6 +363,7 @@ sgpt "What are the files in /tmp folder?"
 ```
 
 Note that if for some reason the function (execute_shell_command) will return an error, LLM might try to accomplish the task based on the output. Let's say we don't have installed `jq` in our system, and we ask LLM to parse JSON file:
+
 ```shell
 sgpt "parse /tmp/test.json file using jq and return only email value"
 # -> @FunctionCall execute_shell_command(shell_command="jq -r '.email' /tmp/test.json")
@@ -334,6 +375,7 @@ sgpt "parse /tmp/test.json file using jq and return only email value"
 ```
 
 It is also possible to chain multiple function calls in the prompt:
+
 ```shell
 sgpt "Play music and open hacker news"
 # -> @FunctionCall play_music()
@@ -345,12 +387,15 @@ This is just a simple example of how you can use function calls. It is truly a p
 LLM might execute destructive commands, so please use it at your own risk❗️
 
 ### Roles
+
 ShellGPT allows you to create custom roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
+
 ```shell
 sgpt --create-role json_generator
 # Enter role description: Provide only valid json as response.
 sgpt --role json_generator "random: user, password, email, address"
 ```
+
 ```json
 {
   "user": "JohnDoe",
@@ -368,17 +413,22 @@ sgpt --role json_generator "random: user, password, email, address"
 If the description of the role contains the words "APPLY MARKDOWN" (case sensitive), then chats will be displayed using markdown formatting.
 
 ### Request cache
+
 Control cache using `--cache` (default) and `--no-cache` options. This caching applies for all `sgpt` requests to OpenAI API:
+
 ```shell
 sgpt "what are the colors of a rainbow"
 # -> The colors of a rainbow are red, orange, yellow, green, blue, indigo, and violet.
 ```
+
 Next time, same exact query will get results from local cache instantly. Note that `sgpt "what are the colors of a rainbow" --temperature 0.5` will make a new request, since we didn't provide `--temperature` (same applies to `--top-probability`) on previous request.
 
 This is just some examples of what we can do using OpenAI GPT models, I'm sure you will find it useful for your specific use cases.
 
 ### Runtime configuration file
+
 You can setup some parameters in runtime configuration file `~/.config/shell_gpt/.sgptrc`:
+
 ```text
 # API key, also it is possible to define OPENAI_API_KEY env.
 OPENAI_API_KEY=your_api_key
@@ -413,10 +463,12 @@ OPENAI_USE_FUNCTIONS=true
 # Enforce LiteLLM usage (for local LLMs).
 USE_LITELLM=false
 ```
+
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
-Possible options for `CODE_THEME`: https://pygments.org/styles/
+Possible options for `CODE_THEME`: <https://pygments.org/styles/>
 
 ### Full list of arguments
+
 ```text
 ╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────────────╮
 │   prompt      [PROMPT]  The prompt to generate completions for.                                          │
@@ -453,7 +505,9 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ```
 
 ## Docker
+
 Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
+
 ```shell
 docker run --rm \
            --env OPENAI_API_KEY="your OPENAI API key" \
@@ -462,6 +516,7 @@ docker run --rm \
 ```
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
+
 ```shell
 alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
@@ -471,6 +526,7 @@ sgpt --chat rainbow "translate your last answer in french"
 ```
 
 You also can use the provided `Dockerfile` to build your own image:
+
 ```shell
 docker build -t sgpt .
 ```
