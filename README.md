@@ -395,7 +395,7 @@ CACHE_PATH=/tmp/shell_gpt/cache
 # Request timeout in seconds.
 REQUEST_TIMEOUT=60
 # Default OpenAI model to use.
-DEFAULT_MODEL=gpt-3.5-turbo
+DEFAULT_MODEL=gpt-4o
 # Default color for shell and code completions.
 DEFAULT_COLOR=magenta
 # When in --shell mode, default to "Y" for no input.
@@ -422,7 +422,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 │   prompt      [PROMPT]  The prompt to generate completions for.                                          │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            TEXT                       Large language model to use. [default: gpt-4-1106-preview] │
+│ --model            TEXT                       Large language model to use. [default: gpt-4o]             │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
 │ --top-p            FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
 │ --md             --no-md                      Prettify markdown output. [default: md]                    │
