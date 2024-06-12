@@ -98,13 +98,16 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
+        if functions:
+            additional_kwargs["tool_choice"] = "auto"
+            additional_kwargs["tools"] = functions
+            additional_kwargs["parallel_tool_calls"] = False
+
         response = completion(
             model=model,
             temperature=temperature,
             top_p=top_p,
             messages=messages,
-            tools=functions,
-            tool_choice="auto",
             stream=True,
             **additional_kwargs,
         )
