@@ -1,4 +1,12 @@
 # ShellGPT
+<p>
+<a href="https://github.com/airbytehq/TheR1D/shell_gpt/" target="_blank">
+    <img src="https://img.shields.io/github/stars/TheR1D/shell_gpt?style=social&label=Star&maxAge=2592000" alt="Test">
+</a>
+<a href="https://github.com/TheR1D/shell_gpt/releases" target="_blank">
+    <img src="https://img.shields.io/github/v/release/TheR1D/shell_gpt?color="green" alt="Release">
+</a>
+</p>
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
