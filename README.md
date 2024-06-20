@@ -285,7 +285,7 @@ The snippet of code you've provided is written in Python. It prompts the user...
 ```
 
 ### Function calling  
-[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/default_functions/) run:
+[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/llm_functions/) run:
 ```shell
 sgpt --install-functions
 ```
