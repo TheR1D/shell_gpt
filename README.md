@@ -23,8 +23,9 @@ sgpt "What is the fibonacci sequence"
 
 ShellGPT accepts prompt from both stdin and command line argument. Whether you prefer piping input through the terminal or specifying it directly as arguments, `sgpt` got you covered. For example, you can easily generate a git commit message based on a diff:
 ```shell
-git diff | sgpt "Generate git commit message, for my changes"
-# -> Added main feature details into README.md
+git diff --staged | sgpt --shell "git -m with commit message for changes in 72 characters or less"
+git commit -m "Added main feature details into README.md"
+[E]xecute, [D]escribe, [A]bort:
 ```
 
 You can analyze logs from various sources by passing them using stdin, along with a prompt. For instance, we can use it to quickly analyze logs, identify errors and get suggestions for possible solutions:
