@@ -145,7 +145,7 @@ def main(
     ),
     install_integration: bool = typer.Option(
         False,
-        help="Install shell integration (ZSH and Bash only)",
+        help="Install shell integration (ZSH, Bash and fish only)",
         callback=install_shell_integration,
         hidden=True,  # Hiding since should be used only once.
     ),
