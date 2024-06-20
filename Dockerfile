@@ -1,8 +1,8 @@
 FROM python:3-slim
 
 ENV SHELL_INTERACTION=false
-ENV OS_NAME =auto
-ENV SHELL_NAME =auto
+ENV OS_NAME=auto
+ENV SHELL_NAME=auto
 
 WORKDIR /app
 COPY . /app
