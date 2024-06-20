@@ -8,7 +8,7 @@ from ..function import get_function
 from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
 
-completion: Callable[..., Any] = lambda *args, **kwargs: None
+completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
 base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
 additional_kwargs = {

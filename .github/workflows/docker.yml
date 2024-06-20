@@ -3,11 +3,13 @@ name: Docker Image CI
 on:
   push:
     tags:
-      - '*'  
+      - '*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: Docker Image
 
     steps:   
       - name: Checkout
