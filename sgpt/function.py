@@ -2,7 +2,7 @@ import importlib.util
 import sys
 from abc import ABCMeta
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Union
 
 from .config import cfg
 
@@ -59,4 +59,15 @@ def get_function(name: str) -> Callable[..., Any]:
 
 
 def get_openai_schemas() -> List[Dict[str, Any]]:
-    return [function.openai_schema for function in functions]
+    transformed_schemas = []
+    for function in functions:
+        schema = {
+            "type": "function",
+            "function": {
+                "name": function.openai_schema["name"],
+                "description": function.openai_schema.get("description", ""),
+                "parameters": function.openai_schema.get("parameters", {}),
+            },
+        }
+        transformed_schemas.append(schema)
+    return transformed_schemas
