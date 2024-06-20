@@ -35,8 +35,8 @@ DEFAULT_CONFIG = {
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
     "SHELL_INTERACTION ": os.getenv("SHELL_INTERACTION ", "true"),
-    "OVERWRITE_OS_NAME": os.getenv("OVERWRITE_OS_NAME", "default"),
-    "OVERWRITE_SHELL_NAME ": os.getenv("OVERWRITE_SHELL_NAME", "default"),
+    "OS_NAME ": os.getenv("OS_NAME ", "auto"),
+    "SHELL_NAME  ": os.getenv("SHELL_NAME ", "auto"),
     # New features might add their own config variables here.
 }
 

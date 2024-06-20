@@ -113,8 +113,8 @@ class SystemRole:
 
     @classmethod
     def _os_name(cls) -> str:
-        if cfg.get("OVERWRITE_OS_NAME") != "default":
-            return cfg.get("OVERWRITE_OS_NAME")
+        if cfg.get("OS_NAME ") != "auto":
+            return cfg.get("OS_NAME ")
         current_platform = platform.system()
         if current_platform == "Linux":
             return "Linux/" + distro_name(pretty=True)
@@ -126,8 +126,8 @@ class SystemRole:
 
     @classmethod
     def _shell_name(cls) -> str:
-        if cfg.get("OVERWRITE_SHELL_NAME") != "default":
-            return cfg.get("OVERWRITE_SHELL_NAME")
+        if cfg.get("SHELL_NAME ") != "auto":
+            return cfg.get("SHELL_NAME ")
         current_platform = platform.system()
         if current_platform in ("Windows", "nt"):
             is_powershell = len(getenv("PSModulePath", "").split(pathsep)) >= 3
