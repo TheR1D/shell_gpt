@@ -465,17 +465,20 @@ When using a container, please note:
 * The \[E\]xecute option for --shell with interaction will not work, since it would try this Execute in the docker container.  
 => setting the `SHELL_INTERACTION` environment variable to false , makes sense.
 * Since, most likely the os and shell of your container are not identical to the environment you want help with:  
-set the environment variables `OVERWRITE_OS_NAME` and `OVERWRITE_SHELL_NAME` according to your setup.
+set the environment variables `OS_NAME ` and `SHELL_NAME ` according to your setup.
 
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OVERWRITE_OS_NAME=$(grep -oP '^PRETTY_NAME="\K[^"]+' /etc/os-release) --env OVERWRITE_SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
+alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OS_NAME =$(uname -s) --env SHELL_NAME =$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
 ```
+
+Note: if you're on Linux, in order to get a more detailed os name, you could use:
+--env OS_NAME =$(grep -oP '^PRETTY_NAME="\K[^"]+' /etc/os-release)
 
 You also can use the provided `Dockerfile` to build your own image:
 ```shell
@@ -488,7 +491,7 @@ Example environment variables for a working Ollama setup, using Docker:
 * ENV USE_LITELLM=true
 * ENV OPENAI_API_KEY=bad_key
 * ENV SHELL_INTERACTION=false
-* ENV OVERWRITE_OS_NAME="Linux/Red Hat Enterprise Linux 8.8 (Ootpa)"
-* ENV OVERWRITE_SHELL_NAME=/bin/bash
+* ENV OS_NAME ="Linux/Red Hat Enterprise Linux 8.8 (Ootpa)"
+* ENV SHELL_NAME =/bin/bash
 
 Additional documentation: [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure), [Ollama integration](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
