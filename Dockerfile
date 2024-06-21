@@ -1,6 +1,7 @@
 FROM python:3-slim
 
 ENV SHELL_INTERACTION=false
+ENV PRETTIFY_MARKDOWN=false
 ENV OS_NAME=auto
 ENV SHELL_NAME=auto
 
