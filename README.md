@@ -470,7 +470,7 @@ set the environment variables `OS_NAME` and `SHELL_NAME` according to your setup
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OS_NAME=$(uname -s) --env SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"  
+alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OPENAI_API_KEY --env OS_NAME=$(uname -s) --env SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
