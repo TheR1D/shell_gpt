@@ -37,6 +37,8 @@ DEFAULT_CONFIG = {
     # New features might add their own config variables here.
 }
 
+POTENTIAL_PATH_KEYS = ("OPENAI_API_KEY",)
+
 
 class Config(dict):  # type: ignore
     def __init__(self, config_path: Path, **defaults: Any):
@@ -74,9 +76,16 @@ class Config(dict):  # type: ignore
     def _read(self) -> None:
         with open(self.config_path, "r", encoding="utf-8") as file:
             for line in file:
-                if line.strip() and not line.startswith("#"):
-                    key, value = line.strip().split("=", 1)
-                    self[key] = value
+                self._read_from_line(line)
+
+    def _read_from_line(self, line: str) -> None:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            return
+        key, value = line.split("=", 1)
+        if key in POTENTIAL_PATH_KEYS and Path(value).is_file():
+            value = str(Path(value).expanduser().read_text().strip())
+        self[key] = value
 
     def get(self, key: str) -> str:  # type: ignore
         # Prioritize environment variables over config file.
