@@ -1,4 +1,4 @@
-from sgpt.config import DEFAULT_CONFIG, Config
+from sgpt.config import DEFAULT_CONFIG, POTENTIAL_PATH_KEYS, Config
 
 
 def test_openai_api_key_string(tmp_path):
@@ -18,3 +18,7 @@ def test_openai_api_key_path(tmp_path):
 
     cfg = Config(temp_config_path, **DEFAULT_CONFIG, OPENAI_API_KEY=api_key_path)
     assert cfg["OPENAI_API_KEY"] == fake_api_key
+
+
+def test_POTENTIAL_PATH_KEYS_includes_OPENAI_API_KEY():
+    assert "OPENAI_API_KEY" in POTENTIAL_PATH_KEYS
