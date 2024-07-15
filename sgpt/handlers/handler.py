@@ -11,7 +11,7 @@ from ..role import DefaultRoles, SystemRole
 completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
 base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
-user = cfg.get("USER")
+user = cfg.get("OPEN_AI_USER")
 additional_kwargs = {
     "timeout": int(cfg.get("REQUEST_TIMEOUT")),
     "api_key": cfg.get("OPENAI_API_KEY"),
