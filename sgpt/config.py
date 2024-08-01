@@ -83,8 +83,8 @@ class Config(dict):  # type: ignore
         if not line or line.startswith("#"):
             return
         key, value = line.split("=", 1)
-        if key in POTENTIAL_PATH_KEYS and Path(value).is_file():
-            value = str(Path(value).expanduser().read_text().strip())
+        if key in POTENTIAL_PATH_KEYS and (path := Path(value).expanduser()).is_file():
+            value = str(path.read_text().strip())
         self[key] = value
 
     def get(self, key: str) -> str:  # type: ignore
