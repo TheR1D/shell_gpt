@@ -1,4 +1,4 @@
-import json
+import json, stat
 from hashlib import md5
 from pathlib import Path
 from typing import Any, Callable, Generator, no_type_check
@@ -18,6 +18,7 @@ class Cache:
         self.length = length
         self.cache_path = cache_path
         self.cache_path.mkdir(parents=True, exist_ok=True)
+        self.cache_path.chmod(0o777 | stat.S_ISVTX) # Enable multiple users to use the same cache
 
     def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """

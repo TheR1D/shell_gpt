@@ -1,4 +1,4 @@
-import json
+import json, stat
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
 
@@ -33,6 +33,7 @@ class ChatSession:
         self.length = length
         self.storage_path = storage_path
         self.storage_path.mkdir(parents=True, exist_ok=True)
+        self.storage_path.chmod(0o777 | stat.S_ISVTX) # Enable multiple users to use the same cache
 
     def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
