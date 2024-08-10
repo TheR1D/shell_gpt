@@ -27,7 +27,7 @@ jobs:
     - name: Build a binary wheel and a source tarball
       run: python3 -m hatchling build
     - name: Store the distribution packages
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
@@ -64,7 +64,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
@@ -73,7 +73,7 @@ jobs:
         echo "SGPT_VERSION=$(find dist -type f -name '*.tar.gz' | grep -oP '\d+.\d+.\d+')" >> $GITHUB_ENV
         echo "Release version $SGPT_VERSION"
     - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v1.2.3
+      uses: sigstore/gh-action-sigstore-python@v3.0.0
       with:
         inputs: >-
           ./dist/*.tar.gz
