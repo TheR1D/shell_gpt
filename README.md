@@ -453,20 +453,15 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ```
 
 ## Docker
-Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache:
+Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache. Consider to set the environment variables `OS_NAME` and `SHELL_NAME` according to your preferences.
 ```shell
 docker run --rm \
-           --env OPENAI_API_KEY="your OPENAI API key" \
+           --env OPENAI_API_KEY=api_key \
+           --env OS_NAME=$(uname -s) \
+           --env SHELL_NAME=$(echo $SHELL) \
            --volume gpt-cache:/tmp/shell_gpt \
-       ghcr.io/ther1d/shell_gpt --chat rainbow "what are the colors of a rainbow"
+       ghcr.io/ther1d/shell_gpt -s "update my system"
 ```
-
-When using a container, please note:
-* The \[E\]xecute option for --shell with interaction will not work, since it would try this Execute in the docker container.  
-=> setting the `SHELL_INTERACTION` environment variable to false , makes sense.
-* Since, most likely the os and shell of your container are not identical to the environment you want help with:  
-set the environment variables `OS_NAME` and `SHELL_NAME` according to your setup.
-
 
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
@@ -476,8 +471,6 @@ sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
 ```
-Note:  
-Consider filling in a more specific OS_NAME instead of using $(uname -s)  
 
 You also can use the provided `Dockerfile` to build your own image:
 ```shell
@@ -498,7 +491,7 @@ ENV USE_LITELLM=true
 ENV OPENAI_API_KEY=bad_key
 ENV SHELL_INTERACTION=false
 ENV PRETTIFY_MARKDOWN=false
-ENV OS_NAME="Red Hat Enterprise Linux 8.6 (Ootpa)"
+ENV OS_NAME="Arch Linux"
 ENV SHELL_NAME=auto
 
 WORKDIR /app
