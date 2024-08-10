@@ -209,7 +209,6 @@ def test_llm_options(completion):
         model=args["--model"],
         temperature=args["--temperature"],
         top_p=args["--top-p"],
-        functions=None,
     )
     completion.assert_called_once_with(**expected_args)
     assert result.exit_code == 0

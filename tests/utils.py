@@ -54,7 +54,6 @@ def comp_args(role, prompt, **kwargs):
         "model": cfg.get("DEFAULT_MODEL"),
         "temperature": 0.0,
         "top_p": 1.0,
-        "functions": None,
         "stream": True,
         **kwargs,
     }
