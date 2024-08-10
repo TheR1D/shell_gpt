@@ -2,7 +2,7 @@ import importlib.util
 import sys
 from abc import ABCMeta
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List
 
 from .config import cfg
 

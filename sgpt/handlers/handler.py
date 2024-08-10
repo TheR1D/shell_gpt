@@ -90,7 +90,6 @@ class Handler:
         messages: List[Dict[str, Any]],
         functions: Optional[List[Dict[str, str]]],
     ) -> Generator[str, None, None]:
-
         name = arguments = ""
         is_shell_role = self.role.name == DefaultRoles.SHELL.value
         is_code_role = self.role.name == DefaultRoles.CODE.value
