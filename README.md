@@ -461,18 +461,58 @@ docker run --rm \
        ghcr.io/ther1d/shell_gpt --chat rainbow "what are the colors of a rainbow"
 ```
 
+When using a container, please note:
+* The \[E\]xecute option for --shell with interaction will not work, since it would try this Execute in the docker container.  
+=> setting the `SHELL_INTERACTION` environment variable to false , makes sense.
+* Since, most likely the os and shell of your container are not identical to the environment you want help with:  
+set the environment variables `OS_NAME` and `SHELL_NAME` according to your setup.
+
+
 Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --env OPENAI_API_KEY --volume gpt-cache:/tmp/shell_gpt ghcr.io/ther1d/shell_gpt"
+alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OPENAI_API_KEY --env OS_NAME=$(uname -s) --env SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
 export OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
 ```
+Note:  
+Consider filling in a more specific OS_NAME instead of using $(uname -s)  
 
 You also can use the provided `Dockerfile` to build your own image:
 ```shell
 docker build -t sgpt .
 ```
 
-Additional documentation: [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure), [Ollama integration](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
+### Docker + Ollama
+
+If you want to send your requests to an Ollama instance and run ShellGPT inside a Docker container, you need to adjust the Dockerfile and build the container yourself: the litellm package is needed and env variables need to be set correctly.
+
+Example Dockerfile:
+```
+FROM python:3-slim
+
+ENV DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
+ENV API_BASE_URL=http://10.10.10.10:11434
+ENV USE_LITELLM=true
+ENV OPENAI_API_KEY=bad_key
+ENV SHELL_INTERACTION=false
+ENV PRETTIFY_MARKDOWN=false
+ENV OS_NAME="Red Hat Enterprise Linux 8.6 (Ootpa)"
+ENV SHELL_NAME=auto
+
+WORKDIR /app
+COPY . /app
+
+RUN apt-get update && apt-get install -y gcc
+RUN pip install --no-cache /app[litellm] && mkdir -p /tmp/shell_gpt
+
+VOLUME /tmp/shell_gpt
+
+ENTRYPOINT ["sgpt"]
+```
+
+
+## Additional documentation
+* [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure)
+* [Ollama integration](https://github.com/TheR1D/shell_gpt/wiki/Ollama)
