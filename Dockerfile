@@ -1,8 +1,8 @@
 # Use the Dockerfile syntax version 1.5 for enhanced features
 # syntax=docker/dockerfile:1.5
 
-# Start from a lightweight Python 3 image
-FROM python:3-slim
+# Start from a lightweight Python 3.12 image
+FROM python:3.12-slim
 
 # Set environment variables to control shell interaction and markdown formatting
 # Disable shell interaction by default (not possible in docker)
