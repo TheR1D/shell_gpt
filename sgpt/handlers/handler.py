@@ -58,6 +58,7 @@ class Handler:
     def handle_function_call(
         self,
         messages: List[dict[str, Any]],
+        id: str,
         name: str,
         arguments: str,
     ) -> Generator[str, None, None]:
@@ -65,7 +66,13 @@ class Handler:
             {
                 "role": "assistant",
                 "content": "",
-                "function_call": {"name": name, "arguments": arguments},
+                "tool_calls": [
+                    {
+                        "id": id,
+                        "type": "function",
+                        "function": {"name": name, "arguments": arguments},
+                    }
+                ],
             }
         )
 
@@ -79,7 +86,9 @@ class Handler:
         result = get_function(name)(**dict_args)
         if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
             yield f"```text\n{result}\n```\n"
-        messages.append({"role": "function", "content": result, "name": name})
+        messages.append(
+            {"role": "tool", "content": result, "tool_call_id": id, "name": name}
+        )
 
     @cache
     def get_completion(
@@ -121,12 +130,14 @@ class Handler:
                 )
                 if tool_calls:
                     for tool_call in tool_calls:
+                        if tool_call.id:
+                            id = tool_call.id
                         if tool_call.function.name:
                             name = tool_call.function.name
                         if tool_call.function.arguments:
                             arguments += tool_call.function.arguments
                 if chunk.choices[0].finish_reason == "tool_calls":
-                    yield from self.handle_function_call(messages, name, arguments)
+                    yield from self.handle_function_call(messages, id, name, arguments)
                     yield from self.get_completion(
                         model=model,
                         temperature=temperature,
