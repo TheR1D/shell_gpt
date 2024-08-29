@@ -58,37 +58,46 @@ class Handler:
     def handle_function_call(
         self,
         messages: List[dict[str, Any]],
-        id: str,
-        name: str,
-        arguments: str,
+        name_map,
+        arguments_map,
     ) -> Generator[str, None, None]:
+        all_tool_calls = [
+            {
+                "id": id,
+                "type": "function",
+                "function": {"name": name, "arguments": arguments},
+            }
+            for id, name, arguments in zip(
+                name_map.keys(), name_map.values(), arguments_map.values()
+            )
+        ]
         messages.append(
             {
                 "role": "assistant",
                 "content": "",
-                "tool_calls": [
-                    {
-                        "id": id,
-                        "type": "function",
-                        "function": {"name": name, "arguments": arguments},
-                    }
-                ],
+                "tool_calls": all_tool_calls,
             }
         )
 
         if messages and messages[-1]["role"] == "assistant":
             yield "\n"
 
-        dict_args = json.loads(arguments)
-        joined_args = ", ".join(f'{k}="{v}"' for k, v in dict_args.items())
-        yield f"> @FunctionCall `{name}({joined_args})` \n\n"
+        all_function_res_msgs = []
+        for id, name, arguments in zip(
+            name_map.keys(), name_map.values(), arguments_map.values()
+        ):
+            dict_args = json.loads(arguments)
+            joined_args = ", ".join(f'{k}="{v}"' for k, v in dict_args.items())
+            yield f"> @FunctionCall `{name}({joined_args})` \n\n"
 
-        result = get_function(name)(**dict_args)
-        if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
-            yield f"```text\n{result}\n```\n"
-        messages.append(
-            {"role": "tool", "content": result, "tool_call_id": id, "name": name}
-        )
+            result = get_function(name)(**dict_args)
+            if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
+                yield f"```text\n{result}\n```\n"
+
+            all_function_res_msgs.append(
+                {"role": "tool", "content": result, "tool_call_id": id}
+            )
+        messages += all_function_res_msgs
 
     @cache
     def get_completion(
@@ -99,7 +108,6 @@ class Handler:
         messages: List[Dict[str, Any]],
         functions: Optional[List[Dict[str, str]]],
     ) -> Generator[str, None, None]:
-        name = arguments = ""
         is_shell_role = self.role.name == DefaultRoles.SHELL.value
         is_code_role = self.role.name == DefaultRoles.CODE.value
         is_dsc_shell_role = self.role.name == DefaultRoles.DESCRIBE_SHELL.value
@@ -140,12 +148,11 @@ class Handler:
                         else:
                             arguments_map[id] += tool_call.function.arguments
                 if chunk.choices[0].finish_reason == "tool_calls":
-                    for id, name, arguments in zip(
-                        name_map.keys(), name_map.values(), arguments_map.values()
-                    ):
-                        yield from self.handle_function_call(
-                            messages, id, name, arguments
-                        )
+                    yield from self.handle_function_call(
+                        messages,
+                        name_map,
+                        arguments_map,
+                    )
                     yield from self.get_completion(
                         model=model,
                         temperature=temperature,
