@@ -121,6 +121,8 @@ class Handler:
         )
 
         try:
+            arguments_map = {}
+            name_map = {}
             for chunk in response:
                 delta = chunk.choices[0].delta
 
@@ -128,16 +130,22 @@ class Handler:
                 tool_calls = (
                     delta.get("tool_calls") if use_litellm else delta.tool_calls
                 )
+
                 if tool_calls:
                     for tool_call in tool_calls:
-                        if tool_call.id:
+                        if tool_call.id is not None:
                             id = tool_call.id
-                        if tool_call.function.name:
-                            name = tool_call.function.name
-                        if tool_call.function.arguments:
-                            arguments += tool_call.function.arguments
+                            name_map[id] = tool_call.function.name
+                            arguments_map[id] = ""
+                        else:
+                            arguments_map[id] += tool_call.function.arguments
                 if chunk.choices[0].finish_reason == "tool_calls":
-                    yield from self.handle_function_call(messages, id, name, arguments)
+                    for id, name, arguments in zip(
+                        name_map.keys(), name_map.values(), arguments_map.values()
+                    ):
+                        yield from self.handle_function_call(
+                            messages, id, name, arguments
+                        )
                     yield from self.get_completion(
                         model=model,
                         temperature=temperature,
