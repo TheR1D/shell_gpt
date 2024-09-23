@@ -237,8 +237,8 @@ def main(
 
     while shell and interaction:
         option = typer.prompt(
-            text="[E]xecute, [D]escribe, [A]bort",
-            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+            text="[E]xecute, [D]escribe, [A]bort [M]odify",
+            type=Choice(("e", "d", "a", "y", "m"), case_sensitive=False),
             default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
             show_choices=False,
             show_default=False,
@@ -256,6 +256,9 @@ def main(
                 functions=function_schemas,
             )
             continue
+        elif option == "m":
+            prompt = get_edited_prompt(full_completion)
+            run_command(prompt)
         break
 
 
