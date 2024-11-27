@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
 
@@ -20,6 +22,54 @@ def test_shell(completion):
     assert result.exit_code == 0
     assert "git commit" in result.stdout
     assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
+
+
+@patch("sgpt.handlers.handler.completion")
+@pytest.mark.parametrize(
+    "prefix,suffix",
+    [
+        ("", ""),
+        ("some text before\n```powershell\n", "\n```" ""),
+        ("```powershell\n", "\n```\nsome text after" ""),
+        ("some text before\n```powershell\n", "\n```\nsome text after" ""),
+        (
+            "some text with ``` before\n```powershell\n",
+            "\n```\nsome text with ``` after" "",
+        ),
+        ("```powershell\n", "\n```" ""),
+        ("```\n", "\n```" ""),
+        ("```powershell\r\n", "\r\n```" ""),
+        ("```\r\n", "\r\n```" ""),
+        ("```powershell\r", "\r```" ""),
+        ("```\r", "\r```" ""),
+    ],
+)
+@pytest.mark.parametrize("group_by_size", range(10))
+def test_shell_no_backticks(completion, prefix: str, suffix: str, group_by_size: int):
+    expected_output = "Get-Process | \nWhere-Object { $_.Port -eq 9000 }\r\n | Select-Object Id | Text \r\nwith '```' inside"
+    produced_output = prefix + expected_output + suffix
+    if group_by_size == 0:
+        produced_tokens = list(produced_output)
+    else:
+        produced_tokens = [
+            produced_output[i : i + group_by_size]
+            for i in range(0, len(produced_output), group_by_size)
+        ]
+    assert produced_output == "".join(produced_tokens)
+
+    role = SystemRole.get(DefaultRoles.SHELL.value)
+    completion.return_value = mock_comp(produced_tokens)
+
+    args = {"prompt": "find pid by port 9000", "--shell": True}
+    result = runner.invoke(app, cmd_args(**args))
+
+    completion.assert_called_once_with(**comp_args(role, args["prompt"]))
+    index = result.stdout.find(expected_output)
+    assert index >= 0
+    rest = result.stdout[index + len(expected_output) :].strip()
+    assert "`" not in rest
+    assert result.exit_code == 0
+    assert "[E]xecute, [D]escribe, [A]bort:" == rest
 
 
 @patch("sgpt.printer.TextPrinter.live_print")
