@@ -9,6 +9,7 @@ from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
 
 completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
+
 base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
 additional_kwargs = {
@@ -21,6 +22,7 @@ if use_litellm:
 
     completion = litellm.completion
     litellm.suppress_debug_info = True
+    additional_kwargs.pop("api_key")
 else:
     from openai import OpenAI
 
@@ -95,12 +97,16 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
+        if functions:
+            additional_kwargs["tool_choice"] = "auto"
+            additional_kwargs["tools"] = functions
+            additional_kwargs["parallel_tool_calls"] = False
+
         response = completion(
             model=model,
             temperature=temperature,
             top_p=top_p,
             messages=messages,
-            functions=functions,
             stream=True,
             api_key=cfg.get("GEMINI_API_KEY") if model.startswith("gemini") else cfg.get("OPENAI_API_KEY"),
             **additional_kwargs,
@@ -109,16 +115,18 @@ class Handler:
         try:
             for chunk in response:
                 delta = chunk.choices[0].delta
+
                 # LiteLLM uses dict instead of Pydantic object like OpenAI does.
-                function_call = (
-                    delta.get("function_call") if use_litellm else delta.function_call
+                tool_calls = (
+                    delta.get("tool_calls") if use_litellm else delta.tool_calls
                 )
-                if function_call:
-                    if function_call.name:
-                        name = function_call.name
-                    if function_call.arguments:
-                        arguments += function_call.arguments
-                if chunk.choices[0].finish_reason == "function_call":
+                if tool_calls:
+                    for tool_call in tool_calls:
+                        if tool_call.function.name:
+                            name = tool_call.function.name
+                        if tool_call.function.arguments:
+                            arguments += tool_call.function.arguments
+                if chunk.choices[0].finish_reason == "tool_calls":
                     yield from self.handle_function_call(messages, name, arguments)
                     yield from self.get_completion(
                         model=model,

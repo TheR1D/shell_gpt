@@ -35,7 +35,7 @@ class TestShellGpt(TestCase):
         # Response streaming should be enabled for these tests.
         assert cfg.get("DISABLE_STREAMING") == "false"
         # ShellGPT optimised and tested with gpt-4 turbo.
-        assert cfg.get("DEFAULT_MODEL") == "gpt-4-1106-preview"
+        assert cfg.get("DEFAULT_MODEL") == "gpt-4o"
         # Make sure we will not call any functions.
         assert cfg.get("OPENAI_USE_FUNCTIONS") == "false"
 
