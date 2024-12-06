@@ -14,7 +14,7 @@ base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
 additional_kwargs = {
     "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("OPENAI_API_KEY"),
+    "api_key": cfg.get("OPENAI_API_KEY") if not use_litellm else None,
     "base_url": None if base_url == "default" else base_url,
 }
 
