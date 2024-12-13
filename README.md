@@ -12,6 +12,15 @@ By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, 
 > [!TIP]
 > Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
 >
+> xAI Grok also maintains some level of backwards compatability with the OpenAI API.
+> You may use an xAI token with Grok2 like so
+```
+export OPENAI_API_KEY='xai-xxxx'
+export DEFAULT_MODEL="grok-beta" #Or whatever model is listed at the time, and preferred.
+export API_BASE_URL=https://api.x.ai/v1
+```
+> Basic testing done, but *your mileage may vary*.
+
 > **❗️Note that ShellGPT is not optimized for local models and may not work as expected.**
 
 ## Usage
