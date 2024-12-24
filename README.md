@@ -429,6 +429,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 │ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]     │
 │ --cache                                       Cache completion results. [default: cache]                 │
 │ --version                                     Show version.                                              │
+| --updateAPI                                   Update OpenAI API key                                      |
 │ --help                                        Show this message and exit.                                │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Assistance Options ─────────────────────────────────────────────────────────────────────────────────────╮
