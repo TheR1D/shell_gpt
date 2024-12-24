@@ -94,6 +94,11 @@ def main(
         help="Show version.",
         callback=get_sgpt_version,
     ),
+    updateAPI: bool = typer.Option(
+        False,
+        "--updateAPI",
+        help="Update OpenAI API key",  
+    ),
     chat: str = typer.Option(
         None,
         help="Follow conversation with id, " 'use "temp" for quick session.',
@@ -225,6 +230,11 @@ def main(
             caching=cache,
             functions=function_schemas,
         )
+
+    if updateAPI:
+        cfg.update_API_key
+        return
+    
     else:
         full_completion = DefaultHandler(role_class, md).handle(
             prompt=prompt,

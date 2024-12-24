@@ -87,6 +87,13 @@ class Config(dict):  # type: ignore
         if not value:
             raise UsageError(f"Missing config key: {key}")
         return value
-
+    
+    @property
+    def update_API_key(self) -> None:
+        __newvalue = getpass(prompt="Please enter a valid OpenAI API key: ")
+        self["OPENAI_API_KEY"] = __newvalue
+        self._write()
+        
+        
 
 cfg = Config(SHELL_GPT_CONFIG_PATH, **DEFAULT_CONFIG)
