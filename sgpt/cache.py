@@ -31,14 +31,14 @@ class Cache:
             key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
             file = self.cache_path / key
             if kwargs.pop("caching") and file.exists():
-                yield file.read_text()
+                yield file.read_text(encoding='utf-8')
                 return
             result = ""
             for i in func(*args, **kwargs):
                 result += i
                 yield i
             if "@FunctionCall" not in result:
-                file.write_text(result)
+                file.write_text(result, encoding='utf-8')
             self._delete_oldest_files(self.length)  # type: ignore
 
         return wrapper
