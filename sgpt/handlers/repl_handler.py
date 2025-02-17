@@ -24,7 +24,7 @@ class ReplHandler(ChatHandler):
     def handle(self, init_prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:
             rich_print(Rule(title="Chat History", style="bold magenta"))
-            self.show_messages(self.chat_id)
+            self.show_messages(self.chat_id, self.markdown)
             rich_print(Rule(style="bold magenta"))
 
         info_message = (
