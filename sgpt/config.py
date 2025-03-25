@@ -37,6 +37,7 @@ DEFAULT_CONFIG = {
     "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
+    "COPY_SHELL_CMD_TO_CLIPBOARD": os.getenv("COPY_SHELL_CMD_TO_CLIPBOARD", "true"),
     # New features might add their own config variables here.
 }
 
