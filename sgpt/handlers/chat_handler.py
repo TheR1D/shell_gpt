@@ -10,7 +10,7 @@ from rich.markdown import Markdown
 from ..config import cfg
 from ..role import DefaultRoles, SystemRole
 from ..utils import option_callback
-from .handler import Handler
+from .gemini_handler import Handler
 
 CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
 CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
