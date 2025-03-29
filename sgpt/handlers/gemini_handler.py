@@ -12,10 +12,19 @@ from ..role import DefaultRoles, SystemRole
 
 completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
 
-base_url = cfg.get("GEMINI_API_BASE_URL")
+provider = cfg.get("LLM_API_PROVIDER")
+if provider == "gemini":
+    base_url = cfg.get("GEMINI_API_BASE_URL")
+    api_key = cfg.get("GEMINI_API_KEY")
+elif provider == "openai":
+    base_url = cfg.get("API_BASE_URL")
+    api_key = cfg.get("OPENAI_API_KEY")
+else:
+    raise ValueError(f"Invalid provider: {provider}")
+
 additional_kwargs = {
     "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("GEMINI_API_KEY"),
+    "api_key": api_key,
     "base_url": None if base_url == "default" else base_url,
     # "base_url": "https://generativelanguage.googleapis.com/v1beta/models/",
 }
@@ -24,13 +33,21 @@ completion = litellm.completion
 litellm.suppress_debug_info = True
 
 
+def validate_model_with_provider(model: str, provider: str) -> bool:
+    if provider == 'gemini':
+        return 'gemini' in model.lower()
+    if provider == 'openai':
+        return 'gpt' in model.lower()
+    return False
+
+
 class Handler:
     cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
     def __init__(self, role: SystemRole, markdown: bool) -> None:
         self.role = role
 
-        api_base_url = cfg.get("GEMINI_API_BASE_URL")
+        api_base_url = base_url
         self.base_url = None if api_base_url == "default" else api_base_url
         self.timeout = int(cfg.get("REQUEST_TIMEOUT"))
 
@@ -95,8 +112,20 @@ class Handler:
             additional_kwargs["tools"] = functions
             additional_kwargs["parallel_tool_calls"] = False
 
+        if model == 'auto_select_default_model':
+            match provider:
+                case 'gemini':
+                    model = cfg.get('DEFAULT_MODEL_GEMINI')
+                case 'openai':
+                    model = cfg.get('DEFAULT_MODEL_OPENAI')
+                case _:
+                    raise ValueError(f'Invalid provider: {provider}')
+
+        assert validate_model_with_provider(model, provider), \
+            f'Model {model} is not compatible with provider {provider}.'
+
         response = completion(
-            model='gemini/gemini-2.0-flash',
+            model=model,
             messages=messages,
             stream=True,
             **additional_kwargs,
