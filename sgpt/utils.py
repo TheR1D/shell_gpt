@@ -75,8 +75,17 @@ def install_shell_integration(*_args: Any) -> None:
     shell = os.getenv("SHELL", "")
     if "zsh" in shell:
         typer.echo("Installing ZSH integration...")
-        with open(os.path.expanduser("~/.zshrc"), "a", encoding="utf-8") as file:
-            file.write(zsh_integration)
+
+        zshrc_path = os.path.expanduser("~/.zshrc")
+        with open(zshrc_path, "r", encoding="utf-8") as file:
+            content = file.read()
+        if "Shell-GPT integration ZSH" not in content:
+            with open(zshrc_path, "a", encoding="utf-8") as file:
+                file.write(zsh_integration)
+            typer.echo(f"Updated {zshrc_path}")
+        else:
+            typer.echo("Shell-GPT integration already installed in .zshrc")
+
     elif "bash" in shell:
         typer.echo("Installing Bash integration...")
         with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as file:
