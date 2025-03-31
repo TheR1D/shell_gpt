@@ -22,7 +22,12 @@ from sgpt.utils import (
     run_command,
 )
 
+app = typer.Typer(
+    add_completion=False,
+)
 
+
+@app.command()
 def main(
     prompt: str = typer.Argument(
         "",
@@ -262,7 +267,7 @@ def main(
 
 
 def entry_point() -> None:
-    typer.run(main)
+    app()
 
 
 if __name__ == "__main__":
