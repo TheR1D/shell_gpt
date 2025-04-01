@@ -23,6 +23,8 @@ DEFAULT_CONFIG = {
     "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
     "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "auto_select_default_model"),
+    "DEFAULT_MODEL_GEMINI": os.getenv("DEFAULT_MODEL_GEMINI", "gemini/gemini-2.0-flash"),
+    "DEFAULT_MODEL_OPENAI": os.getenv("DEFAULT_MODEL_OPENAI", "gpt-4o"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
