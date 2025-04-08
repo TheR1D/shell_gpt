@@ -71,7 +71,8 @@ class ChatSession:
 
     def _write(self, messages: List[Dict[str, str]], chat_id: str) -> None:
         file_path = self.storage_path / chat_id
-        json.dump(messages[-self.length :], file_path.open("w"))
+        message_role_item = messages.pop(0)
+        json.dump([message_role_item] + messages[-self.length :], file_path.open("w"))
 
     def invalidate(self, chat_id: str) -> None:
         file_path = self.storage_path / chat_id
