@@ -1,0 +1,11 @@
+#compdef sgpt
+
+_sgpt() {
+    _arguments \
+        '(-s --shell)'{-s,--shell}'[Generate and execute shell commands]' \
+        '(-c --code)'{-c,--code}'[Generate only code]' \
+        '--repl[Start a REPL session]' \
+        '*:Enter your prompt for GPT:_default'
+}
+
+compdef _sgpt sgpt

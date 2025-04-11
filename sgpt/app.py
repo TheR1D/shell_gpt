@@ -18,11 +18,17 @@ from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
     get_edited_prompt,
     get_sgpt_version,
+    install_shell_completion,
     install_shell_integration,
     run_command,
 )
 
+app = typer.Typer(
+    add_completion=False,
+)
 
+
+@app.command()
 def main(
     prompt: str = typer.Argument(
         "",
@@ -148,6 +154,13 @@ def main(
         callback=install_shell_integration,
         hidden=True,  # Hiding since should be used only once.
     ),
+    # --install-completion is overridden because default implementation is too slow
+    install_completion: bool = typer.Option(
+        False,
+        help="Install shell completions (ZSH only)",
+        callback=install_shell_completion,
+        hidden=True,  # Hiding since should be used only once.
+    ),
     install_functions: bool = typer.Option(
         False,
         help="Install default functions.",
@@ -262,7 +275,7 @@ def main(
 
 
 def entry_point() -> None:
-    typer.run(main)
+    app()
 
 
 if __name__ == "__main__":
