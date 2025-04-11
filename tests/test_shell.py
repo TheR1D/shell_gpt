@@ -19,7 +19,7 @@ def test_shell(completion):
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
     assert "git commit" in result.stdout
-    assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
+    assert "[E]xecute, [D]escribe, [M]odify, [R]un (for Modify & Execute), [A]bort:" in result.stdout
 
 
 @patch("sgpt.printer.TextPrinter.live_print")
@@ -50,7 +50,7 @@ def test_shell_stdin(completion):
     completion.assert_called_once_with(**comp_args(role, expected_prompt))
     assert result.exit_code == 0
     assert "ls -l | sort" in result.stdout
-    assert "[E]xecute, [D]escribe, [A]bort:" in result.stdout
+    assert "[E]xecute, [D]escribe, [M]odify, [R]un (for Modify & Execute), [A]bort:" in result.stdout
 
 
 @patch("sgpt.handlers.handler.completion")

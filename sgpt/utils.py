@@ -11,7 +11,7 @@ from sgpt.__version__ import __version__
 from sgpt.integration import bash_integration, zsh_integration
 
 
-def get_edited_prompt() -> str:
+def get_edited_prompt(prompt: str = "") -> str:
     """
     Opens the user's default editor to let them
     input a prompt, and returns the edited text.
@@ -21,6 +21,9 @@ def get_edited_prompt() -> str:
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
         # Create file and store path.
         file_path = file.name
+        if prompt:
+            file.write(prompt.encode("utf-8"))
+        file.close()
     editor = os.environ.get("EDITOR", "vim")
     # This will write text to file using $EDITOR.
     os.system(f"{editor} {file_path}")

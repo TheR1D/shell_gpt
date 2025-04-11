@@ -239,8 +239,8 @@ def main(
 
     while shell and interaction:
         option = typer.prompt(
-            text="[E]xecute, [D]escribe, [A]bort",
-            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+                text="[E]xecute, [D]escribe, [M]odify, [R]un (for Modify & Execute), [A]bort",
+            type=Choice(("e", "d", "a", "y", "m", "r"), case_sensitive=False),
             default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
             show_choices=False,
             show_default=False,
@@ -257,6 +257,14 @@ def main(
                 caching=cache,
                 functions=function_schemas,
             )
+            continue
+        elif option == "m" or option == "r":
+            # modifying full_completion allows iterative manipulation.
+            full_completion = get_edited_prompt(full_completion)
+            DefaultHandler(role_class, md).printer(full_completion, False)
+            if option == "r":
+                run_command(full_completion)
+                break
             continue
         break
 
