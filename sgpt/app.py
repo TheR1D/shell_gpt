@@ -7,6 +7,7 @@ import sys
 import typer
 from click import BadArgumentUsage
 from click.types import Choice
+from pyperclip import copy as pyperclip_copy
 
 from sgpt.config import cfg
 from sgpt.function import get_openai_schemas
@@ -238,9 +239,16 @@ def main(
         )
 
     while shell and interaction:
+        choices = ("e", "d", "a", "y")
+        prompt_text = "[E]xecute, [D]escribe, [A]bort"
+        
+        if cfg.get("COPY_SHELL_CMD_TO_CLIPBOARD") == "true":
+            choices = (*choices, "c")
+            prompt_text += ", [C]opy"
+            
         option = typer.prompt(
-            text="[E]xecute, [D]escribe, [A]bort",
-            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+            text=prompt_text,
+            type=Choice(choices, case_sensitive=False),
             default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
             show_choices=False,
             show_default=False,
@@ -258,6 +266,11 @@ def main(
                 functions=function_schemas,
             )
             continue
+        elif option == "c":
+            pyperclip_copy(full_completion)
+            typer.echo("Command copied to clipboard")
+            continue
+        
         break
 
 

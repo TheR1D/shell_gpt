@@ -6,9 +6,12 @@ from typing import Any, Callable
 
 import typer
 from click import BadParameter, UsageError
+from pyperclip import copy as pyperclip_copy
 
 from sgpt.__version__ import __version__
 from sgpt.integration import bash_integration, zsh_integration
+
+from sgpt.config import cfg
 
 
 def get_edited_prompt() -> str:
@@ -50,6 +53,8 @@ def run_command(command: str) -> None:
         shell = os.environ.get("SHELL", "/bin/sh")
         full_command = f"{shell} -c {shlex.quote(command)}"
 
+    if cfg.get("COPY_SHELL_CMD_TO_CLIPBOARD") == "true":
+        pyperclip_copy(full_command)
     os.system(full_command)
 
 
