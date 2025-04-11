@@ -71,7 +71,9 @@ class ChatSession:
 
     def _write(self, messages: List[Dict[str, str]], chat_id: str) -> None:
         file_path = self.storage_path / chat_id
-        json.dump(messages[-self.length :], file_path.open("w"))
+        # Retain the first message since it defines the role
+        truncated_messages = messages[:1] + messages[1 + max(0, len(messages) - self.length):]
+        json.dump(truncated_messages, file_path.open("w"))
 
     def invalidate(self, chat_id: str) -> None:
         file_path = self.storage_path / chat_id
@@ -127,9 +129,9 @@ class ChatHandler(Handler):
             typer.echo(chat_id)
 
     @classmethod
-    def show_messages(cls, chat_id: str) -> None:
+    def show_messages(cls, chat_id: str, markdown: bool) -> None:
         color = cfg.get("DEFAULT_COLOR")
-        if "APPLY MARKDOWN" in cls.initial_message(chat_id):
+        if "APPLY MARKDOWN" in cls.initial_message(chat_id) and markdown:
             theme = cfg.get("CODE_THEME")
             for message in cls.chat_session.get_messages(chat_id):
                 if message.startswith("assistant:"):
@@ -142,11 +144,6 @@ class ChatHandler(Handler):
         for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
             running_color = color if index % 2 == 0 else "green"
             typer.secho(message, fg=running_color)
-
-    @classmethod
-    @option_callback
-    def show_messages_callback(cls, chat_id: str) -> None:
-        cls.show_messages(chat_id)
 
     def validate(self) -> None:
         if self.initiated:

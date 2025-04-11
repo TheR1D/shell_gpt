@@ -146,7 +146,7 @@ def test_shell_repl(completion, mock_system):
     inputs = ["__sgpt__eof__", "list folder", "sort by name", "e", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
     shell = os.environ.get("SHELL", "/bin/sh")
-    mock_system.called_once_with(f"{shell} -c 'ls | sort'")
+    mock_system.assert_called_once_with(f"{shell} -c 'ls | sort'")
 
     expected_messages = [
         {"role": "system", "content": role.role},
