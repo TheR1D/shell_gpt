@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 import platform
 import shlex
+import subprocess
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable
 
@@ -8,6 +10,8 @@ import typer
 from click import BadParameter, UsageError
 
 from sgpt.__version__ import __version__
+from sgpt.command import Command
+from sgpt.config import cfg
 from sgpt.integration import bash_integration, zsh_integration
 
 
@@ -33,6 +37,17 @@ def get_edited_prompt() -> str:
     return output
 
 
+command_helper = Command(command_path=Path(cfg.get("COMMAND_PATH")))
+
+
+def get_fixed_prompt() -> str:
+    """
+    get the last command and output then return a PROMPT
+    """
+    command, output = command_helper.get_last_command()
+    return f"The last command `{command}` failed with error:\n{output}\nPlease fix it."
+
+
 def run_command(command: str) -> None:
     """
     Runs a command in the user's shell.
@@ -50,7 +65,18 @@ def run_command(command: str) -> None:
         shell = os.environ.get("SHELL", "/bin/sh")
         full_command = f"{shell} -c {shlex.quote(command)}"
 
-    os.system(full_command)
+    # os.system(full_command)
+    process = subprocess.Popen(
+        args=full_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        shell=True,
+    )
+    output, _ = process.communicate()
+    print(output)
+
+    command_helper.set_last_command(command, output)
 
 
 def option_callback(func: Callable) -> Callable:  # type: ignore

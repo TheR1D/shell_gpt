@@ -13,6 +13,7 @@ ROLE_STORAGE_PATH = SHELL_GPT_CONFIG_FOLDER / "roles"
 FUNCTIONS_PATH = SHELL_GPT_CONFIG_FOLDER / "functions"
 CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
 CACHE_PATH = Path(gettempdir()) / "cache"
+COMMAND_PATH = Path(gettempdir()) / "commands"
 
 # TODO: Refactor ENV variables with SGPT_ prefix.
 DEFAULT_CONFIG = {
@@ -37,6 +38,7 @@ DEFAULT_CONFIG = {
     "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
+    "COMMAND_PATH": os.getenv("COMMAND_PATH", str(COMMAND_PATH)),
     # New features might add their own config variables here.
 }
 

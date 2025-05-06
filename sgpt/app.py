@@ -17,6 +17,7 @@ from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
     get_edited_prompt,
+    get_fixed_prompt,
     get_sgpt_version,
     install_shell_integration,
     run_command,
@@ -83,6 +84,10 @@ def main(
     editor: bool = typer.Option(
         False,
         help="Open $EDITOR to provide a prompt.",
+    ),
+    fix: bool = typer.Option(
+        False,
+        help="Fix the wrong last command.",
     ),
     cache: bool = typer.Option(
         True,
@@ -198,6 +203,9 @@ def main(
 
     if editor:
         prompt = get_edited_prompt()
+
+    if fix:
+        prompt = get_fixed_prompt()
 
     role_class = (
         DefaultRoles.check_get(shell, describe_shell, code)
