@@ -228,7 +228,8 @@ def main(
         )
 
     if not prompt:
-        print("Prompt cant be empty. Use `sgpt <prompt>` to get started.")
+        if not show_chat:
+            print("Prompt cant be empty. Use `sgpt <prompt>` to get started.")
         return
 
     if chat:
