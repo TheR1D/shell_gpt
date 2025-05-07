@@ -227,10 +227,9 @@ def main(
             functions=function_schemas,
         )
 
-    if prompt == "":
-        raise BadArgumentUsage(
-            "Prompt cant be empty. Use `sgpt <prompt>` to get started."
-        )
+    if not prompt:
+        print("Prompt cant be empty. Use `sgpt <prompt>` to get started.")
+        return
 
     if chat:
         full_completion = ChatHandler(chat, role_class, md).handle(
@@ -251,9 +250,8 @@ def main(
             functions=function_schemas,
         )
 
-    command = extract_command_from_completion(full_completion)
-
     while shell and interaction:
+        command = extract_command_from_completion(full_completion)
         option = typer.prompt(
             text="[E]xecute, [D]escribe, [A]bort",
             type=Choice(("e", "d", "a", "y"), case_sensitive=False),
