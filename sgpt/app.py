@@ -16,7 +16,9 @@ from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
+    extract_command_from_completion,
     get_edited_prompt,
+    get_fixed_prompt,
     get_sgpt_version,
     install_shell_integration,
     run_command,
@@ -83,6 +85,10 @@ def main(
     editor: bool = typer.Option(
         False,
         help="Open $EDITOR to provide a prompt.",
+    ),
+    fix: bool = typer.Option(
+        False,
+        help="Fix the wrong last command.",
     ),
     cache: bool = typer.Option(
         True,
@@ -199,6 +205,9 @@ def main(
     if editor:
         prompt = get_edited_prompt()
 
+    if fix:
+        prompt = get_fixed_prompt()
+
     role_class = (
         DefaultRoles.check_get(shell, describe_shell, code)
         if not role
@@ -217,6 +226,11 @@ def main(
             caching=cache,
             functions=function_schemas,
         )
+
+    if not prompt:
+        if not show_chat:
+            print("Prompt cant be empty. Use `sgpt <prompt>` to get started.")
+        return
 
     if chat:
         full_completion = ChatHandler(chat, role_class, md).handle(
@@ -238,6 +252,7 @@ def main(
         )
 
     while shell and interaction:
+        command = extract_command_from_completion(full_completion)
         option = typer.prompt(
             text="[E]xecute, [D]escribe, [A]bort",
             type=Choice(("e", "d", "a", "y"), case_sensitive=False),
@@ -247,10 +262,10 @@ def main(
         )
         if option in ("e", "y"):
             # "y" option is for keeping compatibility with old version.
-            run_command(full_completion)
+            run_command(command)
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
-                full_completion,
+                command,
                 model=model,
                 temperature=temperature,
                 top_p=top_p,

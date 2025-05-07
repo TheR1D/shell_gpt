@@ -1,4 +1,5 @@
 import os
+import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
@@ -81,15 +82,22 @@ def test_describe_shell_stdin(completion):
     assert "lists" in result.stdout
 
 
-@patch("os.system")
+@patch("subprocess.Popen")
 @patch("sgpt.handlers.handler.completion")
-def test_shell_run_description(completion, system):
+def test_shell_run_description(completion, mock_popen):
+    mock_popen.return_value.communicate.return_value = ("stdout", None)
     completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
     inputs = "__sgpt__eof__\nd\ne\n"
     result = runner.invoke(app, cmd_args(**args), input=inputs)
     shell = os.environ.get("SHELL", "/bin/sh")
-    system.assert_called_once_with(f"{shell} -c 'echo hello'")
+    mock_popen.assert_called_once_with(
+        args=f"{shell} -c 'echo hello'",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        shell=True,
+    )
     assert result.exit_code == 0
     assert "echo hello" in result.stdout
     assert "prints hello" in result.stdout
@@ -133,9 +141,10 @@ def test_shell_chat(completion):
     # TODO: Shell chat can be recalled without --shell option.
 
 
-@patch("os.system")
+@patch("subprocess.Popen")
 @patch("sgpt.handlers.handler.completion")
-def test_shell_repl(completion, mock_system):
+def test_shell_repl(completion, mock_popen):
+    mock_popen.return_value.communicate.return_value = ("stdout", None)
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
@@ -146,7 +155,14 @@ def test_shell_repl(completion, mock_system):
     inputs = ["__sgpt__eof__", "list folder", "sort by name", "e", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
     shell = os.environ.get("SHELL", "/bin/sh")
-    mock_system.assert_called_once_with(f"{shell} -c 'ls | sort'")
+
+    mock_popen.assert_called_once_with(
+        args=f"{shell} -c 'ls | sort'",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+        shell=True,
+    )
 
     expected_messages = [
         {"role": "system", "content": role.role},
