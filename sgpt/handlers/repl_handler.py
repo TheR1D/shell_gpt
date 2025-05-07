@@ -5,7 +5,7 @@ from rich import print as rich_print
 from rich.rule import Rule
 
 from ..role import DefaultRoles, SystemRole
-from ..utils import run_command
+from ..utils import run_command, get_fixed_prompt, extract_command_from_completion
 from .chat_handler import ChatHandler
 from .default_handler import DefaultHandler
 
@@ -32,7 +32,7 @@ class ReplHandler(ChatHandler):
             if not self.role.name == DefaultRoles.SHELL.value
             else (
                 "Entering shell REPL mode, type [e] to execute commands "
-                "or [d] to describe the commands, press Ctrl+C to exit."
+                "or [d] to describe the commands, or [f] to fix the last command, press Ctrl+C to exit."
             )
         )
         typer.secho(info_message, fg="yellow")
@@ -53,14 +53,17 @@ class ReplHandler(ChatHandler):
             if init_prompt:
                 prompt = f"{init_prompt}\n\n\n{prompt}"
                 init_prompt = ""
+            if self.role.name == DefaultRoles.SHELL.value and prompt == "f":
+                prompt = get_fixed_prompt()
+            command = extract_command_from_completion(full_completion)
             if self.role.name == DefaultRoles.SHELL.value and prompt == "e":
                 typer.echo()
-                run_command(full_completion)
+                run_command(command)
                 typer.echo()
                 rich_print(Rule(style="bold magenta"))
             elif self.role.name == DefaultRoles.SHELL.value and prompt == "d":
                 DefaultHandler(
                     DefaultRoles.DESCRIBE_SHELL.get_role(), self.markdown
-                ).handle(prompt=full_completion, **kwargs)
+                ).handle(prompt=command, **kwargs)
             else:
                 full_completion = super().handle(prompt=prompt, **kwargs)

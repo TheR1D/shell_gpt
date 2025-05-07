@@ -16,6 +16,7 @@ from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
+    extract_command_from_completion,
     get_edited_prompt,
     get_fixed_prompt,
     get_sgpt_version,
@@ -226,6 +227,11 @@ def main(
             functions=function_schemas,
         )
 
+    if prompt == "":
+        raise BadArgumentUsage(
+            "Prompt cant be empty. Use `sgpt <prompt>` to get started."
+        )
+
     if chat:
         full_completion = ChatHandler(chat, role_class, md).handle(
             prompt=prompt,
@@ -245,6 +251,8 @@ def main(
             functions=function_schemas,
         )
 
+    command = extract_command_from_completion(full_completion)
+
     while shell and interaction:
         option = typer.prompt(
             text="[E]xecute, [D]escribe, [A]bort",
@@ -255,10 +263,10 @@ def main(
         )
         if option in ("e", "y"):
             # "y" option is for keeping compatibility with old version.
-            run_command(full_completion)
+            run_command(command)
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
-                full_completion,
+                command,
                 model=model,
                 temperature=temperature,
                 top_p=top_p,

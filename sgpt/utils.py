@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 import platform
 import shlex
@@ -46,6 +47,15 @@ def get_fixed_prompt() -> str:
     """
     command, output = command_helper.get_last_command()
     return f"The last command `{command}` failed with error:\n{output}\nPlease fix it."
+
+
+def extract_command_from_completion(completion: str) -> str:
+    """
+    using regex to extract the command from the completion
+    """
+    if match := re.search(r"```(.*sh)?(.*?)```", completion, re.DOTALL):
+        return match[2].strip()
+    return completion
 
 
 def run_command(command: str) -> None:
