@@ -31,6 +31,7 @@ dependencies = [
     "distro >= 1.8.0, < 2.0.0",
     "instructor >= 1.0.0, < 2.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
+    "google-genai >= 0.7.0, < 1.0.0", # Added for Vertex AI via google-genai SDK
 ]
 
 [project.optional-dependencies]

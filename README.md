@@ -3,16 +3,84 @@ A command-line productivity tool powered by AI large language models (LLM). This
 
 https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
 
-## Installation
-```shell
-pip install shell-gpt
-```
-By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
+## ⚠️ Important Notices & Warnings
 
-> [!TIP]
-> Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
->
-> **❗️Note that ShellGPT is not optimized for local models and may not work as expected.**
+**ShellGPT is experimental software. Use it at your own risk.**
+
+*   **Potential System Modifications:** Features like shell command execution (`--shell`) and function calling can execute commands on your system. While designed to be helpful, there's a potential for unintended system modifications if the generated commands are incorrect or malicious, or if custom functions have side effects. Always review commands before execution, especially when using the interactive execution prompt.
+*   **Data Privacy:** Do **NOT** use personally identifiable information (PII) or any sensitive data in your prompts when interacting with ShellGPT, especially when using third-party APIs like OpenAI or Vertex AI. Your prompts and generated responses may be processed and stored by these third-party services according to their terms of service and privacy policies.
+*   **API Key Security:** Protect your API keys (e.g., OpenAI API key, Google Cloud credentials). Do not share them publicly or commit them to version control. ShellGPT stores API keys in its configuration file (`~/.config/shell_gpt/.sgptrc`). Ensure this file has appropriate permissions to restrict access. Consider using environment variables for API keys where possible, especially in shared or CI/CD environments, although ShellGPT primarily uses its config file.
+*   **Experimental Features:** Some features, including interactions with newer models or less common LLM backends, might be more experimental than others.
+
+By using ShellGPT, you acknowledge these risks.
+
+## Installation
+
+### General Requirements
+*   **Python:** ShellGPT requires Python 3.10 or higher. You can check your Python version by running `python3 --version`.
+*   **pip:** You'll need `pip` (Python's package installer) to install ShellGPT. It usually comes with Python. You can check if it's installed by running `pip3 --version`.
+
+If you don't have Python or pip, please install them first according to your operating system's best practices.
+
+### macOS Installation
+
+1.  **Install ShellGPT:**
+    Open your terminal and run:
+    ```shell
+    pip3 install shell-gpt
+    ```
+    If you encounter permission errors, you might need to use `pip3 install --user shell-gpt` or ensure your Python environment is set up correctly (e.g., using `pyenv` or `brew install python`).
+
+2.  **Initial Setup (API Key & Configuration):**
+    The first time you run `sgpt`, if an API key is needed (e.g., for OpenAI), you will be prompted to enter it.
+    ```shell
+    sgpt "hello"
+    # Follow prompts for API key if needed.
+    ```
+    Alternatively, you can run the interactive setup script for more guided configuration, especially for Vertex AI:
+    ```shell
+    # If you cloned the repository:
+    # ./scripts/sgpt_setup.zsh
+    # Or if sgpt is installed and in PATH, it might offer setup options.
+    ```
+
+### Linux Installation
+
+1.  **Install ShellGPT:**
+    Open your terminal and run:
+    ```shell
+    pip3 install shell-gpt
+    ```
+    If you encounter permission errors, you might need to use `pip3 install --user shell-gpt`. Ensure your `~/.local/bin` is in your PATH if using `--user`. Some distributions might require `python3-pip` to be installed first (e.g., `sudo apt install python3-pip` on Debian/Ubuntu).
+
+2.  **Initial Setup (API Key & Configuration):**
+    The first time you run `sgpt`, if an API key is needed (e.g., for OpenAI), you will be prompted to enter it.
+    ```shell
+    sgpt "hello"
+    # Follow prompts for API key if needed.
+    ```
+    Alternatively, you can run the interactive setup script for more guided configuration, especially for Vertex AI:
+    ```shell
+    # If you cloned the repository:
+    # ./scripts/sgpt_setup.zsh
+    # Or if sgpt is installed and in PATH, it might offer setup options.
+    ```
+
+### API Key and Backend Configuration
+
+By default, ShellGPT is configured to use OpenAI's API (e.g., GPT-4 models).
+*   **OpenAI:** You'll need an OpenAI API key. You can generate one [here](https://platform.openai.com/account/api-keys). When you first run `sgpt` or use the setup script, you'll be prompted for your key, which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API usage is subject to their [pricing](https://openai.com/pricing).
+*   **Google Vertex AI / AI Studio:** ShellGPT also supports Google's Gemini models via Vertex AI (using Application Default Credentials) or Google AI Studio (using an API Key). The setup script (`./scripts/sgpt_setup.zsh` if you cloned the repo, or follow prompts if `sgpt` offers setup) can help configure these.
+    *   For Vertex AI, ensure you have the Google Cloud SDK installed and authenticated (`gcloud auth application-default login`).
+    *   Set `GOOGLE_CLOUD_PROJECT` and `VERTEXAI_LOCATION` in the `~/.config/shell_gpt/.sgptrc` file or as environment variables.
+*   **LiteLLM for Other Backends (including Local Models):**
+    ShellGPT uses [LiteLLM](https://github.com/BerriAI/litellm) to support a wide range of LLM providers, including local models via backends like [Ollama](https://github.com/ollama/ollama).
+    > [!TIP]
+    > To use local models with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
+    >
+    > **❗️Note that ShellGPT's performance and feature compatibility may vary with different backends and local models.**
+
+Ensure `USE_LITELLM=true` is set in `~/.config/shell_gpt/.sgptrc` to enable LiteLLM.
 
 ## Usage
 **ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.

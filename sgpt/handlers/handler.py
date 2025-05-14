@@ -1,4 +1,5 @@
 import json
+import os # Added import for os module
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
 
@@ -90,6 +91,8 @@ class Handler:
         top_p: float,
         messages: List[Dict[str, Any]],
         functions: Optional[List[Dict[str, str]]],
+        # **kwargs will be passed from self.handle, containing caching=True/False
+        **kwargs: Any,
     ) -> Generator[str, None, None]:
         name = arguments = ""
         is_shell_role = self.role.name == DefaultRoles.SHELL.value
@@ -98,19 +101,77 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
-        if functions:
-            additional_kwargs["tool_choice"] = "auto"
-            additional_kwargs["tools"] = functions
-            additional_kwargs["parallel_tool_calls"] = False
+        # Create a copy of the global additional_kwargs to modify for this specific call.
+        current_call_kwargs = additional_kwargs.copy()
+        # Ensure api_key is not in current_call_kwargs if using LiteLLM, as it's handled by LiteLLM.
+        if use_litellm and "api_key" in current_call_kwargs:
+            del current_call_kwargs["api_key"]
 
-        response = completion(
-            model=model,
-            temperature=temperature,
-            top_p=top_p,
-            messages=messages,
-            stream=True,
-            **additional_kwargs,
-        )
+
+        if functions:
+            current_call_kwargs["tool_choice"] = "auto"
+            # --- BEGIN DEBUG PRINT ---
+            import sys
+            print(f"DEBUG: sgpt/handlers/handler.py: functions schema before passing to LiteLLM: {json.dumps(functions, indent=2)}", file=sys.stderr)
+            # --- END DEBUG PRINT ---
+            current_call_kwargs["tools"] = functions
+            # Only set parallel_tool_calls for non-Vertex AI models,
+            # as Vertex AI (Gemini) via LiteLLM doesn't support it.
+            # This logic might need refinement based on which Vertex AI path is taken.
+            if use_litellm and model and not (model.startswith("vertex_ai") or model.startswith("google/") or model.startswith("vertex-genai/")):
+                current_call_kwargs["parallel_tool_calls"] = False
+            elif not use_litellm: # If using OpenAI directly, it's a valid param
+                current_call_kwargs["parallel_tool_calls"] = False
+
+        transformed_model_for_litellm = model
+        is_vertex_genai_model = False
+
+        if use_litellm and model:
+            gcp_project_id = cfg.get("GOOGLE_CLOUD_PROJECT")
+            gcp_location = cfg.get("VERTEXAI_LOCATION")
+            valid_gcp_project = gcp_project_id and not gcp_project_id.startswith("DISABLED_SGPT_SETUP") and gcp_project_id.strip() not in ('""', '')
+            valid_gcp_location = gcp_location and not gcp_location.startswith("DISABLED_SGPT_SETUP") and gcp_location.strip() not in ('""', '')
+
+            if model.startswith("vertex-genai/"):
+                # Route this through LiteLLM's standard Vertex AI provider
+                # by transforming the model name. This avoids google-genai SDK complexities via LiteLLM.
+                is_vertex_genai_model = True # Still useful for the finally block if we re-add env var logic later
+                base_model_name = model.split('/', 1)[1]
+                # Transform to a prefix LiteLLM understands for its native Vertex AI integration
+                transformed_model_for_litellm = f"vertex_ai/{base_model_name}"
+                if valid_gcp_project:
+                    current_call_kwargs["project"] = gcp_project_id
+                if valid_gcp_location:
+                    current_call_kwargs["location"] = gcp_location
+                print(f"DEBUG: Using vertex-genai path, mapping to LiteLLM's vertex_ai provider. Model for LiteLLM: {transformed_model_for_litellm}", file=sys.stderr)
+                print(f"DEBUG: current_call_kwargs for vertex-genai (mapped to vertex_ai): {current_call_kwargs}", file=sys.stderr)
+                # No longer setting GOOGLE_GENAI_USE_VERTEXAI as we are using LiteLLM's google-cloud-aiplatform path
+
+            elif model.startswith("vertex_ai/") or model.startswith("google/"):
+                # This is the existing path for LiteLLM's default Vertex AI provider (google-cloud-aiplatform)
+                if valid_gcp_project:
+                    current_call_kwargs["project"] = gcp_project_id
+                if valid_gcp_location:
+                    current_call_kwargs["location"] = gcp_location
+                print(f"DEBUG: Using vertex_ai/google/ path. Model for LiteLLM: {model}", file=sys.stderr)
+                print(f"DEBUG: current_call_kwargs for vertex_ai/google: {current_call_kwargs}", file=sys.stderr)
+
+
+        try:
+            response = completion(
+                model=transformed_model_for_litellm,
+                temperature=temperature,
+                top_p=top_p,
+                messages=messages,
+                stream=True,
+                **current_call_kwargs,
+            )
+        finally:
+            # Clean up GOOGLE_GENAI_USE_VERTEXAI if it was set by a different path or future logic
+            # For now, this specific vertex-genai path doesn't set it.
+            if os.getenv("GOOGLE_GENAI_USE_VERTEXAI"): # Check if it was set by any chance
+                 os.environ.pop("GOOGLE_GENAI_USE_VERTEXAI", None)
+                 print(f"DEBUG: GOOGLE_GENAI_USE_VERTEXAI was found and popped from env.", file=sys.stderr)
 
         try:
             for chunk in response:
