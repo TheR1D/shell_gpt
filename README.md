@@ -73,6 +73,33 @@ By default, ShellGPT is configured to use OpenAI's API (e.g., GPT-4 models).
 *   **Google Vertex AI / AI Studio:** ShellGPT also supports Google's Gemini models via Vertex AI (using Application Default Credentials) or Google AI Studio (using an API Key). The setup script (`./scripts/sgpt_setup.zsh` if you cloned the repo, or follow prompts if `sgpt` offers setup) can help configure these.
     *   For Vertex AI, ensure you have the Google Cloud SDK installed and authenticated (`gcloud auth application-default login`).
     *   Set `GOOGLE_CLOUD_PROJECT` and `VERTEXAI_LOCATION` in the `~/.config/shell_gpt/.sgptrc` file or as environment variables.
+*   **Enabling Gemini Models:**
+        ShellGPT can use Gemini models through Google Vertex AI or Google AI Studio. The setup script (`./scripts/sgpt_setup.zsh`) is the recommended way to configure this.
+        *   **Via Vertex AI:**
+            1.  Ensure Google Cloud SDK is installed and you've authenticated: `gcloud auth application-default login`.
+            2.  In `~/.config/shell_gpt/.sgptrc`, set your project and location:
+                ```ini
+                GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+                VERTEXAI_LOCATION=your-gcp-region  # e.g., us-central1
+                ```
+            3.  Set your desired Gemini model:
+                ```ini
+                DEFAULT_MODEL=gemini-1.5-pro-latest # Or gemini-pro, etc.
+                ```
+                The `API_BASE_URL` should typically be `default` as ShellGPT will resolve the Vertex AI endpoint.
+        *   **Via Google AI Studio (MakerSuite API Key):**
+            1.  Obtain an API Key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+            2.  In `~/.config/shell_gpt/.sgptrc`, configure:
+                ```ini
+                # For Google AI Studio (Gemini API)
+                API_BASE_URL=https://generativelanguage.googleapis.com # Or specific version
+                OPENAI_API_KEY=your_google_ai_studio_api_key # Note: The config key is OPENAI_API_KEY
+                DEFAULT_MODEL=gemini-1.5-pro-latest # Or other compatible model like models/gemini-1.0-pro
+                # Depending on ShellGPT version, USE_LITELLM might need to be true
+                # if direct Google AI Studio support isn't built-in or to access more models.
+                ```
+        *   You can always override the default model using the `--model` flag:
+            `sgpt --model gemini-1.5-pro-latest "Your prompt"`
 *   **LiteLLM for Other Backends (including Local Models):**
     ShellGPT uses [LiteLLM](https://github.com/BerriAI/litellm) to support a wide range of LLM providers, including local models via backends like [Ollama](https://github.com/ollama/ollama).
     > [!TIP]
