@@ -51,10 +51,8 @@ def _get_default_suggested_vertex_models() -> str:
         pass
     except Exception as e:
         # Catch any other unexpected errors during processing.
-        print(
-            f"sgpt: Debug: Error determining Vertex AI models from LiteLLM: {e}",
-            file=sys.stderr,
-        )
+        # Debug print removed. Error details are silently ignored here,
+        # and the function will proceed to the fallback.
         pass
 
     # Fallback if LiteLLM not installed or models can't be determined
