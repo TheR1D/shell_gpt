@@ -1,7 +1,7 @@
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
-https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
+https://github.com/smsmatt/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
 
 ## ⚠️ Important Notices & Warnings
 
@@ -22,92 +22,154 @@ By using ShellGPT, you acknowledge these risks.
 
 If you don't have Python or pip, please install them first according to your operating system's best practices.
 
-### macOS Installation
+### Installation Methods
+
+Choose one of the following methods to install ShellGPT:
+
+#### Method 1: Install from PyPI (Official Stable Release)
+
+This method installs the latest stable version of the **original** ShellGPT from the Python Package Index (PyPI). This is recommended for most users who want a stable, official release.
 
 1.  **Install ShellGPT:**
     Open your terminal and run:
     ```shell
     pip3 install shell-gpt
     ```
-    If you encounter permission errors, you might need to use `pip3 install --user shell-gpt` or ensure your Python environment is set up correctly (e.g., using `pyenv` or `brew install python`).
+    *   If you encounter permission errors, you might need to use `pip3 install --user shell-gpt`. Ensure `~/.local/bin` (on Linux) is in your `PATH` if using `--user`.
+    *   On some Linux distributions, you might need to install `python3-pip` first (e.g., `sudo apt install python3-pip` on Debian/Ubuntu).
 
 2.  **Initial Setup (API Key & Configuration):**
-    The first time you run `sgpt`, if an API key is needed (e.g., for OpenAI), you will be prompted to enter it.
+    The first time you run `sgpt` (e.g., `sgpt "hello"`), if an API key is needed (e.g., for OpenAI), you will be prompted to enter it.
+    For more comprehensive configuration, especially for backends like Google Vertex AI, ShellGPT might offer setup prompts or you may need to configure it manually (see "API Key and Backend Configuration" below). The interactive setup script (`sgpt_setup.zsh`) is primarily available when installing from the repository (Method 2).
+
+#### Method 2: Install from Repository (Development/Forked Version)
+
+This method is for users who want to install ShellGPT directly from a Git repository. This is useful for:
+*   Installing a specific fork (like this one: `smsmatt/shell_gpt`).
+*   Getting the very latest (potentially unstable) development code.
+*   Contributing to development.
+
+1.  **Clone the Repository:**
+    Open your terminal and clone the desired repository. For this fork:
     ```shell
-    sgpt "hello"
-    # Follow prompts for API key if needed.
-    ```
-    Alternatively, you can run the interactive setup script for more guided configuration, especially for Vertex AI:
-    ```shell
-    # If you cloned the repository:
-    # ./scripts/sgpt_setup.zsh
-    # Or if sgpt is installed and in PATH, it might offer setup options.
+    git clone https://github.com/smsmatt/shell_gpt.git
     ```
 
-### Linux Installation
-
-1.  **Install ShellGPT:**
-    Open your terminal and run:
+2.  **Navigate to the Directory:**
     ```shell
-    pip3 install shell-gpt
-    ```
-    If you encounter permission errors, you might need to use `pip3 install --user shell-gpt`. Ensure your `~/.local/bin` is in your PATH if using `--user`. Some distributions might require `python3-pip` to be installed first (e.g., `sudo apt install python3-pip` on Debian/Ubuntu).
-
-2.  **Initial Setup (API Key & Configuration):**
-    The first time you run `sgpt`, if an API key is needed (e.g., for OpenAI), you will be prompted to enter it.
-    ```shell
-    sgpt "hello"
-    # Follow prompts for API key if needed.
-    ```
-    Alternatively, you can run the interactive setup script for more guided configuration, especially for Vertex AI:
-    ```shell
-    # If you cloned the repository:
-    # ./scripts/sgpt_setup.zsh
-    # Or if sgpt is installed and in PATH, it might offer setup options.
+    cd shell_gpt
     ```
 
+3.  **Install ShellGPT and its Dependencies:**
+    This command installs ShellGPT in your Python environment from the cloned source code.
+    ```shell
+    pip3 install .
+    ```
+    *   To install in editable mode (if you plan to modify the code and see changes immediately without reinstalling), you can use: `pip3 install -e .`
+
+4.  **Initial Setup (API Key & Configuration using Setup Script):**
+    After installation, the `sgpt` command will be available. The recommended way to configure ShellGPT, especially for backends like Google Vertex AI, is by using the interactive setup script:
+    ```shell
+    ./scripts/sgpt_setup.zsh
+    ```
+    This script will guide you through setting up API keys and other necessary configurations. It will create or update the configuration file at `~/.config/shell_gpt/.sgptrc`.
+
+After installation via either method, proceed to the "API Key and Backend Configuration" section for details on setting up different LLM backends.
 ### API Key and Backend Configuration
 
-By default, ShellGPT is configured to use OpenAI's API (e.g., GPT-4 models).
-*   **OpenAI:** You'll need an OpenAI API key. You can generate one [here](https://platform.openai.com/account/api-keys). When you first run `sgpt` or use the setup script, you'll be prompted for your key, which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API usage is subject to their [pricing](https://openai.com/pricing).
-*   **Google Vertex AI / AI Studio:** ShellGPT also supports Google's Gemini models via Vertex AI (using Application Default Credentials) or Google AI Studio (using an API Key). The setup script (`./scripts/sgpt_setup.zsh` if you cloned the repo, or follow prompts if `sgpt` offers setup) can help configure these.
-    *   For Vertex AI, ensure you have the Google Cloud SDK installed and authenticated (`gcloud auth application-default login`).
-    *   Set `GOOGLE_CLOUD_PROJECT` and `VERTEXAI_LOCATION` in the `~/.config/shell_gpt/.sgptrc` file or as environment variables.
-*   **Enabling Gemini Models:**
-        ShellGPT can use Gemini models through Google Vertex AI or Google AI Studio. The setup script (`./scripts/sgpt_setup.zsh`) is the recommended way to configure this.
-        *   **Via Vertex AI:**
-            1.  Ensure Google Cloud SDK is installed and you've authenticated: `gcloud auth application-default login`.
-            2.  In `~/.config/shell_gpt/.sgptrc`, set your project and location:
-                ```ini
-                GOOGLE_CLOUD_PROJECT=your-gcp-project-id
-                VERTEXAI_LOCATION=your-gcp-region  # e.g., us-central1
-                ```
-            3.  Set your desired Gemini model:
-                ```ini
-                DEFAULT_MODEL=gemini-1.5-pro-latest # Or gemini-pro, etc.
-                ```
-                The `API_BASE_URL` should typically be `default` as ShellGPT will resolve the Vertex AI endpoint.
-        *   **Via Google AI Studio (MakerSuite API Key):**
-            1.  Obtain an API Key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-            2.  In `~/.config/shell_gpt/.sgptrc`, configure:
-                ```ini
-                # For Google AI Studio (Gemini API)
-                API_BASE_URL=https://generativelanguage.googleapis.com # Or specific version
-                OPENAI_API_KEY=your_google_ai_studio_api_key # Note: The config key is OPENAI_API_KEY
-                DEFAULT_MODEL=gemini-1.5-pro-latest # Or other compatible model like models/gemini-1.0-pro
-                # Depending on ShellGPT version, USE_LITELLM might need to be true
-                # if direct Google AI Studio support isn't built-in or to access more models.
-                ```
-        *   You can always override the default model using the `--model` flag:
-            `sgpt --model gemini-1.5-pro-latest "Your prompt"`
-*   **LiteLLM for Other Backends (including Local Models):**
-    ShellGPT uses [LiteLLM](https://github.com/BerriAI/litellm) to support a wide range of LLM providers, including local models via backends like [Ollama](https://github.com/ollama/ollama).
+ShellGPT supports various Large Language Model (LLM) backends. Configuration is primarily managed through the `~/.config/shell_gpt/.sgptrc` file.
+
+**Recommended Setup Method (especially if installed from repository):**
+If you installed ShellGPT from the repository (Method 2 above), the most straightforward way to configure backends is by running the interactive setup script:
+```shell
+./scripts/sgpt_setup.zsh
+```
+This script will guide you through setting up API keys and other necessary configurations for supported backends like OpenAI and Google Vertex AI.
+
+If you installed via PyPI or prefer manual configuration, follow the instructions below.
+
+#### 1. OpenAI (Default)
+
+*   **Requirement:** An OpenAI API key.
+*   **Setup:**
+    1.  Generate an API key from [OpenAI Platform](https://platform.openai.com/account/api-keys).
+    2.  When you first run `sgpt` (e.g., `sgpt "hello"`), you will be prompted to enter your API key.
+    3.  Alternatively, the setup script (`./scripts/sgpt_setup.zsh`) will prompt for it.
+    4.  The key will be stored in `~/.config/shell_gpt/.sgptrc`.
+*   **Note:** OpenAI API usage is subject to their [pricing](https://openai.com/pricing).
+
+#### 2. Google Vertex AI (for Gemini Models)
+
+ShellGPT can use Gemini models through Google Cloud Vertex AI.
+
+*   **Prerequisites:**
+    1.  **Google Cloud Account:** You need an active Google Cloud Platform (GCP) account.
+    2.  **GCP Project:** A GCP Project with billing enabled. Note your **Project ID**.
+    3.  **Enable Vertex AI API:** In your GCP project, ensure the "Vertex AI API" is enabled. You can do this via the Google Cloud Console.
+    4.  **Google Cloud SDK:** Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) on your machine.
+    5.  **Authentication:** Authenticate the gcloud CLI with Application Default Credentials (ADC):
+        ```shell
+        gcloud auth application-default login
+        ```
+        This command will open a browser window for you to log in with your Google account that has access to the GCP project.
+
+*   **Configuration with `sgpt_setup.zsh` (Recommended if installed from repository):**
+    1.  Run the setup script: `./scripts/sgpt_setup.zsh`
+    2.  The script will prompt you for your Google Cloud Project ID and the desired Vertex AI region (e.g., `us-central1`, `europe-west1`).
+    3.  It will also help you select a default Gemini model (e.g., `gemini-1.5-pro-latest`).
+    4.  These settings will be saved to `~/.config/shell_gpt/.sgptrc`.
+
+*   **Manual Configuration (in `~/.config/shell_gpt/.sgptrc`):**
+    If you are not using the setup script, add or modify the following lines in your `~/.config/shell_gpt/.sgptrc` file:
+    ```ini
+    # For Google Vertex AI
+    GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+    VERTEXAI_LOCATION=your-gcp-region  # e.g., us-central1
+    DEFAULT_MODEL=gemini-1.5-pro-latest # Or gemini-pro, gemini-1.0-pro, etc.
+    # API_BASE_URL should typically be 'default' or left unset for Vertex AI,
+    # as ShellGPT resolves the endpoint automatically.
+    # API_BASE_URL=default
+    ```
+    Replace `your-gcp-project-id` and `your-gcp-region` with your actual project ID and preferred region.
+
+#### 3. Google AI Studio (MakerSuite API Key for Gemini Models)
+
+*   **Requirement:** An API Key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+*   **Configuration (in `~/.config/shell_gpt/.sgptrc`):**
+    ```ini
+    # For Google AI Studio (Gemini API via MakerSuite)
+    API_BASE_URL=https://generativelanguage.googleapis.com # Or a specific versioned endpoint
+    OPENAI_API_KEY=your_google_ai_studio_api_key # IMPORTANT: The config key is still OPENAI_API_KEY
+    DEFAULT_MODEL=gemini-1.5-pro-latest # Or other compatible models like models/gemini-1.0-pro
+    # Depending on your ShellGPT version and specific model, you might need USE_LITELLM=true
+    # USE_LITELLM=true
+    ```
+    Replace `your_google_ai_studio_api_key` with your actual key.
+
+#### 4. LiteLLM for Other Backends (including Local Models)
+
+ShellGPT uses [LiteLLM](https://github.com/BerriAI/litellm) to support a wide range of LLM providers, including local models via backends like [Ollama](https://github.com/ollama/ollama).
+
+*   **Setup:**
+    1.  Ensure `litellm` is installed. If you installed `shell-gpt` from PyPI, you might need to install it as an extra: `pip3 install shell-gpt[litellm]`. If you installed from the repository using `pip3 install .`, `litellm` is now a core dependency.
+    2.  Set `USE_LITELLM=true` in `~/.config/shell_gpt/.sgptrc`.
+    3.  Configure `DEFAULT_MODEL` and `API_BASE_URL` according to LiteLLM's documentation for your chosen backend. For example, for Ollama running locally with a `mistral` model:
+        ```ini
+        USE_LITELLM=true
+        DEFAULT_MODEL=ollama/mistral # Or your specific Ollama model
+        API_BASE_URL=http://localhost:11434 # Default Ollama endpoint
+        OPENAI_API_KEY=NA # LiteLLM might require a placeholder
+        ```
     > [!TIP]
-    > To use local models with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
+    > To use local models with Ollama, please follow this comprehensive [guide](https://github.com/smsmatt/shell_gpt/wiki/Ollama). (Note: Update this link if the wiki moves to the fork)
     >
     > **❗️Note that ShellGPT's performance and feature compatibility may vary with different backends and local models.**
 
-Ensure `USE_LITELLM=true` is set in `~/.config/shell_gpt/.sgptrc` to enable LiteLLM.
+---
+**Overriding Models:**
+You can always override the default model specified in the configuration file by using the `--model` flag with the `sgpt` command:
+`sgpt --model gemini-1.5-pro-latest "Your prompt"`
+---
 
 ## Usage
 **ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
@@ -201,7 +263,7 @@ sgpt -s "find all json files in current folder" --no-interaction | pbcopy
 ### Shell integration
 This is a **very handy feature**, which allows you to use `sgpt` shell completions directly in your terminal, without the need to type `sgpt` with prompt and arguments. Shell integration enables the use of ShellGPT with hotkeys in your terminal, supported by both Bash and ZSH shells. This feature puts `sgpt` completions directly into terminal buffer (input line), allowing for immediate editing of suggested commands.
 
-https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
+https://github.com/smsmatt/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abfb2c556c1
 
 To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke ShellGPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
@@ -380,7 +442,7 @@ The snippet of code you've provided is written in Python. It prompts the user...
 ```
 
 ### Function calling  
-[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/llm_functions/) run:
+[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/smsmatt/shell_gpt/tree/main/sgpt/llm_functions/) run:
 ```shell
 sgpt --install-functions
 ```
@@ -436,7 +498,7 @@ sgpt "Play music and open hacker news"
 # -> Music is now playing, and Hacker News has been opened in your browser. Enjoy!
 ```
 
-This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/TheR1D/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions. 
+This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/smsmatt/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions. 
 LLM might execute destructive commands, so please use it at your own risk❗️
 
 ### Roles
@@ -602,5 +664,5 @@ ENTRYPOINT ["sgpt"]
 
 
 ## Additional documentation
-* [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure)
-* [Ollama integration](https://github.com/TheR1D/shell_gpt/wiki/Ollama)
+* [Azure integration](https://github.com/smsmatt/shell_gpt/wiki/Azure)
+* [Ollama integration](https://github.com/smsmatt/shell_gpt/wiki/Ollama)

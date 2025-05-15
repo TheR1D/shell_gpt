@@ -32,12 +32,10 @@ dependencies = [
     "instructor >= 1.0.0, < 2.0.0",
     'pyreadline3 >= 3.4.1, < 4.0.0; sys_platform == "win32"',
     "google-genai >= 0.7.0, < 1.0.0", # Added for Vertex AI via google-genai SDK
+    "litellm == 1.42.5",
 ]
 
 [project.optional-dependencies]
-litellm = [
-    "litellm == 1.42.5"
-]
 test = [
     "pytest >= 7.2.2, < 8.0.0",
     "requests-mock[fixture] >= 1.10.0, < 2.0.0",
@@ -56,9 +54,9 @@ dev = [
 sgpt = "sgpt:cli"
 
 [project.urls]
-homepage = "https://github.com/ther1d/shell_gpt"
-repository = "https://github.com/ther1d/shell_gpt"
-documentation = "https://github.com/TheR1D/shell_gpt/blob/main/README.md"
+homepage = "https://github.com/smsmatt/shell_gpt"
+repository = "https://github.com/smsmatt/shell_gpt"
+documentation = "https://github.com/smsmatt/shell_gpt/blob/main/README.md"
 
 [tool.hatch.version]
 path = "sgpt/__version__.py"
