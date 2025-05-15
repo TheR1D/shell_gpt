@@ -154,8 +154,31 @@ def main(
         callback=inst_funcs,
         hidden=True,  # Hiding since should be used only once.
     ),
+    get_suggested_vertex_models: bool = typer.Option(
+        False,
+        "--get-suggested-vertex-models",
+        help="Print the configured list of suggested Vertex AI models and exit.",
+        hidden=True, # Internal use for setup script
+    ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
+
+    if get_suggested_vertex_models:
+        # cfg should be initialized by now as it's at the bottom of config.py
+        # and app.py imports config.py
+        try:
+            models_str = cfg.get("SUGGESTED_VERTEXAI_MODELS")
+            # Ensure models are printed one per line for easier parsing by shell script
+            print(models_str.replace(",", "\n"))
+        except Exception as e:
+            # Fallback in case of any error accessing config
+            # Fallback: print to stdout so the script can capture it.
+            print(
+                "google/gemini-2.5-pro-preview-05-06\ngoogle/gemini-1.5-pro-latest\ngoogle/gemini-1.5-flash-latest"
+            )
+            # Also print error to stderr for diagnostics if needed.
+            print(f"sgpt: Error retrieving suggested models from config, using fallback: {e}", file=sys.stderr)
+        raise typer.Exit()
 
     if stdin_passed:
         stdin = ""

@@ -376,7 +376,8 @@ while "$main_menu_loop_active"; do
             # Also try to get from gcloud config as a fallback default if not in .sgptrc
             gcloud_config_project=$(gcloud config get-value core/project 2>/dev/null)
             prompt_default_gcp_project="${current_gcp_project:-$gcloud_config_project}"
-            read -r "project_id_val_vertex?Enter your Google Cloud Project ID [$prompt_default_gcp_project]: "
+            print_info "The gcloud command requires the ALPHANUMERIC Project ID (e.g., 'my-cool-project-123'), not the Project Number."
+            read -r "project_id_val_vertex?Enter your Google Cloud Project ID (alphanumeric) [$prompt_default_gcp_project]: "
             GOOGLE_CLOUD_PROJECT_TO_SET="${project_id_val_vertex:-$prompt_default_gcp_project}"
 
             if [[ -z "$GOOGLE_CLOUD_PROJECT_TO_SET" ]]; then
@@ -400,11 +401,196 @@ while "$main_menu_loop_active"; do
             read -r "location_val_vertex?Enter your Vertex AI Location (e.g., us-central1) [$prompt_default_location]: "
             VERTEXAI_LOCATION_TO_SET="${location_val_vertex:-$prompt_default_location}"
 
+            # Determine the default model to suggest for Vertex AI configuration
             current_model=$(get_sgptrc_value "DEFAULT_MODEL")
-            script_default_model="vertex_ai/gemini-1.5-pro-001"
-            prompt_default_model="${current_model:-$script_default_model}"
-            read -r "default_model_val_vertex?Enter default Vertex AI model (e.g., vertex_ai/gemini-1.5-pro-001) [$prompt_default_model]: "
-            DEFAULT_MODEL_VERTEX="${default_model_val_vertex:-$prompt_default_model}"
+            local vertex_specific_fallback_default="vertex_ai/gemini-2.5-pro-preview-05-06" # A sensible default for Vertex
+            local prompt_default_model_for_vertex_selection="$vertex_specific_fallback_default" # Start with the fallback
+
+            if [[ -n "$current_model" ]]; then
+                # If current DEFAULT_MODEL is already a Vertex model, use it as the preferred default
+                if [[ "$current_model" == "vertex_ai/"* ]] || [[ "$current_model" == "google/"* ]]; then
+                    prompt_default_model_for_vertex_selection="$current_model"
+                fi
+            fi
+            # This prompt_default_model_for_vertex_selection will be used in subsequent read prompts
+            # for model selection or manual input.
+
+            # Attempt to get suggested models using gcloud first
+            local -a suggested_models_array=()
+            print_info "Attempting to fetch available Google published models via validation script..."
+            
+            local validate_script_path
+            local script_dir_for_val
+            script_dir_for_val="$(cd "$(dirname "$0")" && pwd)" # Directory of sgpt_setup.zsh
+            validate_script_path="$script_dir_for_val/validate_vertexai_models.zsh"
+
+            if [[ ! -f "$validate_script_path" ]]; then
+                print_error "Validation script not found at $validate_script_path. Skipping gcloud validation."
+            else
+                # Make sure it's executable
+                chmod +x "$validate_script_path"
+                
+                local validation_output
+                local validation_exit_code
+                
+                # Call the validation script with project and region, capturing its stdout
+                # Errors from the validation script (gcloud errors) will go to its stderr
+                print_info "Running validation script: $validate_script_path \"$GOOGLE_CLOUD_PROJECT_TO_SET\" \"$VERTEXAI_LOCATION_TO_SET\""
+                validation_output=$("$validate_script_path" "$GOOGLE_CLOUD_PROJECT_TO_SET" "$VERTEXAI_LOCATION_TO_SET")
+                validation_exit_code=$?
+
+                if [[ $validation_exit_code -eq 0 ]] && [[ -n "$validation_output" ]]; then
+                    print_success "Validation script successful. Processing models..."
+                    local -a raw_validated_models=("${(@f)validation_output}") # Split by newline
+                    
+                    if [[ ${#raw_validated_models[@]} -gt 0 ]]; then
+                        for id in "${raw_validated_models[@]}"; do
+                            # The validation script should already output short IDs.
+                            # We add the prefixes sgpt expects.
+                            suggested_models_array+=("google/$id")
+                            suggested_models_array+=("vertex_ai/$id")
+                        done
+                        suggested_models_array=(${(u o)suggested_models_array}) # Unique and sort
+                        print_success "Found ${#suggested_models_array[@]} potential model entries from validation script."
+                    else
+                        print_warning "Validation script ran but returned no model IDs."
+                    fi
+                else
+                    print_warning "Validation script failed (exit code $validation_exit_code) or returned no model IDs."
+                    print_warning "Check output above from the validation script for gcloud errors (if any)."
+                    # No specific error parsing here, as validate_vertexai_models.zsh handles detailed gcloud error printing to its stderr.
+                fi
+            fi
+
+            # Fallback to sgpt --get-suggested-vertex-models if gcloud failed or found no models
+            if [[ ${#suggested_models_array[@]} -eq 0 ]]; then
+                print_info "Falling back to fetching suggested models from sgpt (LiteLLM's list)..."
+                local sgpt_output_capture
+                local sgpt_exit_code=1 # Default to error
+                local sgpt_command_to_run=""
+
+                local script_dir
+                script_dir="$(cd "$(dirname "$0")" && pwd)"
+                local project_root_dir
+                project_root_dir="$(cd "$script_dir/.." && pwd)"
+                local sgpt_app_py_path="$project_root_dir/sgpt/app.py"
+
+                if command -v python3 &>/dev/null; then
+                    if [[ -f "$sgpt_app_py_path" ]]; then
+                        sgpt_command_to_run="python3 $sgpt_app_py_path --get-suggested-vertex-models"
+                        print_info "Will attempt to use direct script execution: $sgpt_command_to_run"
+                    else
+                        print_warning "sgpt/app.py not found at $sgpt_app_py_path. Falling back to module/path execution."
+                        sgpt_command_to_run="python3 -m sgpt --get-suggested-vertex-models"
+                    fi
+                elif command -v sgpt &>/dev/null; then
+                    sgpt_command_to_run="sgpt --get-suggested-vertex-models"
+                else
+                    print_warning "Neither 'python3' nor 'sgpt' command found for fallback. Cannot fetch models."
+                fi
+
+                if [[ -n "$sgpt_command_to_run" ]]; then
+                    print_info "Attempting to run fallback: $sgpt_command_to_run"
+                    sgpt_output_capture=$(eval $sgpt_command_to_run 2>&1)
+                    sgpt_exit_code=$?
+                    print_info "Fallback sgpt command finished with exit code: $sgpt_exit_code"
+                fi
+                
+                local sgpt_suggested_models_str=""
+                if [[ $sgpt_exit_code -eq 0 ]] && [[ -n "$sgpt_output_capture" ]]; then
+                    # Check for common error patterns even with exit code 0
+                    if [[ "$sgpt_output_capture" == *"Traceback"* ]] || \
+                       [[ "$sgpt_output_capture" == *"Error:"* ]] || \
+                       [[ "$sgpt_output_capture" == *"Exception:"* ]] || \
+                       [[ "$sgpt_output_capture" == *"ModuleNotFoundError"* ]]; then
+                        
+                        print_warning "DEBUG: Fallback sgpt command (exit 0) output indicates an error."
+                        if [[ "$sgpt_output_capture" == *"ModuleNotFoundError"* ]]; then
+                            print_warning "DEBUG: A 'ModuleNotFoundError' was detected. This likely means Python dependencies (e.g., typer, openai, litellm) are not installed in the environment used by 'python3'."
+                            print_warning "DEBUG: Try installing dependencies, e.g., 'pip install .[litellm]' or 'pip install -r requirements.txt' (if available) from the project root."
+                        fi
+                        print_warning "DEBUG: Full output from fallback sgpt command:"
+                        print "$sgpt_output_capture"
+                        # Ensure sgpt_suggested_models_str remains empty to trigger manual input
+                        sgpt_suggested_models_str=""
+                    else
+                        sgpt_suggested_models_str="$sgpt_output_capture"
+                    fi
+                elif [[ -n "$sgpt_output_capture" ]]; then # Non-zero exit code, and there was output
+                    print_warning "DEBUG: Fallback sgpt command failed (exit code $sgpt_exit_code)."
+                    if [[ "$sgpt_output_capture" == *"ModuleNotFoundError"* ]]; then
+                        print_warning "DEBUG: A 'ModuleNotFoundError' was detected. This likely means Python dependencies (e.g., typer, openai, litellm) are not installed in the environment used by 'python3'."
+                        print_warning "DEBUG: Try installing dependencies, e.g., 'pip install .[litellm]' or 'pip install -r requirements.txt' (if available) from the project root."
+                    fi
+                    print_warning "DEBUG: Full output from fallback sgpt command:"
+                    print "$sgpt_output_capture"
+                # else: command failed and produced no output, initial warning about this is sufficient.
+                fi
+
+                if [[ -n "$sgpt_suggested_models_str" ]]; then
+                    local temp_array_sgpt
+                    temp_array_sgpt=("${(@f)sgpt_suggested_models_str}")
+                    for line in "${temp_array_sgpt[@]}"; do
+                        local line_trimmed_sgpt=$(echo "$line" | awk '{$1=$1};1')
+                        if [[ -n "$line_trimmed_sgpt" ]] && [[ "$line_trimmed_sgpt" != *"Traceback"* ]] && [[ "$line_trimmed_sgpt" != *"Error"* ]] && [[ "$line_trimmed_sgpt" != *"Exception"* ]]; then
+                            suggested_models_array+=("$line_trimmed_sgpt")
+                        fi
+                    done
+                fi
+            fi # End of fallback to sgpt command
+
+            DEFAULT_MODEL_VERTEX=""
+            if [[ ${#suggested_models_array[@]} -gt 0 ]]; then
+                print_info "\nPlease choose a default Vertex AI model or enter a custom one:"
+                local i=1
+                while [[ $i -le ${#suggested_models_array[@]} ]]; do
+                    print_info "  $i) ${suggested_models_array[$i]}"
+                    ((i++))
+                done
+                print_info "  c) Enter a custom model name"
+
+                local model_choice
+                local valid_choice=false
+                while ! $valid_choice; do
+                    read -r "model_choice?Enter your choice (1-${#suggested_models_array[@]}, or c) [$prompt_default_model_for_vertex_selection if custom/default]: "
+                    if [[ "$model_choice" =~ ^[0-9]+$ ]] && [[ "$model_choice" -ge 1 ]] && [[ "$model_choice" -le ${#suggested_models_array[@]} ]]; then
+                        DEFAULT_MODEL_VERTEX="${suggested_models_array[$model_choice]}"
+                        valid_choice=true
+                    elif [[ "$model_choice" == "c" ]] || [[ "$model_choice" == "C" ]]; then
+                        read -r "custom_model_val?Enter custom Vertex AI model name [$prompt_default_model_for_vertex_selection]: "
+                        DEFAULT_MODEL_VERTEX="${custom_model_val:-$prompt_default_model_for_vertex_selection}"
+                        if [[ -z "$DEFAULT_MODEL_VERTEX" ]]; then
+                            print_warning "Custom model name cannot be empty. Using fallback default."
+                            DEFAULT_MODEL_VERTEX="$prompt_default_model_for_vertex_selection"
+                        fi
+                        valid_choice=true
+                    elif [[ -z "$model_choice" ]] && [[ -n "$prompt_default_model" ]]; then
+                        # If user just hits enter and there's a current/fallback default
+                        DEFAULT_MODEL_VERTEX="$prompt_default_model"
+                        print_info "Using default: $DEFAULT_MODEL_VERTEX"
+                        valid_choice=true
+                    else
+                        print_warning "Invalid choice. Please select a number from the list or 'c'."
+                    fi
+                done
+            else
+                # This block is reached if suggested_models_array is empty after processing
+                if [[ $sgpt_exit_code -ne 0 ]] || [[ -z "$sgpt_output_capture" && -n "$sgpt_command_to_run" ]]; then
+                    # If command failed or produced no output, this warning is appropriate
+                    print_warning "Could not fetch suggested models (command failed or produced no valid output). Please enter manually."
+                elif [[ -n "$sgpt_command_to_run" ]]; then
+                     # If command ran but array is still empty (e.g. filtered out all lines)
+                    print_warning "Fetched model list was empty or invalid after processing. Please enter manually."
+                fi
+                # Fallback to manual input
+                read -r "default_model_val_vertex?Enter default Vertex AI model (e.g., $vertex_specific_fallback_default) [$prompt_default_model_for_vertex_selection]: "
+                DEFAULT_MODEL_VERTEX="${default_model_val_vertex:-$prompt_default_model_for_vertex_selection}"
+            fi
+            
+            if [[ -z "$DEFAULT_MODEL_VERTEX" ]]; then
+                 print_error "Vertex AI model name cannot be empty. Using script fallback: $vertex_specific_fallback_default"
+                 DEFAULT_MODEL_VERTEX="$vertex_specific_fallback_default"
+            fi
 
             update_sgptrc_value "OPENAI_API_KEY" "\"DISABLED_SGPT_SETUP_USING_VERTEX_AI\""
             update_sgptrc_value "GOOGLE_API_KEY" "\"DISABLED_SGPT_SETUP_USING_VERTEX_AI\""

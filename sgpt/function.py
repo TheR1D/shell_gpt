@@ -61,12 +61,30 @@ def get_function(name: str) -> Callable[..., Any]:
 def get_openai_schemas() -> List[Dict[str, Any]]:
     transformed_schemas = []
     for function in functions:
+        # Deep copy to avoid modifying the original schema in Function object,
+        # though in this specific case it might not be strictly necessary
+        # as get_openai_schemas is usually called once per run.
+        # However, it's safer if the underlying Function objects are reused.
+        import copy
+        raw_parameters = copy.deepcopy(function.openai_schema.get("parameters", {}))
+
+        if "properties" in raw_parameters:
+            for _param_name, param_details in raw_parameters["properties"].items():
+                if "descriptions" in param_details:
+                    param_details["description"] = param_details.pop("descriptions")
+                # Ensure 'type' exists, Gemini might be strict
+                if "type" not in param_details and "anyOf" not in param_details and "allOf" not in param_details and "oneOf" not in param_details:
+                     # Default to string if no type is specified, though Pydantic usually infers this.
+                     # This is a defensive measure.
+                    param_details["type"] = "string"
+
+
         schema = {
             "type": "function",
             "function": {
                 "name": function.openai_schema["name"],
                 "description": function.openai_schema.get("description", ""),
-                "parameters": function.openai_schema.get("parameters", {}),
+                "parameters": raw_parameters,
             },
         }
         transformed_schemas.append(schema)

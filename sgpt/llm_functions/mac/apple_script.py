@@ -13,7 +13,7 @@ class Function(OpenAISchema):
     apple_script: str = Field(
         ...,
         example='tell application "Finder" to get the name of every disk',
-        descriptions="Apple Script to execute.",
+        description="Apple Script to execute.",
     )
 
     class Config:

@@ -3,6 +3,7 @@ from getpass import getpass
 from pathlib import Path
 from tempfile import gettempdir
 from typing import Any
+import sys # For stderr in _get_default_suggested_vertex_models
 
 from click import UsageError
 
@@ -14,8 +15,54 @@ FUNCTIONS_PATH = SHELL_GPT_CONFIG_FOLDER / "functions"
 CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
 CACHE_PATH = Path(gettempdir()) / "cache"
 
-# TODO: Refactor ENV variables with SGPT_ prefix.
+# Definition of _get_default_suggested_vertex_models must come BEFORE DEFAULT_CONFIG
+def _get_default_suggested_vertex_models() -> str:
+    """
+    Tries to determine a list of suggested Vertex AI models by inspecting
+    LiteLLM's model_cost data. Falls back to a hardcoded list if LiteLLM
+    is not available or an error occurs.
+    """
+    try:
+        import litellm  # Try to import litellm
+
+        # model_cost should be populated after 'import litellm'
+        if hasattr(litellm, "model_cost") and litellm.model_cost:
+            vertex_ai_models = set()  # Use a set to handle duplicates naturally
+            for model_name, model_info in litellm.model_cost.items():
+                if isinstance(model_info, dict) and model_info.get(
+                    "litellm_provider"
+                ) == "vertex_ai":
+                    # Check if the model_name from litellm.model_cost is already
+                    # a fully qualified LiteLLM model string for Vertex AI.
+                    if model_name.startswith("vertex_ai/") or model_name.startswith(
+                        "google/"
+                    ):
+                        vertex_ai_models.add(model_name)
+                    else:
+                        # For base model names (e.g., "gemini-1.5-pro-preview-05-06"),
+                        # construct the prefixed versions that sgpt uses.
+                        vertex_ai_models.add(f"google/{model_name}")
+                        vertex_ai_models.add(f"vertex_ai/{model_name}")
+
+            if vertex_ai_models:
+                return ",".join(sorted(list(vertex_ai_models)))
+    except ImportError:
+        # LiteLLM is not installed.
+        pass
+    except Exception as e:
+        # Catch any other unexpected errors during processing.
+        print(
+            f"sgpt: Debug: Error determining Vertex AI models from LiteLLM: {e}",
+            file=sys.stderr,
+        )
+        pass
+
+    # Fallback if LiteLLM not installed or models can't be determined
+    return "google/gemini-2.5-pro-preview-05-06,google/gemini-1.5-pro-latest,google/gemini-1.5-flash-latest"
+
+# DEFAULT_CONFIG must be defined after _get_default_suggested_vertex_models
 DEFAULT_CONFIG = {
+    # TODO: Refactor ENV variables with SGPT_ prefix.
     # TODO: Refactor it to CHAT_STORAGE_PATH.
     "CHAT_CACHE_PATH": os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
     "CACHE_PATH": os.getenv("CACHE_PATH", str(CACHE_PATH)),
@@ -33,10 +80,16 @@ DEFAULT_CONFIG = {
     "SHOW_FUNCTIONS_OUTPUT": os.getenv("SHOW_FUNCTIONS_OUTPUT", "false"),
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
-    "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
+    "USE_LITELLM": os.getenv("USE_LITELLM", "true"),
     "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
+    "GOOGLE_CLOUD_PROJECT": os.getenv("GOOGLE_CLOUD_PROJECT", "DISABLED_SGPT_SETUP_ENTER_YOUR_GCP_PROJECT_ID"),
+    "VERTEXAI_LOCATION": os.getenv("VERTEXAI_LOCATION", "DISABLED_SGPT_SETUP_ENTER_YOUR_GCP_LOCATION"),
+    # Dynamically determine suggested Vertex AI models, with a fallback.
+    "SUGGESTED_VERTEXAI_MODELS": os.getenv(
+        "SUGGESTED_VERTEXAI_MODELS", _get_default_suggested_vertex_models()
+    ),
     # New features might add their own config variables here.
 }
 
