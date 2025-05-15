@@ -110,10 +110,7 @@ class Handler:
 
         if functions:
             current_call_kwargs["tool_choice"] = "auto"
-            # --- BEGIN DEBUG PRINT ---
-            import sys
-            print(f"DEBUG: sgpt/handlers/handler.py: functions schema before passing to LiteLLM: {json.dumps(functions, indent=2)}", file=sys.stderr)
-            # --- END DEBUG PRINT ---
+            # Debug print removed.
             current_call_kwargs["tools"] = functions
             # Only set parallel_tool_calls for non-Vertex AI models,
             # as Vertex AI (Gemini) via LiteLLM doesn't support it.
@@ -143,8 +140,7 @@ class Handler:
                     current_call_kwargs["project"] = gcp_project_id
                 if valid_gcp_location:
                     current_call_kwargs["location"] = gcp_location
-                print(f"DEBUG: Using vertex-genai path, mapping to LiteLLM's vertex_ai provider. Model for LiteLLM: {transformed_model_for_litellm}", file=sys.stderr)
-                print(f"DEBUG: current_call_kwargs for vertex-genai (mapped to vertex_ai): {current_call_kwargs}", file=sys.stderr)
+                # Debug prints removed.
                 # No longer setting GOOGLE_GENAI_USE_VERTEXAI as we are using LiteLLM's google-cloud-aiplatform path
 
             elif model.startswith("vertex_ai/") or model.startswith("google/"):
@@ -153,8 +149,7 @@ class Handler:
                     current_call_kwargs["project"] = gcp_project_id
                 if valid_gcp_location:
                     current_call_kwargs["location"] = gcp_location
-                print(f"DEBUG: Using vertex_ai/google/ path. Model for LiteLLM: {model}", file=sys.stderr)
-                print(f"DEBUG: current_call_kwargs for vertex_ai/google: {current_call_kwargs}", file=sys.stderr)
+                # Debug prints removed.
 
 
         try:
@@ -171,7 +166,7 @@ class Handler:
             # For now, this specific vertex-genai path doesn't set it.
             if os.getenv("GOOGLE_GENAI_USE_VERTEXAI"): # Check if it was set by any chance
                  os.environ.pop("GOOGLE_GENAI_USE_VERTEXAI", None)
-                 print(f"DEBUG: GOOGLE_GENAI_USE_VERTEXAI was found and popped from env.", file=sys.stderr)
+                 # Debug print removed.
 
         try:
             for chunk in response:
