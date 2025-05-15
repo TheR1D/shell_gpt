@@ -504,12 +504,12 @@ while "$main_menu_loop_active"; do
                        [[ "$sgpt_output_capture" == *"Exception:"* ]] || \
                        [[ "$sgpt_output_capture" == *"ModuleNotFoundError"* ]]; then
                         
-                        print_warning "DEBUG: Fallback sgpt command (exit 0) output indicates an error."
+                        # print_warning "DEBUG: Fallback sgpt command (exit 0) output indicates an error."
                         if [[ "$sgpt_output_capture" == *"ModuleNotFoundError"* ]]; then
-                            print_warning "DEBUG: A 'ModuleNotFoundError' was detected. This likely means Python dependencies (e.g., typer, openai, litellm) are not installed in the environment used by 'python3'."
-                            print_warning "DEBUG: Try installing dependencies, e.g., 'pip install .[litellm]' or 'pip install -r requirements.txt' (if available) from the project root."
+                            # print_warning "DEBUG: A 'ModuleNotFoundError' was detected. This likely means Python dependencies (e.g., typer, openai, litellm) are not installed in the environment used by 'python3'."
+                            # print_warning "DEBUG: Try installing dependencies, e.g., 'pip install .[litellm]' or 'pip install -r requirements.txt' (if available) from the project root."
                         fi
-                        print_warning "DEBUG: Full output from fallback sgpt command:"
+                        # print_warning "DEBUG: Full output from fallback sgpt command:"
                         print "$sgpt_output_capture"
                         # Ensure sgpt_suggested_models_str remains empty to trigger manual input
                         sgpt_suggested_models_str=""
@@ -517,12 +517,12 @@ while "$main_menu_loop_active"; do
                         sgpt_suggested_models_str="$sgpt_output_capture"
                     fi
                 elif [[ -n "$sgpt_output_capture" ]]; then # Non-zero exit code, and there was output
-                    print_warning "DEBUG: Fallback sgpt command failed (exit code $sgpt_exit_code)."
+                    # print_warning "DEBUG: Fallback sgpt command failed (exit code $sgpt_exit_code)."
                     if [[ "$sgpt_output_capture" == *"ModuleNotFoundError"* ]]; then
-                        print_warning "DEBUG: A 'ModuleNotFoundError' was detected. This likely means Python dependencies (e.g., typer, openai, litellm) are not installed in the environment used by 'python3'."
-                        print_warning "DEBUG: Try installing dependencies, e.g., 'pip install .[litellm]' or 'pip install -r requirements.txt' (if available) from the project root."
+                        # print_warning "DEBUG: A 'ModuleNotFoundError' was detected. This likely means Python dependencies (e.g., typer, openai, litellm) are not installed in the environment used by 'python3'."
+                        # print_warning "DEBUG: Try installing dependencies, e.g., 'pip install .[litellm]' or 'pip install -r requirements.txt' (if available) from the project root."
                     fi
-                    print_warning "DEBUG: Full output from fallback sgpt command:"
+                    # print_warning "DEBUG: Full output from fallback sgpt command:"
                     print "$sgpt_output_capture"
                 # else: command failed and produced no output, initial warning about this is sufficient.
                 fi
