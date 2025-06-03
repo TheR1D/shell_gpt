@@ -19,6 +19,7 @@ from sgpt.utils import (
     get_edited_prompt,
     get_sgpt_version,
     install_shell_integration,
+    extract_command,
     run_command,
 )
 
@@ -238,6 +239,7 @@ def main(
         )
 
     while shell and interaction:
+        full_completion = extract_command(full_completion)
         option = typer.prompt(
             text="[E]xecute, [D]escribe, [A]bort",
             type=Choice(("e", "d", "a", "y"), case_sensitive=False),

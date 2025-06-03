@@ -1,4 +1,5 @@
 import os
+import re
 import platform
 import shlex
 from tempfile import NamedTemporaryFile
@@ -31,6 +32,20 @@ def get_edited_prompt() -> str:
     if not output:
         raise BadParameter("Couldn't get valid PROMPT from $EDITOR")
     return output
+
+
+def extract_command(full_completion: str) -> str:
+    if '</think>' in full_completion:
+        _, _, after_think = full_completion.partition('</think>')
+        match (
+            re.search(r"```(?:bash)?\s*([\s\S]*?)\s*```", after_think),
+            re.search(r'`([^`]+)`', after_think),
+        ):
+            case (code_block, _) if code_block:
+                return code_block.group(1).strip()
+            case (_, code_line) if code_line:
+                return code_line.group(1).strip()
+    return full_completion
 
 
 def run_command(command: str) -> None:

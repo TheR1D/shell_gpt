@@ -5,7 +5,7 @@ from rich import print as rich_print
 from rich.rule import Rule
 
 from ..role import DefaultRoles, SystemRole
-from ..utils import run_command
+from ..utils import run_command, extract_command
 from .chat_handler import ChatHandler
 from .default_handler import DefaultHandler
 
@@ -64,3 +64,4 @@ class ReplHandler(ChatHandler):
                 ).handle(prompt=full_completion, **kwargs)
             else:
                 full_completion = super().handle(prompt=prompt, **kwargs)
+                full_completion = extract_command(full_completion)
