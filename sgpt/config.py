@@ -11,16 +11,18 @@ SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
 SHELL_GPT_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
 ROLE_STORAGE_PATH = SHELL_GPT_CONFIG_FOLDER / "roles"
 FUNCTIONS_PATH = SHELL_GPT_CONFIG_FOLDER / "functions"
-CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
-CACHE_PATH = Path(gettempdir()) / "cache"
+# CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
+CHAT_CACHE_PATH = SHELL_GPT_CONFIG_FOLDER / "chat_cache"
+# CACHE_PATH = Path(gettempdir()) / "cache"
+CACHE_PATH = SHELL_GPT_CONFIG_FOLDER / "cache"
 
 # TODO: Refactor ENV variables with SGPT_ prefix.
 DEFAULT_CONFIG = {
     # TODO: Refactor it to CHAT_STORAGE_PATH.
     "CHAT_CACHE_PATH": os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
     "CACHE_PATH": os.getenv("CACHE_PATH", str(CACHE_PATH)),
-    "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
-    "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
+    "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "200")),
+    "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "200")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
     "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-4o"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),

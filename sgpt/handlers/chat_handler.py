@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
 
+import tiktoken
 import typer
+from datetime import datetime
 from click import BadArgumentUsage
 from rich.console import Console
 from rich.markdown import Markdown
@@ -12,6 +14,7 @@ from ..role import DefaultRoles, SystemRole
 from ..utils import option_callback
 from .handler import Handler
 
+DEBUGING = True
 CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
 CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
 
@@ -24,7 +27,7 @@ class ChatSession:
     in a specified directory and in JSON format.
     """
 
-    def __init__(self, length: int, storage_path: Path):
+    def __init__(self, length: int, storage_path: Path, token_limit: int):
         """
         Initialize the ChatSession decorator.
 
@@ -32,6 +35,7 @@ class ChatSession:
         """
         self.length = length
         self.storage_path = storage_path
+        self.token_limit = token_limit
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
     def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
@@ -49,6 +53,8 @@ class ChatSession:
             if not chat_id:
                 yield from func(*args, **kwargs)
                 return
+            # Limit it!
+            self._limit_tokens(chat_id, self.token_limit)
             previous_messages = self._read(chat_id)
             for message in kwargs["messages"]:
                 previous_messages.append(message)
@@ -71,9 +77,50 @@ class ChatSession:
 
     def _write(self, messages: List[Dict[str, str]], chat_id: str) -> None:
         file_path = self.storage_path / chat_id
-        # Retain the first message since it defines the role
-        truncated_messages = messages[:1] + messages[1 + max(0, len(messages) - self.length):]
-        json.dump(truncated_messages, file_path.open("w"))
+
+        json.dump(messages, file_path.open("w"))
+
+    def _limit_tokens(self, chat_id, token_limit):
+        while True:
+            current_token_estimate = self._count_tokens(chat_id)
+            if current_token_estimate > token_limit:
+                messages = self._read(chat_id)
+                if len(messages) < (1 + 2):
+                    break
+                # Remove 2nd and 3rd message (oldest question and answer)
+                truncated_messages = messages[:1] + messages[3:]
+                self._write(truncated_messages, chat_id)
+            else:
+                break
+
+    def _count_tokens(self, chat_id: str) -> int:
+        file_path = self.storage_path / chat_id
+        if not file_path.exists():
+            return 0
+        parsed_cache = json.loads(file_path.read_text())
+        messages = [
+            message["content"] for message in parsed_cache if "content" in message
+        ]
+        text_to_encode = " ".join(messages)
+
+        # tokenizer = tiktoken.encoding_for_model("gpt-4o")
+        tokenizer = tiktoken.get_encoding("o200k_base")
+        token_count = len(tokenizer.encode(text_to_encode))
+
+        # Log the details to a file
+        if DEBUGING:
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_message = (
+                f"{current_time}: "
+                f"tokens {token_count} "
+                f"messages {len(messages)}\n"
+            )
+
+            log_file_path = self.storage_path / f"{chat_id}_log.txt"
+            with open(log_file_path, "a") as log_file:
+                log_file.write(log_message)
+
+        return token_count
 
     def invalidate(self, chat_id: str) -> None:
         file_path = self.storage_path / chat_id
@@ -94,12 +141,17 @@ class ChatSession:
 
 
 class ChatHandler(Handler):
-    chat_session = ChatSession(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
-    def __init__(self, chat_id: str, role: SystemRole, markdown: bool) -> None:
+    def __init__(
+        self, chat_id: str, role: SystemRole, markdown: bool, token_limit: int
+    ) -> None:
         super().__init__(role, markdown)
         self.chat_id = chat_id
         self.role = role
+        self.chat_session = ChatSession(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH, token_limit)
+
+        # Apply the decorator to the instance method
+        self.get_completion = self.chat_session(self.get_completion)
 
         if chat_id == "temp":
             # If the chat id is "temp", we don't want to save the chat session.
@@ -116,24 +168,21 @@ class ChatHandler(Handler):
         # TODO: Should be optimized for REPL mode.
         return self.role.same_role(self.initial_message(self.chat_id))
 
-    @classmethod
-    def initial_message(cls, chat_id: str) -> str:
-        chat_history = cls.chat_session.get_messages(chat_id)
+    def initial_message(self, chat_id: str) -> str:
+        chat_history = self.chat_session.get_messages(chat_id)
         return chat_history[0] if chat_history else ""
 
-    @classmethod
     @option_callback
-    def list_ids(cls, value: str) -> None:
+    def list_ids(self, value: str) -> None:
         # Prints all existing chat IDs to the console.
-        for chat_id in cls.chat_session.list():
+        for chat_id in self.chat_session.list():
             typer.echo(chat_id)
 
-    @classmethod
-    def show_messages(cls, chat_id: str, markdown: bool) -> None:
+    def show_messages(self, chat_id: str, markdown: bool) -> None:
         color = cfg.get("DEFAULT_COLOR")
-        if "APPLY MARKDOWN" in cls.initial_message(chat_id) and markdown:
+        if "APPLY MARKDOWN" in self.initial_message(chat_id):
             theme = cfg.get("CODE_THEME")
-            for message in cls.chat_session.get_messages(chat_id):
+            for message in self.chat_session.get_messages(chat_id) and markdown:
                 if message.startswith("assistant:"):
                     Console().print(Markdown(message, code_theme=theme))
                 else:
@@ -141,7 +190,7 @@ class ChatHandler(Handler):
                 typer.echo()
             return
 
-        for index, message in enumerate(cls.chat_session.get_messages(chat_id)):
+        for index, message in enumerate(self.chat_session.get_messages(chat_id)):
             running_color = color if index % 2 == 0 else "green"
             typer.secho(message, fg=running_color)
 
@@ -169,7 +218,6 @@ class ChatHandler(Handler):
         messages.append({"role": "user", "content": prompt})
         return messages
 
-    @chat_session
     def get_completion(self, **kwargs: Any) -> Generator[str, None, None]:
         yield from super().get_completion(**kwargs)
 

@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            //"args": ["--chat", "dev2", "--token_limit", "1500", "What are the folders in my home folder"]
+            "args": ["--chat", "dev2", "What are the folders in my root tmp folder?"]
+            //"args": ["--chat", "dev2", "What are the planets in solar system?"]
+            //"args": ["--install-functions"]
+
+        }
+    ]
+}

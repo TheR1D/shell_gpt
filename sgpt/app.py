@@ -39,6 +39,13 @@ def main(
         max=2.0,
         help="Randomness of generated output.",
     ),
+    token_limit: int = typer.Option(
+        2000,
+        "--token_limit",
+        min=50,
+        max=450000,
+        help="Number of tokens to keep in history.",
+    ),
     top_p: float = typer.Option(
         1.0,
         min=0.0,
@@ -219,7 +226,7 @@ def main(
         )
 
     if chat:
-        full_completion = ChatHandler(chat, role_class, md).handle(
+        full_completion = ChatHandler(chat, role_class, md, token_limit).handle(
             prompt=prompt,
             model=model,
             temperature=temperature,
