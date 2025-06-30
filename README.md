@@ -9,6 +9,51 @@ pip install shell-gpt
 ```
 By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
+### Azure OpenAI Provider
+ShellGPT also supports Azure OpenAI provider. To use Azure OpenAI, you need to configure several Azure-specific parameters:
+
+#### 1. Set the Provider
+```shell
+export OPENAI_PROVIDER=azure-openai
+```
+
+#### 2. Configure Azure Resource Endpoint
+```shell
+export AZURE_RESOURCE_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+```
+
+#### 3. Configure Deployment Name
+```shell
+export AZURE_DEPLOYMENT_NAME=your-deployment-name
+```
+
+#### 4. Set API Version
+```shell
+export API_VERSION=2025-01-01-preview
+```
+
+#### 5. Set API Key
+```shell
+export OPENAI_API_KEY=your_azure_openai_api_key
+```
+
+#### Configuration File
+You can also set these in your configuration file `~/.config/shell_gpt/.sgptrc`:
+```text
+OPENAI_PROVIDER=azure-openai
+AZURE_RESOURCE_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+AZURE_DEPLOYMENT_NAME=your-deployment-name
+API_VERSION=2025-01-01-preview
+OPENAI_API_KEY=your_azure_openai_api_key
+```
+
+#### URL Structure
+Azure OpenAI uses a different URL structure than standard OpenAI:
+- **Standard OpenAI**: `https://api.openai.com/v1/chat/completions`
+- **Azure OpenAI**: Uses the `AzureOpenAI` client which automatically constructs the correct URL format
+
+The Azure OpenAI provider uses the official `AzureOpenAI` client from the OpenAI library, which handles the endpoint, deployment name, and API version automatically.
+
 > [!TIP]
 > Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
 >
@@ -257,255 +302,4 @@ ls -lhS
 >>> e (enter just e to execute commands, or d to describe them)
 ```
 
-To provide multiline prompt use triple quotes `"""`:
-```text
-sgpt --repl temp
-Entering REPL mode, press Ctrl+C to exit.
->>> """
-... Explain following code:
-... import random
-... print(random.randint(1, 10))
-... """
-It is a Python script that uses the random module to generate and print a random integer.
-```
-
-You can also enter REPL mode with initial prompt by passing it as an argument or stdin or even both:
-```shell
-sgpt --repl temp < my_app.py
-```
-```text
-Entering REPL mode, press Ctrl+C to exit.
-──────────────────────────────────── Input ────────────────────────────────────
-name = input("What is your name?")
-print(f"Hello {name}")
-───────────────────────────────────────────────────────────────────────────────
->>> What is this code about?
-The snippet of code you've provided is written in Python. It prompts the user...
->>> Follow up questions...
-```
-
-### Function calling  
-[Function calls](https://platform.openai.com/docs/guides/function-calling) is a powerful feature OpenAI provides. It allows LLM to execute functions in your system, which can be used to accomplish a variety of tasks. To install [default functions](https://github.com/TheR1D/shell_gpt/tree/main/sgpt/llm_functions/) run:
-```shell
-sgpt --install-functions
-```
-
-ShellGPT has a convenient way to define functions and use them. In order to create your custom function, navigate to `~/.config/shell_gpt/functions` and create a new .py file with the function name. Inside this file, you can define your function using the following syntax:
-```python
-# execute_shell_command.py
-import subprocess
-from pydantic import Field
-from instructor import OpenAISchema
-
-
-class Function(OpenAISchema):
-    """
-    Executes a shell command and returns the output (result).
-    """
-    shell_command: str = Field(..., example="ls -la", descriptions="Shell command to execute.")
-
-    class Config:
-        title = "execute_shell_command"
-
-    @classmethod
-    def execute(cls, shell_command: str) -> str:
-        result = subprocess.run(shell_command.split(), capture_output=True, text=True)
-        return f"Exit code: {result.returncode}, Output:\n{result.stdout}"
-```
-
-The docstring comment inside the class will be passed to OpenAI API as a description for the function, along with the `title` attribute and parameters descriptions. The `execute` function will be called if LLM decides to use your function. In this case we are allowing LLM to execute any Shell commands in our system. Since we are returning the output of the command, LLM will be able to analyze it and decide if it is a good fit for the prompt. Here is an example how the function might be executed by LLM:
-```shell
-sgpt "What are the files in /tmp folder?"
-# -> @FunctionCall execute_shell_command(shell_command="ls /tmp")
-# -> The /tmp folder contains the following files and directories:
-# -> test.txt
-# -> test.json
-```
-
-Note that if for some reason the function (execute_shell_command) will return an error, LLM might try to accomplish the task based on the output. Let's say we don't have installed `jq` in our system, and we ask LLM to parse JSON file:
-```shell
-sgpt "parse /tmp/test.json file using jq and return only email value"
-# -> @FunctionCall execute_shell_command(shell_command="jq -r '.email' /tmp/test.json")
-# -> It appears that jq is not installed on the system. Let me try to install it using brew.
-# -> @FunctionCall execute_shell_command(shell_command="brew install jq")
-# -> jq has been successfully installed. Let me try to parse the file again.
-# -> @FunctionCall execute_shell_command(shell_command="jq -r '.email' /tmp/test.json")
-# -> The email value in /tmp/test.json is johndoe@example.
-```
-
-It is also possible to chain multiple function calls in the prompt:
-```shell
-sgpt "Play music and open hacker news"
-# -> @FunctionCall play_music()
-# -> @FunctionCall open_url(url="https://news.ycombinator.com")
-# -> Music is now playing, and Hacker News has been opened in your browser. Enjoy!
-```
-
-This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/TheR1D/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions. 
-LLM might execute destructive commands, so please use it at your own risk❗️
-
-### Roles
-ShellGPT allows you to create custom roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
-```shell
-sgpt --create-role json_generator
-# Enter role description: Provide only valid json as response.
-sgpt --role json_generator "random: user, password, email, address"
-```
-```json
-{
-  "user": "JohnDoe",
-  "password": "p@ssw0rd",
-  "email": "johndoe@example.com",
-  "address": {
-    "street": "123 Main St",
-    "city": "Anytown",
-    "state": "CA",
-    "zip": "12345"
-  }
-}
-```
-
-If the description of the role contains the words "APPLY MARKDOWN" (case sensitive), then chats will be displayed using markdown formatting unless it is explicitly turned off with `--no-md`.
-
-### Request cache
-Control cache using `--cache` (default) and `--no-cache` options. This caching applies for all `sgpt` requests to OpenAI API:
-```shell
-sgpt "what are the colors of a rainbow"
-# -> The colors of a rainbow are red, orange, yellow, green, blue, indigo, and violet.
-```
-Next time, same exact query will get results from local cache instantly. Note that `sgpt "what are the colors of a rainbow" --temperature 0.5` will make a new request, since we didn't provide `--temperature` (same applies to `--top-probability`) on previous request.
-
-This is just some examples of what we can do using OpenAI GPT models, I'm sure you will find it useful for your specific use cases.
-
-### Runtime configuration file
-You can setup some parameters in runtime configuration file `~/.config/shell_gpt/.sgptrc`:
-```text
-# API key, also it is possible to define OPENAI_API_KEY env.
-OPENAI_API_KEY=your_api_key
-# Base URL of the backend server. If "default" URL will be resolved based on --model.
-API_BASE_URL=default
-# Max amount of cached message per chat session.
-CHAT_CACHE_LENGTH=100
-# Chat cache folder.
-CHAT_CACHE_PATH=/tmp/shell_gpt/chat_cache
-# Request cache length (amount).
-CACHE_LENGTH=100
-# Request cache folder.
-CACHE_PATH=/tmp/shell_gpt/cache
-# Request timeout in seconds.
-REQUEST_TIMEOUT=60
-# Default OpenAI model to use.
-DEFAULT_MODEL=gpt-4o
-# Default color for shell and code completions.
-DEFAULT_COLOR=magenta
-# When in --shell mode, default to "Y" for no input.
-DEFAULT_EXECUTE_SHELL_CMD=false
-# Disable streaming of responses
-DISABLE_STREAMING=false
-# The pygment theme to view markdown (default/describe role).
-CODE_THEME=default
-# Path to a directory with functions.
-OPENAI_FUNCTIONS_PATH=/Users/user/.config/shell_gpt/functions
-# Print output of functions when LLM uses them.
-SHOW_FUNCTIONS_OUTPUT=false
-# Allows LLM to use functions.
-OPENAI_USE_FUNCTIONS=true
-# Enforce LiteLLM usage (for local LLMs).
-USE_LITELLM=false
-```
-Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
-Possible options for `CODE_THEME`: https://pygments.org/styles/
-
-### Full list of arguments
-```text
-╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────────────╮
-│   prompt      [PROMPT]  The prompt to generate completions for.                                          │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            TEXT                       Large language model to use. [default: gpt-4o]             │
-│ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
-│ --top-p            FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
-│ --md             --no-md                      Prettify markdown output. [default: md]                    │
-│ --editor                                      Open $EDITOR to provide a prompt. [default: no-editor]     │
-│ --cache                                       Cache completion results. [default: cache]                 │
-│ --version                                     Show version.                                              │
-│ --help                                        Show this message and exit.                                │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Assistance Options ─────────────────────────────────────────────────────────────────────────────────────╮
-│ --shell           -s                      Generate and execute shell commands.                           │
-│ --interaction         --no-interaction    Interactive mode for --shell option. [default: interaction]    │
-│ --describe-shell  -d                      Describe a shell command.                                      │
-│ --code            -c                      Generate only code.                                            │
-│ --functions           --no-functions      Allow function calls. [default: functions]                     │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Chat Options ───────────────────────────────────────────────────────────────────────────────────────────╮
-│ --chat                 TEXT  Follow conversation with id, use "temp" for quick session. [default: None]  │
-│ --repl                 TEXT  Start a REPL (Read–eval–print loop) session. [default: None]                │
-│ --show-chat            TEXT  Show all messages from provided chat id. [default: None]                    │
-│ --list-chats  -lc            List all existing chat ids.                                                 │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Role Options ───────────────────────────────────────────────────────────────────────────────────────────╮
-│ --role                  TEXT  System role for GPT model. [default: None]                                 │
-│ --create-role           TEXT  Create role. [default: None]                                               │
-│ --show-role             TEXT  Show role. [default: None]                                                 │
-│ --list-roles   -lr            List roles.                                                                │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-```
-
-## Docker
-Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache. Consider to set the environment variables `OS_NAME` and `SHELL_NAME` according to your preferences.
-```shell
-docker run --rm \
-           --env OPENAI_API_KEY=api_key \
-           --env OS_NAME=$(uname -s) \
-           --env SHELL_NAME=$(echo $SHELL) \
-           --volume gpt-cache:/tmp/shell_gpt \
-       ghcr.io/ther1d/shell_gpt -s "update my system"
-```
-
-Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
-```shell
-alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OPENAI_API_KEY --env OS_NAME=$(uname -s) --env SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
-export OPENAI_API_KEY="your OPENAI API key"
-sgpt --chat rainbow "what are the colors of a rainbow"
-sgpt --chat rainbow "inverse the list of your last answer"
-sgpt --chat rainbow "translate your last answer in french"
-```
-
-You also can use the provided `Dockerfile` to build your own image:
-```shell
-docker build -t sgpt .
-```
-
-### Docker + Ollama
-
-If you want to send your requests to an Ollama instance and run ShellGPT inside a Docker container, you need to adjust the Dockerfile and build the container yourself: the litellm package is needed and env variables need to be set correctly.
-
-Example Dockerfile:
-```
-FROM python:3-slim
-
-ENV DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
-ENV API_BASE_URL=http://10.10.10.10:11434
-ENV USE_LITELLM=true
-ENV OPENAI_API_KEY=bad_key
-ENV SHELL_INTERACTION=false
-ENV PRETTIFY_MARKDOWN=false
-ENV OS_NAME="Arch Linux"
-ENV SHELL_NAME=auto
-
-WORKDIR /app
-COPY . /app
-
-RUN apt-get update && apt-get install -y gcc
-RUN pip install --no-cache /app[litellm] && mkdir -p /tmp/shell_gpt
-
-VOLUME /tmp/shell_gpt
-
-ENTRYPOINT ["sgpt"]
-```
-
-
-## Additional documentation
-* [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure)
-* [Ollama integration](https://github.com/TheR1D/shell_gpt/wiki/Ollama)
+To provide multiline prompt use triple quotes `

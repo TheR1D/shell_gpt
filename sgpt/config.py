@@ -37,6 +37,10 @@ DEFAULT_CONFIG = {
     "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
+    "OPENAI_PROVIDER": os.getenv("OPENAI_PROVIDER", "openai"),
+    "API_VERSION": os.getenv("API_VERSION", "2024-02-15-preview"),
+    "AZURE_DEPLOYMENT_NAME": os.getenv("AZURE_DEPLOYMENT_NAME", ""),
+    "AZURE_RESOURCE_ENDPOINT": os.getenv("AZURE_RESOURCE_ENDPOINT", ""),
     # New features might add their own config variables here.
 }
 
