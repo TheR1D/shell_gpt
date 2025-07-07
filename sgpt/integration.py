@@ -31,7 +31,7 @@ status is-interactive || exit
 
 function _sgpt_commandline
     # Get the current command line content
-    set -l _sgpt_prompt (commandline)
+    set -l _sgpt_prompt (commandline | string replace -r '^[ #]+' '')
 
     # Only proceed if there is a prompt
     if test -z "$_sgpt_prompt"
