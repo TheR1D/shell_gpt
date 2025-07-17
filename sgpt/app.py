@@ -7,6 +7,7 @@ import sys
 import typer
 from click import BadArgumentUsage
 from click.types import Choice
+from prompt_toolkit import PromptSession
 
 from sgpt.config import cfg
 from sgpt.function import get_openai_schemas
@@ -250,10 +251,12 @@ def main(
             functions=function_schemas,
         )
 
+    session: PromptSession[str] = PromptSession()
+
     while shell and interaction:
         option = typer.prompt(
-            text="[E]xecute, [D]escribe, [A]bort",
-            type=Choice(("e", "d", "a", "y"), case_sensitive=False),
+            text="[E]xecute, [M]odify, [D]escribe, [A]bort",
+            type=Choice(("e", "m", "d", "a", "y"), case_sensitive=False),
             default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
             show_choices=False,
             show_default=False,
@@ -261,6 +264,9 @@ def main(
         if option in ("e", "y"):
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
+        elif option == "m":
+            full_completion = session.prompt("", default=full_completion)
+            continue
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
                 full_completion,
