@@ -19,11 +19,42 @@ from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
     get_edited_prompt,
     get_sgpt_version,
+    install_shell_completion,
     install_shell_integration,
+    list_models,
     run_command,
 )
 
+app = typer.Typer(
+    add_completion=False,
+)
 
+
+# Add helper to display resolved default model in --help output.
+
+def _resolved_default_model() -> str:
+    """Return the effective default model taking provider into account.
+
+    If DEFAULT_MODEL is set to the placeholder 'auto_select_default_model',
+    we determine the concrete default depending on the selected provider
+    (OpenAI or Gemini). This value is only used for documentation purposes
+    so the runtime behaviour remains unchanged (the actual resolution still
+    happens deeper in the handlers).
+    """
+    default_model = cfg.get('DEFAULT_MODEL')
+    if default_model != 'auto_select_default_model':
+        return default_model
+
+    provider = cfg.get('LLM_API_PROVIDER')
+    if provider == 'gemini':
+        return cfg.get('DEFAULT_MODEL_GEMINI')
+    if provider == 'openai':
+        return cfg.get('DEFAULT_MODEL_OPENAI')
+    # Fallback to the raw value if provider is unexpected
+    return default_model
+
+
+@app.command()
 def main(
     prompt: str = typer.Argument(
         "",
@@ -33,6 +64,7 @@ def main(
     model: str = typer.Option(
         cfg.get("DEFAULT_MODEL"),
         help="Large language model to use.",
+        show_default=_resolved_default_model(),
     ),
     temperature: float = typer.Option(
         0.0,
@@ -95,6 +127,13 @@ def main(
         help="Show version.",
         callback=get_sgpt_version,
     ),
+    list_models: bool = typer.Option(
+        False,
+        "--list-models",
+        "-lm",
+        help="List all available models.",
+        callback=list_models,
+    ),
     chat: str = typer.Option(
         None,
         help="Follow conversation with id, " 'use "temp" for quick session.',
@@ -147,6 +186,13 @@ def main(
         False,
         help="Install shell integration (ZSH and Bash only)",
         callback=install_shell_integration,
+        hidden=True,  # Hiding since should be used only once.
+    ),
+    # --install-completion is overridden because default implementation is too slow
+    install_completion: bool = typer.Option(
+        False,
+        help="Install shell completions (ZSH only)",
+        callback=install_shell_completion,
         hidden=True,  # Hiding since should be used only once.
     ),
     install_functions: bool = typer.Option(
@@ -268,7 +314,7 @@ def main(
 
 
 def entry_point() -> None:
-    typer.run(main)
+    app()
 
 
 if __name__ == "__main__":

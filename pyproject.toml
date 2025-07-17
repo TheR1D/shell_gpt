@@ -38,6 +38,10 @@ dependencies = [
 litellm = [
     "litellm == 1.42.5"
 ]
+gemini = [
+    "google-generativeai >= 0.3.2",
+    "shell_gpt[litellm]"
+]
 test = [
     "pytest >= 7.2.2, < 8.0.0",
     "requests-mock[fixture] >= 1.10.0, < 2.0.0",

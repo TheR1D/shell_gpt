@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from ..config import cfg
 from ..role import SystemRole
-from .handler import Handler
+from .gemini_handler import Handler
 
 CHAT_CACHE_LENGTH = int(cfg.get("CHAT_CACHE_LENGTH"))
 CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
