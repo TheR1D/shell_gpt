@@ -238,7 +238,7 @@ def main(
             functions=function_schemas,
         )
 
-    session = PromptSession()
+    session: PromptSession[str] = PromptSession()
 
     while shell and interaction:
         option = typer.prompt(
@@ -252,7 +252,7 @@ def main(
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
         elif option == "m":
-            full_completion = session.prompt('', default=full_completion)
+            full_completion = session.prompt("", default=full_completion)
             continue
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
