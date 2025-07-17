@@ -9,7 +9,25 @@ import typer
 from click import BadParameter, UsageError, Context
 
 from sgpt.__version__ import __version__
+from sgpt.config import cfg
 from sgpt.integration import bash_integration, zsh_integration
+
+
+def list_models(value: bool) -> None:
+    """
+    List all available models from litellm.
+    """
+    if not value:
+        return
+    # Litellm models are dynamically generated, so we need to import it here.
+    from litellm import model_list  # type: ignore
+
+    provider = cfg.get("LLM_API_PROVIDER")
+    typer.echo(f"Available models for {provider}:")
+    for model in model_list:
+        if provider in model:
+            typer.echo(f" - {model}")
+    raise typer.Exit()
 
 
 def get_edited_prompt() -> str:

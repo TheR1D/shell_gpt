@@ -101,6 +101,13 @@ def main(
         help="Show version.",
         callback=get_sgpt_version,
     ),
+    list_models: bool = typer.Option(
+        False,
+        "--list-models",
+        "-lm",
+        help="List all available models.",
+        callback=list_models,
+    ),
     chat: str = typer.Option(
         None,
         help="Follow conversation with id, " 'use "temp" for quick session.',
