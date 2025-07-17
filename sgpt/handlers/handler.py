@@ -103,6 +103,12 @@ class Handler:
             additional_kwargs["tools"] = functions
             additional_kwargs["parallel_tool_calls"] = False
 
+        # print all arguments
+        print(f"Model: {model}")
+        print(f"Temperature: {temperature}")
+        print(f"Top_p: {top_p}")
+        print(f"Messages: {messages}")
+        print(f"Functions: {functions}")
         response = completion(
             model=model,
             temperature=temperature,

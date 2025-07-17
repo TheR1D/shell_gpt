@@ -157,6 +157,7 @@ def main(
     ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
+    print("app")
 
     if stdin_passed:
         stdin = ""

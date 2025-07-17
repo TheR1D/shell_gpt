@@ -46,6 +46,11 @@ def test_shell_stdin(completion):
     stdin = "What is in current folder"
     result = runner.invoke(app, cmd_args(**args), input=stdin)
 
+    # Print stdout and stderr for CI debugging
+    print(f"Test stdout: {result.stdout}")
+    print(f"Test stderr: {result.stderr}")
+    print(f"Test exit_code: {result.exit_code}")
+
     expected_prompt = f"{stdin}\n\n{args['prompt']}"
     completion.assert_called_once_with(**comp_args(role, expected_prompt))
     assert result.exit_code == 0
