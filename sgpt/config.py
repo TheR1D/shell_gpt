@@ -44,9 +44,13 @@ DEFAULT_CONFIG = {
 class Config(dict):  # type: ignore
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
-
         if self._exists:
             self._read()
+            # If OPENAI_API_KEY is missing and LiteLLM is not used, prompt for it.
+            if "OPENAI_API_KEY" not in self and defaults["USE_LITELLM"] == "false":
+                __api_key = getpass(prompt="Please enter your OpenAI API key: ")
+                self["OPENAI_API_KEY"] = __api_key
+                self._write()
             has_new_config = False
             for key, value in defaults.items():
                 if key not in self:
@@ -56,8 +60,12 @@ class Config(dict):  # type: ignore
                 self._write()
         else:
             config_path.parent.mkdir(parents=True, exist_ok=True)
-            # Don't write API key to config file if it is in the environment.
-            if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
+            # Don't write API key to config file if it is in the environment or if LiteLLM is true.
+            if (
+                not defaults.get("OPENAI_API_KEY")
+                and not os.getenv("OPENAI_API_KEY")
+                and not defaults["USE_LITELLM"] == "true"
+            ):
                 __api_key = getpass(prompt="Please enter your OpenAI API key: ")
                 defaults["OPENAI_API_KEY"] = __api_key
             super().__init__(**defaults)

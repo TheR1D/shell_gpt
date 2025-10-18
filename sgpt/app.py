@@ -46,6 +46,11 @@ def main(
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
+    use_litellm: str = typer.Option(
+        cfg.get("USE_LITELLM"),
+        "--use-litellm",
+        help="Use LiteLLM for completions.",
+    ),
     md: bool = typer.Option(
         cfg.get("PRETTIFY_MARKDOWN") == "true",
         help="Prettify markdown output.",
@@ -157,6 +162,8 @@ def main(
     ),
 ) -> None:
     stdin_passed = not sys.stdin.isatty()
+
+    cfg["USE_LITELLM"] = use_litellm
 
     if stdin_passed:
         stdin = ""
