@@ -23,13 +23,13 @@ def test_role(completion):
     result = runner.invoke(app, cmd_args(**args))
     completion.assert_not_called()
     assert result.exit_code == 0
-    assert "json_gen_test" in result.stdout
+    assert "json_gen_test" in result.output
 
     args = {"--show-role": "json_gen_test"}
     result = runner.invoke(app, cmd_args(**args))
     completion.assert_not_called()
     assert result.exit_code == 0
-    assert "you are a JSON generator" in result.stdout
+    assert "you are a JSON generator" in result.output
 
     # Test with argument prompt.
     args = {
@@ -40,7 +40,7 @@ def test_role(completion):
     role = SystemRole.get("json_gen_test")
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
-    generated_json = json.loads(result.stdout)
+    generated_json = json.loads(result.output)
     assert "foo" in generated_json
 
     # Test with stdin prompt.
@@ -50,6 +50,6 @@ def test_role(completion):
     result = runner.invoke(app, cmd_args(**args), input=stdin)
     completion.assert_called_with(**comp_args(role, stdin))
     assert result.exit_code == 0
-    generated_json = json.loads(result.stdout)
+    generated_json = json.loads(result.output)
     assert "foo" in generated_json
     path.unlink(missing_ok=True)

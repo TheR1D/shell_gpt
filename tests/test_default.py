@@ -23,7 +23,7 @@ def test_default(completion):
 
     completion.assert_called_once_with(**comp_args(role, **args))
     assert result.exit_code == 0
-    assert "Prague" in result.stdout
+    assert "Prague" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -35,7 +35,7 @@ def test_default_stdin(completion):
 
     completion.assert_called_once_with(**comp_args(role, stdin))
     assert result.exit_code == 0
-    assert "Prague" in result.stdout
+    assert "Prague" in result.output
 
 
 @patch("rich.console.Console.print")
@@ -85,13 +85,13 @@ def test_default_chat(completion):
     args = {"prompt": "my number is 2", "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
-    assert "ok" in result.stdout
+    assert "ok" in result.output
     assert chat_path.exists()
 
     args["prompt"] = "my number + 2?"
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
-    assert "4" in result.stdout
+    assert "4" in result.output
 
     expected_messages = [
         {"role": "system", "content": role.role},
@@ -106,24 +106,24 @@ def test_default_chat(completion):
 
     result = runner.invoke(app, ["--list-chats"])
     assert result.exit_code == 0
-    assert "_test" in result.stdout
+    assert "_test" in result.output
 
     result = runner.invoke(app, ["--show-chat", chat_name])
     assert result.exit_code == 0
-    assert "my number is 2" in result.stdout
-    assert "ok" in result.stdout
-    assert "my number + 2?" in result.stdout
-    assert "4" in result.stdout
+    assert "my number is 2" in result.output
+    assert "ok" in result.output
+    assert "my number + 2?" in result.output
+    assert "4" in result.output
 
     args["--shell"] = True
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.output
 
     args["--code"] = True
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.output
     chat_path.unlink()
 
 
@@ -150,10 +150,10 @@ def test_default_repl(completion):
     assert completion.call_count == 2
 
     assert result.exit_code == 0
-    assert ">>> my number is 6" in result.stdout
-    assert "ok" in result.stdout
-    assert ">>> my number + 2?" in result.stdout
-    assert "8" in result.stdout
+    assert ">>> my number is 6" in result.output
+    assert "ok" in result.output
+    assert ">>> my number + 2?" in result.output
+    assert "8" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -183,11 +183,11 @@ def test_default_repl_stdin(completion):
     assert completion.call_count == 2
 
     assert result.exit_code == 0
-    assert "this is stdin" in result.stdout
-    assert ">>> prompt" in result.stdout
-    assert "ok init" in result.stdout
-    assert ">>> another" in result.stdout
-    assert "ok another" in result.stdout
+    assert "this is stdin" in result.output
+    assert ">>> prompt" in result.output
+    assert "ok init" in result.output
+    assert ">>> another" in result.output
+    assert "ok another" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -212,7 +212,7 @@ def test_llm_options(completion):
     )
     completion.assert_called_once_with(**expected_args)
     assert result.exit_code == 0
-    assert "Berlin" in result.stdout
+    assert "Berlin" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -221,7 +221,7 @@ def test_version(completion):
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
-    assert __version__ in result.stdout
+    assert __version__ in result.output
 
 
 @patch("sgpt.printer.TextPrinter.live_print")

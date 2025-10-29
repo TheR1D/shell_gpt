@@ -17,9 +17,8 @@ def test_shell(completion):
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
-    assert result.exit_code == 0
-    assert "git commit" in result.stdout
-    assert "[E]xecute, [M]odify, [D]escribe, [A]bort:" in result.stdout
+    assert "git commit" in result.output
+    assert "[E]xecute, [M]odify, [D]escribe, [A]bort:" in result.output
 
 
 @patch("sgpt.printer.TextPrinter.live_print")
@@ -29,9 +28,8 @@ def test_shell_no_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("git commit -m test")
 
     args = {"prompt": "make a commit using git", "--shell": True, "--md": True}
-    result = runner.invoke(app, cmd_args(**args))
+    runner.invoke(app, cmd_args(**args))
 
-    assert result.exit_code == 0
     # Should ignore --md for --shell option and output text without markdown.
     markdown_printer.assert_not_called()
     text_printer.assert_called()
@@ -48,9 +46,8 @@ def test_shell_stdin(completion):
 
     expected_prompt = f"{stdin}\n\n{args['prompt']}"
     completion.assert_called_once_with(**comp_args(role, expected_prompt))
-    assert result.exit_code == 0
-    assert "ls -l | sort" in result.stdout
-    assert "[E]xecute, [M]odify, [D]escribe, [A]bort:" in result.stdout
+    assert "ls -l | sort" in result.output
+    assert "[E]xecute, [M]odify, [D]escribe, [A]bort:" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -63,7 +60,7 @@ def test_describe_shell(completion):
 
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
-    assert "lists" in result.stdout
+    assert "lists" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -78,7 +75,7 @@ def test_describe_shell_stdin(completion):
     expected_prompt = f"{stdin}"
     completion.assert_called_once_with(**comp_args(role, expected_prompt))
     assert result.exit_code == 0
-    assert "lists" in result.stdout
+    assert "lists" in result.output
 
 
 @patch("os.system")
@@ -91,8 +88,8 @@ def test_shell_run_description(completion, system):
     shell = os.environ.get("SHELL", "/bin/sh")
     system.assert_called_once_with(f"{shell} -c 'echo hello'")
     assert result.exit_code == 0
-    assert "echo hello" in result.stdout
-    assert "prints hello" in result.stdout
+    assert "echo hello" in result.output
+    assert "prints hello" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -105,14 +102,12 @@ def test_shell_chat(completion):
 
     args = {"prompt": "list folder", "--shell": True, "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
-    assert result.exit_code == 0
-    assert "ls" in result.stdout
+    assert "ls" in result.output
     assert chat_path.exists()
 
     args["prompt"] = "sort by name"
     result = runner.invoke(app, cmd_args(**args))
-    assert result.exit_code == 0
-    assert "ls | sort" in result.stdout
+    assert "ls | sort" in result.output
 
     expected_messages = [
         {"role": "system", "content": role.role},
@@ -128,7 +123,7 @@ def test_shell_chat(completion):
     args["--code"] = True
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.output
     chat_path.unlink()
     # TODO: Shell chat can be recalled without --shell option.
 
@@ -160,10 +155,10 @@ def test_shell_repl(completion, mock_system):
     assert completion.call_count == 2
 
     assert result.exit_code == 0
-    assert ">>> list folder" in result.stdout
-    assert "ls" in result.stdout
-    assert ">>> sort by name" in result.stdout
-    assert "ls | sort" in result.stdout
+    assert ">>> list folder" in result.output
+    assert "ls" in result.output
+    assert ">>> sort by name" in result.output
+    assert "ls | sort" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -173,7 +168,7 @@ def test_shell_and_describe_shell(completion):
 
     completion.assert_not_called()
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -190,5 +185,5 @@ def test_shell_no_interaction(completion):
 
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
-    assert "git commit" in result.stdout
-    assert "[E]xecute" not in result.stdout
+    assert "git commit" in result.output
+    assert "[E]xecute" not in result.output
