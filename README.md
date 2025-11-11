@@ -9,6 +9,51 @@ pip install shell-gpt
 ```
 By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
+### Azure OpenAI Provider
+ShellGPT also supports Azure OpenAI provider. To use Azure OpenAI, you need to configure several Azure-specific parameters:
+
+#### 1. Set the Provider
+```shell
+export OPENAI_PROVIDER=azure-openai
+```
+
+#### 2. Configure Azure Resource Endpoint
+```shell
+export AZURE_RESOURCE_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+```
+
+#### 3. Configure Deployment Name
+```shell
+export AZURE_DEPLOYMENT_NAME=your-deployment-name
+```
+
+#### 4. Set API Version
+```shell
+export API_VERSION=2025-01-01-preview
+```
+
+#### 5. Set API Key
+```shell
+export OPENAI_API_KEY=your_azure_openai_api_key
+```
+
+#### Configuration File
+You can also set these in your configuration file `~/.config/shell_gpt/.sgptrc`:
+```text
+OPENAI_PROVIDER=azure-openai
+AZURE_RESOURCE_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+AZURE_DEPLOYMENT_NAME=your-deployment-name
+API_VERSION=2025-01-01-preview
+OPENAI_API_KEY=your_azure_openai_api_key
+```
+
+#### URL Structure
+Azure OpenAI uses a different URL structure than standard OpenAI:
+- **Standard OpenAI**: `https://api.openai.com/v1/chat/completions`
+- **Azure OpenAI**: Uses the `AzureOpenAI` client which automatically constructs the correct URL format
+
+The Azure OpenAI provider uses the official `AzureOpenAI` client from the OpenAI library, which handles the endpoint, deployment name, and API version automatically.
+
 > [!TIP]
 > Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
 >
