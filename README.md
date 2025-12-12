@@ -110,6 +110,72 @@ https://github.com/TheR1D/shell_gpt/assets/16740832/bead0dab-0dd9-436d-88b7-6abf
 
 To install shell integration, run `sgpt --install-integration` and restart your terminal to apply changes. This will add few lines to your `.bashrc` or `.zshrc` file. After that, you can use `Ctrl+l` (by default) to invoke ShellGPT. When you press `Ctrl+l` it will replace you current input line (buffer) with suggested command. You can then edit it and just press `Enter` to execute.
 
+#### Solution for Powershell
+You can use this script (e.g. in your profile.ps1) to mimic the same feature on Powershell
+```
+# Hotkey: Ctrl+g
+Import-Module PSReadLine
+
+Set-PSReadLineKeyHandler -Key Ctrl+g -ScriptBlock {
+    param($key, $arg)
+
+    # Get current line and cursor position
+    $line   = $null
+    $cursor = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+
+    $prompt = $line.Trim()
+    if (-not $prompt) { return }
+
+    # Loading-Text vorbereiten
+    $placeholder = "(Loading answer... $prompt)"
+
+    # Replace current line with loading indicator
+    [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $line.Length, $placeholder)
+    [Microsoft.PowerShell.PSConsoleReadLine]::SetCursorPosition($placeholder.Length)
+
+    $oldPref = $ErrorActionPreference
+    $ErrorActionPreference = 'Stop'
+    try {
+        # The call with sgpt
+        $result = & sgpt --shell --no-interaction "$prompt" 2>&1
+    }
+    catch {
+        $ErrorActionPreference = $oldPref
+
+        # If error: restore input
+        $currentLine = $null
+        $c = $null
+        [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$currentLine, [ref]$c)
+        [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $currentLine.Length, $line)
+
+        Write-Host "Error calling sgpt:" -ForegroundColor Red
+        Write-Host $_ -ForegroundColor Red
+        return
+    }
+    $ErrorActionPreference = $oldPref
+
+    if (-not $result) {
+        # if sgpt does not return anyting, also restore input
+        $currentLine = $null
+        $c = $null
+        [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$currentLine, [ref]$c)
+        [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $currentLine.Length, $line)
+
+        Write-Host "sgpt did not respond." -ForegroundColor Yellow
+        return
+    }
+
+    $cmd = ($result -join [Environment]::NewLine)
+
+    # Get placeholder line and replace with sgpt answer
+    $currentLine = $null
+    $c = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$currentLine, [ref]$c)
+    [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $currentLine.Length, $cmd)
+}
+```
+
 ### Generating code
 By using the `--code` or `-c` parameter, you can specifically request pure code output, for instance:
 ```shell
