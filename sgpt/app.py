@@ -23,6 +23,7 @@ from sgpt.utils import (
     run_command,
 )
 
+FIXED_TEMP_MODELS = {"gpt-5", "gpt-5-mini", "o1-mini", "o1-preview", "o2-mini", "o3-mini", "gpt-5-nano", "gpt-5.1", "gpt-5.2", "gpt-5.2-pro", "o1", "o3"}
 
 def main(
     prompt: str = typer.Argument(
@@ -210,6 +211,8 @@ def main(
 
     if repl:
         # Will be in infinite loop here until user exits with Ctrl+C.
+        if model in FIXED_TEMP_MODELS:
+            temperature = 1
         ReplHandler(repl, role_class, md).handle(
             init_prompt=prompt,
             model=model,
@@ -220,6 +223,8 @@ def main(
         )
 
     if chat:
+        if model in FIXED_TEMP_MODELS:
+            temperature = 1
         full_completion = ChatHandler(chat, role_class, md).handle(
             prompt=prompt,
             model=model,
@@ -229,6 +234,8 @@ def main(
             functions=function_schemas,
         )
     else:
+        if model in FIXED_TEMP_MODELS:
+            temperature = 1
         full_completion = DefaultHandler(role_class, md).handle(
             prompt=prompt,
             model=model,
@@ -255,6 +262,8 @@ def main(
             full_completion = session.prompt("", default=full_completion)
             continue
         elif option == "d":
+            if model in FIXED_TEMP_MODELS:
+                temperature = 1
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
                 full_completion,
                 model=model,
