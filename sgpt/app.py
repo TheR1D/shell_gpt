@@ -23,7 +23,21 @@ from sgpt.utils import (
     run_command,
 )
 
-FIXED_TEMP_MODELS = {"gpt-5", "gpt-5-mini", "o1-mini", "o1-preview", "o2-mini", "o3-mini", "gpt-5-nano", "gpt-5.1", "gpt-5.2", "gpt-5.2-pro", "o1", "o3"}
+FIXED_TEMP_MODELS = {
+    "gpt-5",
+    "gpt-5-mini",
+    "o1-mini",
+    "o1-preview",
+    "o2-mini",
+    "o3-mini",
+    "gpt-5-nano",
+    "gpt-5.1",
+    "gpt-5.2",
+    "gpt-5.2-pro",
+    "o1",
+    "o3",
+}
+
 
 def main(
     prompt: str = typer.Argument(

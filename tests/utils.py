@@ -46,13 +46,22 @@ def cmd_args(prompt="", **kwargs):
 
 
 def comp_args(role, prompt, **kwargs):
+    model = kwargs.get("model", cfg.get("DEFAULT_MODEL"))
+
+    # Mirror production logic: GPT-5 and o-series models require temperature 1.0,
+    # while other models default to 0.0 in tests.
+    if model.startswith("gpt-5") or model.startswith("o"):
+        expected_temp = 1.0
+    else:
+        expected_temp = 0.0
+
     return {
         "messages": [
             {"role": "system", "content": role.role},
             {"role": "user", "content": prompt},
         ],
-        "model": cfg.get("DEFAULT_MODEL"),
-        "temperature": 0.0,
+        "model": model,
+        "temperature": expected_temp,
         "top_p": 1.0,
         "stream": True,
         **kwargs,
