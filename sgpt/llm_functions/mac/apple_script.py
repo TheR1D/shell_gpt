@@ -14,7 +14,7 @@ class Function(BaseModel):
         default=...,
         example='tell application "Finder" to get the name of every disk',
         description="Apple Script to execute.",
-    ) # type: ignore
+    )  # type: ignore
 
     @classmethod
     def execute(cls, apple_script):

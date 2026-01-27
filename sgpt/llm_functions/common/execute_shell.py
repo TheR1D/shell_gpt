@@ -13,7 +13,7 @@ class Function(BaseModel):
         ...,
         example="ls -la",
         description="Shell command to execute.",
-    )
+    ) # type: ignore
 
     @classmethod
     def execute(cls, shell_command: str) -> str:

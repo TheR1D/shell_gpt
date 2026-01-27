@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import typer
-from click import BadArgumentUsage
+from click import UsageError
 from distro import name as distro_name
 
 from .config import cfg
@@ -76,7 +76,7 @@ class SystemRole:
     def get(cls, name: str) -> "SystemRole":
         file_path = cls.storage / f"{name}.json"
         if not file_path.exists():
-            raise BadArgumentUsage(f'Role "{name}" not found.')
+            raise UsageError(f'Role "{name}" not found.')
         return cls(**json.loads(file_path.read_text()))
 
     @classmethod

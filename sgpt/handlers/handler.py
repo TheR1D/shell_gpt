@@ -88,7 +88,7 @@ class Handler:
         result = get_function(name)(**dict_args)
         if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
             yield f"```text\n{result}\n```\n"
-        
+
         # Add tool response message
         messages.append(
             {"role": "tool", "content": result, "tool_call_id": tool_call_id}
