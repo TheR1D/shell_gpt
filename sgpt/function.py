@@ -1,8 +1,9 @@
 import importlib.util
 import sys
-from abc import ABCMeta
 from pathlib import Path
 from typing import Any, Callable, Dict, List
+
+from pydantic import BaseModel
 
 from .config import cfg
 
@@ -11,8 +12,8 @@ class Function:
     def __init__(self, path: str):
         module = self._read(path)
         self._function = module.Function.execute
-        self._openai_schema = module.Function.openai_schema
-        self._name = self._openai_schema["name"]
+        self._openai_schema = module.Function.openai_schema()
+        self._name = self._openai_schema["function"]["name"]
 
     @property
     def name(self) -> str:
@@ -34,13 +35,17 @@ class Function:
         sys.modules[module_name] = module
         spec.loader.exec_module(module)  # type: ignore
 
-        if not isinstance(module.Function, ABCMeta):
+        if not issubclass(module.Function, BaseModel):
             raise TypeError(
                 f"Function {module_name} must be a subclass of pydantic.BaseModel"
             )
         if not hasattr(module.Function, "execute"):
             raise TypeError(
-                f"Function {module_name} must have a 'execute' static method"
+                f"Function {module_name} must have an 'execute' classmethod"
+            )
+        if not hasattr(module.Function, "openai_schema"):
+            raise TypeError(
+                f"Function {module_name} must have an 'openai_schema' classmethod"
             )
 
         return module
@@ -59,15 +64,4 @@ def get_function(name: str) -> Callable[..., Any]:
 
 
 def get_openai_schemas() -> List[Dict[str, Any]]:
-    transformed_schemas = []
-    for function in functions:
-        schema = {
-            "type": "function",
-            "function": {
-                "name": function.openai_schema["name"],
-                "description": function.openai_schema.get("description", ""),
-                "parameters": function.openai_schema.get("parameters", {}),
-            },
-        }
-        transformed_schemas.append(schema)
-    return transformed_schemas
+    return [function.openai_schema for function in functions]
