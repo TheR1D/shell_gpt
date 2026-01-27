@@ -1,4 +1,5 @@
 import json
+import uuid
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
 
@@ -62,11 +63,21 @@ class Handler:
         name: str,
         arguments: str,
     ) -> Generator[str, None, None]:
+        tool_call_id = str(uuid.uuid4())
         messages.append(
             {
                 "role": "assistant",
                 "content": "",
-                "function_call": {"name": name, "arguments": arguments},
+                "tool_calls": [
+                    {
+                        "id": tool_call_id,
+                        "type": "function",
+                        "function": {
+                            "name": name,
+                            "arguments": arguments
+                        }
+                    }
+                ]
             }
         )
 
@@ -80,7 +91,7 @@ class Handler:
         result = get_function(name)(**dict_args)
         if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
             yield f"```text\n{result}\n```\n"
-        messages.append({"role": "function", "content": result, "name": name})
+        messages.append({"role": "tool", "tool_call_id": tool_call_id, "content": result})
 
     @cache
     def get_completion(
