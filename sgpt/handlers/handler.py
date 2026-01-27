@@ -137,19 +137,16 @@ class Handler:
                 if tool_calls:
                     for tool_call in tool_calls:
                         if use_litellm:
-                            if tool_call.get("id"):
-                                tool_call_id = tool_call.get("id")
-                            if tool_call.get("function", {}).get("name"):
-                                name = tool_call["function"]["name"]
-                            if tool_call.get("function", {}).get("arguments"):
-                                arguments += tool_call["function"]["arguments"]
+                            # TODO: test.
+                            tool_call_id = tool_call.get("id") or tool_call_id
+                            name = tool_call.get("function", {}).get("name") or name
+                            arguments += tool_call.get("function", {}).get(
+                                "arguments", ""
+                            )
                         else:
-                            if tool_call.id:
-                                tool_call_id = tool_call.id
-                            if tool_call.function.name:
-                                name = tool_call.function.name
-                            if tool_call.function.arguments:
-                                arguments += tool_call.function.arguments
+                            tool_call_id = tool_call.id or tool_call_id
+                            name = tool_call.function.name or name
+                            arguments += tool_call.function.arguments or ""
                 if chunk.choices[0].finish_reason == "tool_calls":
                     yield from self.handle_function_call(
                         messages, tool_call_id, name, arguments
