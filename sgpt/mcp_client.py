@@ -19,12 +19,12 @@ class MCPClient:
         self.servers: Dict[str, Any] = {}
         self.tools: List[Dict[str, Any]] = []
         self._initialized = False
-        
+
         # Check if MCP is enabled
         self.enabled = cfg.get("MCP_ENABLED") == "true"
         if not self.enabled:
             return
-            
+
         # Try to import MCP libraries
         try:
             from mcp.client.session import ClientSession  # noqa: F401
@@ -32,6 +32,7 @@ class MCPClient:
                 StdioServerParameters,
                 stdio_client,
             )
+
             self._mcp_available = True
         except ImportError:
             self._mcp_available = False
@@ -40,7 +41,7 @@ class MCPClient:
     def _load_servers_config(self) -> Dict[str, Any]:
         """Load MCP servers configuration from JSON file."""
         config_path = Path(cfg.get("MCP_SERVERS_CONFIG_PATH"))
-        
+
         if not config_path.exists():
             # Create default config file
             config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,7 +58,7 @@ class MCPClient:
             with open(config_path, "w") as f:
                 json.dump(default_config, f, indent=2)
             return default_config
-        
+
         with open(config_path, "r") as f:
             return json.load(f)
 
@@ -71,7 +72,7 @@ class MCPClient:
         command = server_config.get("command")
         args = server_config.get("args", [])
         env = server_config.get("env", None)
-        
+
         if not command:
             return
 
@@ -85,27 +86,29 @@ class MCPClient:
             # Create stdio client context
             read, write = await stdio_client(server_params)
             session = ClientSession(read, write)
-            
+
             # Initialize the session
             await session.initialize()
-            
+
             # Get available tools from this server
             tools_result = await session.list_tools()
-            
+
             # Store session and tools
             self.servers[name] = {
                 "session": session,
                 "read": read,
                 "write": write,
             }
-            
+
             # Add tools to our list with server name prefix
             if hasattr(tools_result, "tools"):
                 for tool in tools_result.tools:
-                    self.tools.append({
-                        "server_name": name,
-                        "tool": tool,
-                    })
+                    self.tools.append(
+                        {
+                            "server_name": name,
+                            "tool": tool,
+                        }
+                    )
         except Exception as e:
             # Silently fail for individual servers, but log the error
             # This allows other servers to still work
@@ -125,7 +128,7 @@ class MCPClient:
             for name, server_config in servers_config.items()
         ]
         await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         self._initialized = True
 
     def initialize(self) -> None:
@@ -152,18 +155,20 @@ class MCPClient:
         for tool_info in self.tools:
             tool = tool_info["tool"]
             server_name = tool_info["server_name"]
-            
+
             # Convert MCP tool schema to OpenAI function schema
             schema = {
                 "type": "function",
                 "function": {
                     "name": f"mcp_{server_name}_{tool.name}",
                     "description": tool.description or "",
-                    "parameters": tool.inputSchema if hasattr(tool, "inputSchema") else {},
+                    "parameters": tool.inputSchema
+                    if hasattr(tool, "inputSchema")
+                    else {},
                 },
             }
             schemas.append(schema)
-        
+
         return schemas
 
     async def _call_tool_async(
@@ -174,10 +179,10 @@ class MCPClient:
             return f"Error: Server {server_name} not found"
 
         session = self.servers[server_name]["session"]
-        
+
         try:
             result = await session.call_tool(tool_name, arguments)
-            
+
             # Extract content from result
             if hasattr(result, "content") and result.content:
                 content_parts = []
@@ -185,14 +190,12 @@ class MCPClient:
                     if hasattr(item, "text"):
                         content_parts.append(item.text)
                 return "\n".join(content_parts)
-            
+
             return str(result)
         except Exception as e:
             return f"Error calling tool: {str(e)}"
 
-    def call_tool(
-        self, full_name: str, arguments: Dict[str, Any]
-    ) -> str:
+    def call_tool(self, full_name: str, arguments: Dict[str, Any]) -> str:
         """Call an MCP tool synchronously."""
         if not self.enabled or not self._initialized:
             return "Error: MCP is not enabled or initialized"
@@ -200,11 +203,11 @@ class MCPClient:
         # Parse the full name (format: mcp_<server>_<tool>)
         if not full_name.startswith("mcp_"):
             return "Error: Invalid MCP tool name"
-        
+
         parts = full_name[4:].split("_", 1)
         if len(parts) != 2:
             return "Error: Invalid MCP tool name format"
-        
+
         server_name, tool_name = parts
 
         # Run async call in event loop
