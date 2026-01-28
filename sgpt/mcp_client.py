@@ -136,15 +136,19 @@ class MCPClient:
         if not self.enabled or self._initialized:
             return
 
+        loop = None
         try:
             # Run async initialization in event loop
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             loop.run_until_complete(self._initialize_async())
-            loop.close()
         except Exception:
             # If initialization fails, disable MCP
+            # Silently fail to avoid breaking existing functionality
             self.enabled = False
+        finally:
+            if loop:
+                loop.close()
 
     def get_tools_schemas(self) -> List[Dict[str, Any]]:
         """Get OpenAI-compatible function schemas for all MCP tools."""
@@ -211,16 +215,19 @@ class MCPClient:
         server_name, tool_name = parts
 
         # Run async call in event loop
+        loop = None
         try:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             result = loop.run_until_complete(
                 self._call_tool_async(server_name, tool_name, arguments)
             )
-            loop.close()
             return result
         except Exception as e:
             return f"Error: {str(e)}"
+        finally:
+            if loop:
+                loop.close()
 
     def cleanup(self) -> None:
         """Clean up MCP client connections."""

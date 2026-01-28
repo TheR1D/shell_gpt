@@ -351,12 +351,15 @@ MCP_ENABLED=true
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     }
   }
 }
 ```
+
+**Security Note:** It's recommended to use environment variables for sensitive data like tokens instead of hardcoding them in the configuration file. The example above shows using `${GITHUB_TOKEN}` which should be set as an environment variable.
+
 
 Once configured, ShellGPT will automatically connect to the MCP servers and make their tools available to the LLM. The LLM can then use these tools just like regular functions:
 
