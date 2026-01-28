@@ -323,6 +323,59 @@ sgpt "Play music and open hacker news"
 This is just a simple example of how you can use function calls. It is truly a powerful feature that can be used to accomplish a variety of complex tasks. We have dedicated [category](https://github.com/TheR1D/shell_gpt/discussions/categories/functions) in GitHub Discussions for sharing and discussing functions. 
 LLM might execute destructive commands, so please use it at your own risk❗️
 
+### MCP (Model Context Protocol) Server Support
+ShellGPT supports [MCP servers](https://modelcontextprotocol.io/), which allow you to extend the capabilities of the LLM by connecting to external tools and data sources. MCP is a protocol developed by Anthropic that enables AI assistants to interact with various services and tools in a standardized way.
+
+To use MCP servers with ShellGPT:
+
+1. Install the MCP package (optional dependency):
+```shell
+pip install shell-gpt[mcp]
+```
+
+2. Enable MCP in your runtime configuration file `~/.config/shell_gpt/.sgptrc`:
+```text
+MCP_ENABLED=true
+```
+
+3. Configure your MCP servers in `~/.config/shell_gpt/mcp_servers.json`:
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/directory"],
+      "env": {}
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token"
+      }
+    }
+  }
+}
+```
+
+Once configured, ShellGPT will automatically connect to the MCP servers and make their tools available to the LLM. The LLM can then use these tools just like regular functions:
+
+```shell
+sgpt "List files in the project directory"
+# -> @FunctionCall mcp_filesystem_list_directory(path="/path/to/allowed/directory")
+# -> The directory contains:
+# -> - README.md
+# -> - src/
+# -> - tests/
+```
+
+Available MCP servers can be found at:
+- [@modelcontextprotocol](https://github.com/modelcontextprotocol) organization on GitHub
+- Community-maintained servers in the MCP ecosystem
+
+**Note:** MCP servers run as separate processes and communicate with ShellGPT via stdio. Make sure you have the necessary dependencies installed (like Node.js for npx-based servers).
+
+
 ### Roles
 ShellGPT allows you to create custom roles, which can be utilized to generate code, shell commands, or to fulfill your specific needs. To create a new role, use the `--create-role` option followed by the role name. You will be prompted to provide a description for the role, along with other details. This will create a JSON file in `~/.config/shell_gpt/roles` with the role name. Inside this directory, you can also edit default `sgpt` roles, such as **shell**, **code**, and **default**. Use the `--list-roles` option to list all available roles, and the `--show-role` option to display the details of a specific role. Here's an example of a custom role:
 ```shell
@@ -391,6 +444,10 @@ SHOW_FUNCTIONS_OUTPUT=false
 OPENAI_USE_FUNCTIONS=true
 # Enforce LiteLLM usage (for local LLMs).
 USE_LITELLM=false
+# Enable MCP (Model Context Protocol) servers support.
+MCP_ENABLED=false
+# Path to MCP servers configuration file.
+MCP_SERVERS_CONFIG_PATH=/Users/user/.config/shell_gpt/mcp_servers.json
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/

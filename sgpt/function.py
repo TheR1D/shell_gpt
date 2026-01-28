@@ -55,13 +55,37 @@ functions_folder = Path(cfg.get("OPENAI_FUNCTIONS_PATH"))
 functions_folder.mkdir(parents=True, exist_ok=True)
 functions = [Function(str(path)) for path in functions_folder.glob("*.py")]
 
+# Initialize MCP client if enabled
+try:
+    from .mcp_client import mcp_client
+    if mcp_client.enabled:
+        mcp_client.initialize()
+except ImportError:
+    mcp_client = None  # type: ignore
+
 
 def get_function(name: str) -> Callable[..., Any]:
+    # Check regular functions first
     for function in functions:
         if function.name == name:
             return function.execute
+    
+    # Check MCP tools if available
+    if mcp_client and mcp_client.enabled and name.startswith("mcp_"):
+        # Return a callable that will invoke the MCP tool
+        def mcp_wrapper(**kwargs: Any) -> str:
+            return mcp_client.call_tool(name, kwargs)
+        return mcp_wrapper
+    
     raise ValueError(f"Function {name} not found")
 
 
 def get_openai_schemas() -> List[Dict[str, Any]]:
-    return [function.openai_schema for function in functions]
+    schemas = [function.openai_schema for function in functions]
+    
+    # Add MCP tool schemas if available
+    if mcp_client and mcp_client.enabled:
+        schemas.extend(mcp_client.get_tools_schemas())
+    
+    return schemas
+

@@ -11,6 +11,7 @@ SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
 SHELL_GPT_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
 ROLE_STORAGE_PATH = SHELL_GPT_CONFIG_FOLDER / "roles"
 FUNCTIONS_PATH = SHELL_GPT_CONFIG_FOLDER / "functions"
+MCP_SERVERS_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / "mcp_servers.json"
 CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
 CACHE_PATH = Path(gettempdir()) / "cache"
 
@@ -31,6 +32,8 @@ DEFAULT_CONFIG = {
     "OPENAI_FUNCTIONS_PATH": os.getenv("OPENAI_FUNCTIONS_PATH", str(FUNCTIONS_PATH)),
     "OPENAI_USE_FUNCTIONS": os.getenv("OPENAI_USE_FUNCTIONS", "true"),
     "SHOW_FUNCTIONS_OUTPUT": os.getenv("SHOW_FUNCTIONS_OUTPUT", "false"),
+    "MCP_SERVERS_CONFIG_PATH": os.getenv("MCP_SERVERS_CONFIG_PATH", str(MCP_SERVERS_CONFIG_PATH)),
+    "MCP_ENABLED": os.getenv("MCP_ENABLED", "false"),
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
