@@ -4,8 +4,6 @@ from pathlib import Path
 from tempfile import gettempdir
 from typing import Any
 
-import typer
-
 from click import UsageError
 
 CONFIG_FOLDER = os.path.expanduser("~/.config")
