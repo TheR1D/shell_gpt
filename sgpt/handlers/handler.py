@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
 
@@ -8,13 +9,25 @@ from ..function import get_function
 from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
 
+MINIMAX_API_BASE_URL = "https://api.minimax.io/v1"
+
 completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
 
 base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
+
+# Resolve API key: prefer MINIMAX_API_KEY when set, auto-configure base URL.
+minimax_api_key = os.getenv("MINIMAX_API_KEY", "")
+if minimax_api_key:
+    api_key = minimax_api_key
+    if base_url == "default":
+        base_url = MINIMAX_API_BASE_URL
+else:
+    api_key = cfg.get("OPENAI_API_KEY")
+
 additional_kwargs = {
     "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("OPENAI_API_KEY"),
+    "api_key": api_key,
     "base_url": None if base_url == "default" else base_url,
 }
 
@@ -114,6 +127,10 @@ class Handler:
             additional_kwargs["tool_choice"] = "auto"
             additional_kwargs["tools"] = functions
             additional_kwargs["parallel_tool_calls"] = False
+
+        # MiniMax API requires temperature in (0.0, 1.0].
+        if model.lower().startswith("minimax") and temperature == 0.0:
+            temperature = 0.01
 
         response = completion(
             model=model,
