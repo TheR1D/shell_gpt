@@ -17,7 +17,7 @@ def test_minimax_model_temperature_clamping(completion):
 
     args = {
         "prompt": "say hello",
-        "--model": "MiniMax-M2.5",
+        "--model": "MiniMax-M2.7",
     }
     result = runner.invoke(app, cmd_args(**args))
 
@@ -35,7 +35,7 @@ def test_minimax_model_nonzero_temperature_unchanged(completion):
 
     args = {
         "prompt": "be creative",
-        "--model": "MiniMax-M2.5",
+        "--model": "MiniMax-M2.7",
         "--temperature": "0.7",
     }
     result = runner.invoke(app, cmd_args(**args))
@@ -47,17 +47,34 @@ def test_minimax_model_nonzero_temperature_unchanged(completion):
 
 @patch("sgpt.handlers.handler.completion")
 def test_minimax_highspeed_model(completion):
-    """MiniMax-M2.5-highspeed should also get temperature clamping."""
+    """MiniMax-M2.7-highspeed should also get temperature clamping."""
     completion.return_value = mock_comp("Fast response")
 
     args = {
         "prompt": "quick answer",
-        "--model": "minimax-m2.5-highspeed",
+        "--model": "MiniMax-M2.7-highspeed",
     }
     result = runner.invoke(app, cmd_args(**args))
 
     assert result.exit_code == 0
     assert "Fast response" in result.output
+    call_kwargs = completion.call_args
+    assert call_kwargs[1]["temperature"] == 0.01 or call_kwargs.kwargs.get("temperature") == 0.01
+
+
+@patch("sgpt.handlers.handler.completion")
+def test_minimax_m25_model_still_works(completion):
+    """Previous MiniMax-M2.5 model should still work with temperature clamping."""
+    completion.return_value = mock_comp("M2.5 response")
+
+    args = {
+        "prompt": "say hello",
+        "--model": "MiniMax-M2.5",
+    }
+    result = runner.invoke(app, cmd_args(**args))
+
+    assert result.exit_code == 0
+    assert "M2.5 response" in result.output
     call_kwargs = completion.call_args
     assert call_kwargs[1]["temperature"] == 0.01 or call_kwargs.kwargs.get("temperature") == 0.01
 
@@ -93,7 +110,7 @@ def test_minimax_chat_mode(completion):
     args = {
         "prompt": "remember number 40",
         "--chat": chat_name,
-        "--model": "MiniMax-M2.5",
+        "--model": "MiniMax-M2.7",
     }
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0

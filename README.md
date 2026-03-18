@@ -486,25 +486,25 @@ ENTRYPOINT ["sgpt"]
 
 
 ### Using MiniMax
-[MiniMax](https://www.minimaxi.com/) provides powerful LLM models (MiniMax-M2.5, MiniMax-M2.5-highspeed) with an OpenAI-compatible API. ShellGPT has first-class support for MiniMax -- just set the `MINIMAX_API_KEY` environment variable and the model name:
+[MiniMax](https://www.minimaxi.com/) provides powerful LLM models with an OpenAI-compatible API. ShellGPT has first-class support for MiniMax -- just set the `MINIMAX_API_KEY` environment variable and the model name:
 ```shell
 export MINIMAX_API_KEY="your_minimax_api_key"
-export DEFAULT_MODEL="MiniMax-M2.5"
+export DEFAULT_MODEL="MiniMax-M2.7"
 sgpt "What is the fibonacci sequence"
 ```
 
 Alternatively, configure it in `~/.config/shell_gpt/.sgptrc`:
 ```text
-DEFAULT_MODEL=MiniMax-M2.5
+DEFAULT_MODEL=MiniMax-M2.7
 ```
 
-When `MINIMAX_API_KEY` is set, ShellGPT automatically routes requests to the MiniMax API endpoint (`https://api.minimax.io/v1`). Temperature is automatically clamped to the MiniMax-supported range (0.01-1.0). Available models include `MiniMax-M2.5` (204K context) and `MiniMax-M2.5-highspeed` (fast inference).
+When `MINIMAX_API_KEY` is set, ShellGPT automatically routes requests to the MiniMax API endpoint (`https://api.minimax.io/v1`). Temperature is automatically clamped to the MiniMax-supported range (0.01-1.0). Available models include `MiniMax-M2.7` (latest flagship with enhanced reasoning and coding), `MiniMax-M2.7-highspeed` (low-latency), `MiniMax-M2.5` (204K context), and `MiniMax-M2.5-highspeed` (fast inference).
 
 You can also use MiniMax with Docker:
 ```shell
 docker run --rm \
            --env MINIMAX_API_KEY=your_key \
-           --env DEFAULT_MODEL=MiniMax-M2.5 \
+           --env DEFAULT_MODEL=MiniMax-M2.7 \
            --volume gpt-cache:/tmp/shell_gpt \
        ghcr.io/ther1d/shell_gpt "summarize this text"
 ```
