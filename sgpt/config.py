@@ -35,7 +35,7 @@ DEFAULT_CONFIG = {
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
     "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
-    "REASONING_EFFORT": os.getenv("REASONING_EFFORT", ""),
+    "REASONING_EFFORT": os.getenv("REASONING_EFFORT", "none"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
     # New features might add their own config variables here.
