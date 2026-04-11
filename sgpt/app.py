@@ -47,10 +47,10 @@ def main(
         help="Limits highest probable tokens (words).",
     ),
     reasoning_effort: str = typer.Option(
-        os.getenv("REASONING_EFFORT") or dict.get(cfg, "REASONING_EFFORT", ""),
+        cfg.get("REASONING_EFFORT"),
         help="Reasoning effort level for the model. "
         "Options: none, minimal, low, medium, high, xhigh. "
-        "Empty string disables reasoning.",
+        "When set to 'none', reasoning is disabled.",
     ),
     md: bool = typer.Option(
         cfg.get("PRETTIFY_MARKDOWN") == "true",
