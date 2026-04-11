@@ -23,7 +23,6 @@ if use_litellm:
 
     completion = litellm.completion
     litellm.suppress_debug_info = True
-    additional_kwargs.pop("api_key")
 else:
     from openai import OpenAI
 
