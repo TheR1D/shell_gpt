@@ -116,19 +116,19 @@ class Handler:
             additional_kwargs["tools"] = functions
             additional_kwargs["parallel_tool_calls"] = False
 
-        if reasoning_effort and reasoning_effort != "none":
-            additional_kwargs["reasoning_effort"] = reasoning_effort
-        else:
-            additional_kwargs.pop("reasoning_effort", None)
-
-        response = completion(
-            model=model,
-            temperature=temperature,
-            top_p=top_p,
-            messages=messages,
-            stream=True,
+        completion_kwargs: Dict[str, Any] = {
+            "model": model,
+            "temperature": temperature,
+            "top_p": top_p,
+            "messages": messages,
+            "stream": True,
             **additional_kwargs,
-        )
+        }
+
+        if reasoning_effort:
+            completion_kwargs["reasoning_effort"] = reasoning_effort
+
+        response = completion(**completion_kwargs)
 
         try:
             for chunk in response:
