@@ -46,6 +46,12 @@ def main(
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
+    reasoning_effort: str = typer.Option(
+        os.getenv("REASONING_EFFORT") or dict.get(cfg, "REASONING_EFFORT", ""),
+        help="Reasoning effort level for the model. "
+        "Options: none, minimal, low, medium, high, xhigh. "
+        "Empty string disables reasoning.",
+    ),
     md: bool = typer.Option(
         cfg.get("PRETTIFY_MARKDOWN") == "true",
         help="Prettify markdown output.",
@@ -197,6 +203,15 @@ def main(
     if editor and stdin_passed:
         raise UsageError("--editor option cannot be used with stdin input.")
 
+    valid_reasoning_efforts = ("none", "minimal", "low", "medium", "high", "xhigh")
+    if reasoning_effort and reasoning_effort not in valid_reasoning_efforts:
+        raise UsageError(
+            f"Invalid reasoning effort: {reasoning_effort}. "
+            f"Must be one of: {', '.join(valid_reasoning_efforts)}"
+        )
+    # Convert empty string to None for downstream use.
+    effective_reasoning_effort = reasoning_effort if reasoning_effort else None
+
     if editor:
         prompt = get_edited_prompt()
 
@@ -217,6 +232,7 @@ def main(
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
+            reasoning_effort=effective_reasoning_effort,
         )
 
     if chat:
@@ -227,6 +243,7 @@ def main(
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
+            reasoning_effort=effective_reasoning_effort,
         )
     else:
         full_completion = DefaultHandler(role_class, md).handle(
@@ -236,6 +253,7 @@ def main(
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
+            reasoning_effort=effective_reasoning_effort,
         )
 
     session: PromptSession[str] = PromptSession()
@@ -263,6 +281,7 @@ def main(
                 top_p=top_p,
                 caching=cache,
                 functions=function_schemas,
+                reasoning_effort=effective_reasoning_effort,
             )
             continue
         break

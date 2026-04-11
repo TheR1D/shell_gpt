@@ -46,7 +46,7 @@ def cmd_args(prompt="", **kwargs):
 
 
 def comp_args(role, prompt, **kwargs):
-    return {
+    result = {
         "messages": [
             {"role": "system", "content": role.role},
             {"role": "user", "content": prompt},
@@ -55,5 +55,9 @@ def comp_args(role, prompt, **kwargs):
         "temperature": 0.0,
         "top_p": 1.0,
         "stream": True,
-        **kwargs,
     }
+    reasoning_effort = kwargs.pop("reasoning_effort", None)
+    if reasoning_effort:
+        result["reasoning_effort"] = reasoning_effort
+    result.update(kwargs)
+    return result

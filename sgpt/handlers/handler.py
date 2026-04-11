@@ -102,6 +102,7 @@ class Handler:
         top_p: float,
         messages: List[Dict[str, Any]],
         functions: Optional[List[Dict[str, str]]],
+        reasoning_effort: Optional[str] = None,
     ) -> Generator[str, None, None]:
         tool_call_id = name = arguments = ""
         is_shell_role = self.role.name == DefaultRoles.SHELL.value
@@ -115,14 +116,19 @@ class Handler:
             additional_kwargs["tools"] = functions
             additional_kwargs["parallel_tool_calls"] = False
 
-        response = completion(
-            model=model,
-            temperature=temperature,
-            top_p=top_p,
-            messages=messages,
-            stream=True,
+        completion_kwargs: Dict[str, Any] = {
+            "model": model,
+            "temperature": temperature,
+            "top_p": top_p,
+            "messages": messages,
+            "stream": True,
             **additional_kwargs,
-        )
+        }
+
+        if reasoning_effort:
+            completion_kwargs["reasoning_effort"] = reasoning_effort
+
+        response = completion(**completion_kwargs)
 
         try:
             for chunk in response:
@@ -157,6 +163,7 @@ class Handler:
                         top_p=top_p,
                         messages=messages,
                         functions=functions,
+                        reasoning_effort=reasoning_effort,
                         caching=False,
                     )
                     return
@@ -173,6 +180,7 @@ class Handler:
         top_p: float,
         caching: bool,
         functions: Optional[List[Dict[str, str]]] = None,
+        reasoning_effort: Optional[str] = None,
         **kwargs: Any,
     ) -> str:
         disable_stream = cfg.get("DISABLE_STREAMING") == "true"
@@ -183,6 +191,7 @@ class Handler:
             top_p=top_p,
             messages=messages,
             functions=functions,
+            reasoning_effort=reasoning_effort,
             caching=caching,
             **kwargs,
         )

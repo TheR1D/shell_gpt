@@ -216,6 +216,50 @@ def test_llm_options(completion):
 
 
 @patch("sgpt.handlers.handler.completion")
+def test_reasoning_effort(completion):
+    completion.return_value = mock_comp("Berlin")
+
+    args = {
+        "prompt": "capital of the Germany?",
+        "--reasoning-effort": "medium",
+        "--no-functions": True,
+    }
+    result = runner.invoke(app, cmd_args(**args))
+
+    expected_args = comp_args(role, args["prompt"], reasoning_effort="medium")
+    completion.assert_called_once_with(**expected_args)
+    assert result.exit_code == 0
+    assert "Berlin" in result.output
+
+
+@patch("sgpt.handlers.handler.completion")
+def test_reasoning_effort_invalid(completion):
+    args = {
+        "prompt": "test",
+        "--reasoning-effort": "invalid_value",
+        "--no-functions": True,
+    }
+    result = runner.invoke(app, cmd_args(**args))
+    completion.assert_not_called()
+    assert result.exit_code == 2
+    assert "Error" in result.output
+
+
+@patch("sgpt.handlers.handler.completion")
+def test_default_no_reasoning_effort(completion):
+    completion.return_value = mock_comp("Berlin")
+
+    args = {"prompt": "capital of the Germany?", "--no-functions": True}
+    result = runner.invoke(app, cmd_args(**args))
+
+    # When no reasoning_effort is specified, it should not appear in the call.
+    expected_args = comp_args(role, args["prompt"])
+    completion.assert_called_once_with(**expected_args)
+    assert result.exit_code == 0
+    assert "Berlin" in result.output
+
+
+@patch("sgpt.handlers.handler.completion")
 def test_version(completion):
     args = {"--version": True}
     result = runner.invoke(app, cmd_args(**args))
