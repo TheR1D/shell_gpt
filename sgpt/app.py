@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 # To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
@@ -46,7 +47,7 @@ def main(
         max=1.0,
         help="Limits highest probable tokens (words).",
     ),
-    reasoning_effort: str = typer.Option(
+    reasoning_effort: Optional[str] = typer.Option(
         cfg.get("REASONING_EFFORT"),
         help="Reasoning effort level for the model. "
         "Options: none, minimal, low, medium, high, xhigh. "
@@ -209,8 +210,9 @@ def main(
             f"Invalid reasoning effort: {reasoning_effort}. "
             f"Must be one of: {', '.join(valid_reasoning_efforts)}"
         )
-    # Convert empty string to None for downstream use.
-    effective_reasoning_effort = reasoning_effort if reasoning_effort else None
+    # Convert "none" string to None for downstream use.
+    if reasoning_effort == "none":
+        reasoning_effort = None
 
     if editor:
         prompt = get_edited_prompt()
@@ -232,7 +234,7 @@ def main(
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
-            reasoning_effort=effective_reasoning_effort,
+            reasoning_effort=reasoning_effort,
         )
 
     if chat:
@@ -243,7 +245,7 @@ def main(
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
-            reasoning_effort=effective_reasoning_effort,
+            reasoning_effort=reasoning_effort,
         )
     else:
         full_completion = DefaultHandler(role_class, md).handle(
@@ -253,7 +255,7 @@ def main(
             top_p=top_p,
             caching=cache,
             functions=function_schemas,
-            reasoning_effort=effective_reasoning_effort,
+            reasoning_effort=reasoning_effort,
         )
 
     session: PromptSession[str] = PromptSession()
@@ -281,7 +283,7 @@ def main(
                 top_p=top_p,
                 caching=cache,
                 functions=function_schemas,
-                reasoning_effort=effective_reasoning_effort,
+                reasoning_effort=reasoning_effort,
             )
             continue
         break

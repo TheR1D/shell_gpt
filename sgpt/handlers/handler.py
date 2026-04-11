@@ -125,7 +125,7 @@ class Handler:
             **additional_kwargs,
         }
 
-        if reasoning_effort and reasoning_effort != "none":
+        if reasoning_effort:
             completion_kwargs["reasoning_effort"] = reasoning_effort
 
         response = completion(**completion_kwargs)

@@ -2,7 +2,7 @@ import os
 from getpass import getpass
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Any
+from typing import Any, Optional
 
 from click import UsageError
 
@@ -82,11 +82,13 @@ class Config(dict):  # type: ignore
                     key, value = line.strip().split("=", 1)
                     self[key] = value
 
-    def get(self, key: str) -> str:  # type: ignore
+    def get(self, key: str) -> Optional[str]:  # type: ignore
         # Prioritize environment variables over config file.
         value = os.getenv(key) or super().get(key)
         if not value:
             raise UsageError(f"Missing config key: {key}")
+        if value == "none":
+            return None
         return value
 
 
