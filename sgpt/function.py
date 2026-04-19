@@ -12,7 +12,10 @@ class Function:
     def __init__(self, path: str):
         module = self._read(path)
         self._function = module.Function.execute
-        self._openai_schema = module.Function.openai_schema()
+        openai_schema = module.Function.openai_schema
+        self._openai_schema = (
+            openai_schema() if callable(openai_schema) else openai_schema
+        )
         self._name = self._openai_schema["function"]["name"]
 
     @property
@@ -45,7 +48,7 @@ class Function:
             )
         if not hasattr(module.Function, "openai_schema"):
             raise TypeError(
-                f"Function {module_name} must have an 'openai_schema' classmethod"
+                f"Function {module_name} must have an 'openai_schema' attribute"
             )
 
         return module
