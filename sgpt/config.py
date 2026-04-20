@@ -6,9 +6,21 @@ from typing import Any
 
 from click import UsageError
 
-CONFIG_FOLDER = os.path.expanduser("~/.config")
+CONFIG_FOLDER = Path.home() / ".config"
 SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
-SHELL_GPT_CONFIG_PATH = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
+def resolve_config_path() -> Path:
+    new = SHELL_GPT_CONFIG_FOLDER / "sgptrc"
+    old = SHELL_GPT_CONFIG_FOLDER / ".sgptrc"
+
+    if new.exists():
+        return new
+    if old.exists():
+        return old
+    # if any of the above paths exist, use the new one.
+    return new
+
+
+SHELL_GPT_CONFIG_PATH = resolve_config_path()
 ROLE_STORAGE_PATH = SHELL_GPT_CONFIG_FOLDER / "roles"
 FUNCTIONS_PATH = SHELL_GPT_CONFIG_FOLDER / "functions"
 CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
