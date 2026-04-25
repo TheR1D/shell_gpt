@@ -172,6 +172,9 @@ def main(
             if "__sgpt__eof__" in line:
                 break
             stdin += line
+        # Sanitize surrogate characters that can cause UnicodeEncodeError when
+        # piping binary content (e.g. `git diff` on Windows).
+        stdin = stdin.encode("utf-8", errors="replace").decode("utf-8")
         prompt = f"{stdin}\n\n{prompt}" if prompt else stdin
         try:
             # Switch to stdin for interactive input.

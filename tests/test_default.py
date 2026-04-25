@@ -1,3 +1,4 @@
+import io
 from pathlib import Path
 from unittest.mock import patch
 
@@ -36,6 +37,43 @@ def test_default_stdin(completion):
     completion.assert_called_once_with(**comp_args(role, stdin))
     assert result.exit_code == 0
     assert "Prague" in result.output
+
+
+@patch("sgpt.handlers.handler.completion")
+def test_stdin_with_surrogate_characters(completion):
+    """Stdin with lone surrogate characters must not raise UnicodeEncodeError.
+
+    On Windows, piping binary content (e.g. ``git diff`` on a repo with
+    binary files) causes Python's text-mode stdin to produce lone surrogates
+    via the surrogateescape error handler.  Without sanitisation the surrogates
+    propagate into the JSON payload and httpx raises::
+
+        UnicodeEncodeError: 'utf-8' codec can't encode characters: surrogates not allowed
+
+    The fix encodes the stdin string with ``errors='replace'`` before using it
+    as the prompt.  This test verifies the fix by injecting a mock stdin that
+    yields a line containing a lone surrogate and asserting the invocation
+    succeeds.
+    """
+    completion.return_value = mock_comp("ok")
+
+    stdin_with_surrogate = "diff --git a/file b/file\n\udcffbinary content\n"
+    mock_stdin = io.StringIO(stdin_with_surrogate)
+    mock_stdin.isatty = lambda: False  # type: ignore[attr-defined]
+
+    with patch("sgpt.app.sys") as mock_sys:
+        mock_sys.stdin = mock_stdin
+        mock_sys.name = "posix"
+
+        result = runner.invoke(app, cmd_args())
+
+    assert result.exit_code == 0, result.output
+    assert "ok" in result.output
+
+    # The prompt passed to the LLM must contain no lone surrogates.
+    call_messages = completion.call_args[1]["messages"]
+    user_content = next(m["content"] for m in call_messages if m["role"] == "user")
+    user_content.encode("utf-8")  # must not raise
 
 
 @patch("rich.console.Console.print")
