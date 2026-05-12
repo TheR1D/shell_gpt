@@ -102,7 +102,7 @@ def main(
     ),
     repl: str = typer.Option(
         None,
-        help="Start a REPL (Read–eval–print loop) session.",
+        help="Start a REPL (Read-eval-print loop) session.",
         rich_help_panel="Chat Options",
     ),
     show_chat: str = typer.Option(

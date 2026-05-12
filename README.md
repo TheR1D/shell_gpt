@@ -10,7 +10,7 @@ pip install shell-gpt
 By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://platform.openai.com/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
 > [!TIP]
-> Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
+> Alternatively, you can run open-source models locally for free. This requires setting up your own LLM backend, such as [Ollama](https://github.com/ollama/ollama). To get ShellGPT working with Ollama, follow this detailed [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama)
 >
 > **❗️Note that ShellGPT is not optimized for local models and may not work as expected.**
 
@@ -374,7 +374,7 @@ CACHE_PATH=/tmp/shell_gpt/cache
 # Request timeout in seconds.
 REQUEST_TIMEOUT=60
 # Default OpenAI model to use.
-DEFAULT_MODEL=gpt-4o
+DEFAULT_MODEL=gpt-5.4-mini
 # Default color for shell and code completions.
 DEFAULT_COLOR=magenta
 # When in --shell mode, default to "Y" for no input.
@@ -401,7 +401,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 │   prompt      [PROMPT]  The prompt to generate completions for.                                          │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            TEXT                       Large language model to use. [default: gpt-4o]             │
+│ --model            TEXT                       Large language model to use. [default: gpt-5.4-mini]       │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
 │ --top-p            FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
 │ --md             --no-md                      Prettify markdown output. [default: md]                    │
@@ -455,35 +455,6 @@ You also can use the provided `Dockerfile` to build your own image:
 ```shell
 docker build -t sgpt .
 ```
-
-### Docker + Ollama
-
-If you want to send your requests to an Ollama instance and run ShellGPT inside a Docker container, you need to adjust the Dockerfile and build the container yourself: the litellm package is needed and env variables need to be set correctly.
-
-Example Dockerfile:
-```
-FROM python:3-slim
-
-ENV DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
-ENV API_BASE_URL=http://10.10.10.10:11434
-ENV USE_LITELLM=true
-ENV OPENAI_API_KEY=bad_key
-ENV SHELL_INTERACTION=false
-ENV PRETTIFY_MARKDOWN=false
-ENV OS_NAME="Arch Linux"
-ENV SHELL_NAME=auto
-
-WORKDIR /app
-COPY . /app
-
-RUN apt-get update && apt-get install -y gcc
-RUN pip install --no-cache /app[litellm] && mkdir -p /tmp/shell_gpt
-
-VOLUME /tmp/shell_gpt
-
-ENTRYPOINT ["sgpt"]
-```
-
 
 ## Additional documentation
 * [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure)

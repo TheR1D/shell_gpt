@@ -34,8 +34,8 @@ class TestShellGpt(TestCase):
     def setUpClass(cls):
         # Response streaming should be enabled for these tests.
         assert cfg.get("DISABLE_STREAMING") == "false"
-        # ShellGPT optimised and tested with gpt-4 turbo.
-        assert cfg.get("DEFAULT_MODEL") == "gpt-4o"
+        # ShellGPT optimised and tested with gpt-5.4-mini.
+        assert cfg.get("DEFAULT_MODEL") == "gpt-5.4-mini"
         # Make sure we will not call any functions.
         assert cfg.get("OPENAI_USE_FUNCTIONS") == "false"
 
@@ -400,10 +400,10 @@ class TestShellGpt(TestCase):
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
         role = SystemRole.get("ShellGPT")
-        handler = Handler(role=role)
+        handler = Handler(role=role, markdown=False)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(role=role)
+        handler = Handler(role=role, markdown=False)
         assert handler.color == "red"
 
     def test_simple_stdin(self):

@@ -34,7 +34,7 @@ dependencies = [
 
 [project.optional-dependencies]
 litellm = [
-    "litellm == 1.42.5"
+    "litellm == 1.83.4"
 ]
 test = [
     "pytest >= 7.2.2, < 8.0.0",
