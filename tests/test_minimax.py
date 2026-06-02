@@ -11,13 +11,13 @@ role = SystemRole.get(DefaultRoles.DEFAULT.value)
 
 
 @patch("sgpt.handlers.handler.completion")
-def test_minimax_model_temperature_clamping(completion):
-    """MiniMax models should have temperature clamped from 0.0 to 0.01."""
+def test_minimax_m3_model_temperature_clamping(completion):
+    """MiniMax-M3 should have temperature clamped from 0.0 to 0.01."""
     completion.return_value = mock_comp("Hello from MiniMax")
 
     args = {
         "prompt": "say hello",
-        "--model": "MiniMax-M2.7",
+        "--model": "MiniMax-M3",
     }
     result = runner.invoke(app, cmd_args(**args))
 
@@ -35,7 +35,7 @@ def test_minimax_model_nonzero_temperature_unchanged(completion):
 
     args = {
         "prompt": "be creative",
-        "--model": "MiniMax-M2.7",
+        "--model": "MiniMax-M3",
         "--temperature": "0.7",
     }
     result = runner.invoke(app, cmd_args(**args))
@@ -63,18 +63,18 @@ def test_minimax_highspeed_model(completion):
 
 
 @patch("sgpt.handlers.handler.completion")
-def test_minimax_m25_model_still_works(completion):
-    """Previous MiniMax-M2.5 model should still work with temperature clamping."""
-    completion.return_value = mock_comp("M2.5 response")
+def test_minimax_m27_model_still_works(completion):
+    """Previous generation MiniMax-M2.7 should still work with temperature clamping."""
+    completion.return_value = mock_comp("M2.7 response")
 
     args = {
         "prompt": "say hello",
-        "--model": "MiniMax-M2.5",
+        "--model": "MiniMax-M2.7",
     }
     result = runner.invoke(app, cmd_args(**args))
 
     assert result.exit_code == 0
-    assert "M2.5 response" in result.output
+    assert "M2.7 response" in result.output
     call_kwargs = completion.call_args
     assert call_kwargs[1]["temperature"] == 0.01 or call_kwargs.kwargs.get("temperature") == 0.01
 
@@ -110,7 +110,7 @@ def test_minimax_chat_mode(completion):
     args = {
         "prompt": "remember number 40",
         "--chat": chat_name,
-        "--model": "MiniMax-M2.7",
+        "--model": "MiniMax-M3",
     }
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0

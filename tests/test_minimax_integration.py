@@ -40,39 +40,39 @@ class TestMiniMaxIntegration(TestCase):
         arguments.append("--no-functions")
         return arguments
 
-    def test_minimax_m27_default_prompt(self):
+    def test_minimax_m3_default_prompt(self):
         args = {
             "prompt": "What is 2 + 2? Reply with just the number.",
-            "--model": "MiniMax-M2.7",
+            "--model": "MiniMax-M3",
         }
         result = runner.invoke(app, self.get_arguments(**args))
         assert result.exit_code == 0
         assert "4" in result.output
 
-    def test_minimax_m27_code_generation(self):
+    def test_minimax_m3_code_generation(self):
         args = {
             "prompt": "Write a Python function that returns 42",
-            "--model": "MiniMax-M2.7",
+            "--model": "MiniMax-M3",
             "--code": True,
         }
         result = runner.invoke(app, self.get_arguments(**args))
         assert result.exit_code == 0
         assert "42" in result.output
 
-    def test_minimax_m27_with_temperature(self):
+    def test_minimax_m3_with_temperature(self):
         args = {
             "prompt": "Say hello",
-            "--model": "MiniMax-M2.7",
+            "--model": "MiniMax-M3",
             "--temperature": "0.5",
         }
         result = runner.invoke(app, self.get_arguments(**args))
         assert result.exit_code == 0
         assert len(result.output.strip()) > 0
 
-    def test_minimax_m25_still_works(self):
+    def test_minimax_m27_still_works(self):
         args = {
             "prompt": "What is 2 + 2? Reply with just the number.",
-            "--model": "MiniMax-M2.5",
+            "--model": "MiniMax-M2.7",
         }
         result = runner.invoke(app, self.get_arguments(**args))
         assert result.exit_code == 0
