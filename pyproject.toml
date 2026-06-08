@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+    "click >= 8.1.0, < 9.0.0",
     "openai >= 2.0.0, < 3.0.0",
     "typer >= 0.7.0, < 1.0.0",
     "rich >= 13.1.0, < 14.0.0",
