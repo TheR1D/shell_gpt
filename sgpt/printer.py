@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generator
+from typing import Generator, Literal
 
 from rich.console import Console
 from rich.live import Live
@@ -28,13 +28,18 @@ class Printer(ABC):
 
 
 class MarkdownPrinter(Printer):
-    def __init__(self, theme: str) -> None:
+    def __init__(
+        self,
+        theme: str,
+        vertical_overflow: Literal["ellipsis", "visible", "crop"] = "ellipsis",
+    ) -> None:
         self.console = Console()
         self.theme = theme
+        self.vertical_overflow = vertical_overflow
 
     def live_print(self, chunks: Generator[str, None, None]) -> str:
         full_completion = ""
-        with Live(console=self.console) as live:
+        with Live(console=self.console, vertical_overflow=self.vertical_overflow) as live:
             for chunk in chunks:
                 full_completion += chunk
                 markdown = Markdown(markup=full_completion, code_theme=self.theme)
