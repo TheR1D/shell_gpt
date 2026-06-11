@@ -147,8 +147,8 @@ class Handler:
                                     "arguments": "",
                                 }
 
-                            if tool_call.id:
-                                tool_calls_buffer[idx]["id"] = tool_call.id
+                            if tool_call.get("id"):
+                                tool_calls_buffer[idx]["id"] = tool_call["id"]
                             else:
                                 tool_calls_buffer[idx]["id"] = tool_call_id
 
