@@ -149,6 +149,8 @@ class Handler:
 
                             if tool_call.get("id"):
                                 tool_calls_buffer[idx]["id"] = tool_call["id"]
+                            else:
+                                tool_calls_buffer[idx]["id"] = tool_call_id
 
                             fn = tool_call.get("function", {})
 
@@ -159,7 +161,7 @@ class Handler:
                                 tool_calls_buffer[idx]["arguments"] += fn["arguments"]
 
                         else:
-                            idx = tool_call.index
+                            idx = getattr(tool_call, 'index', None) or 0
 
                             if idx not in tool_calls_buffer:
                                 tool_calls_buffer[idx] = {
@@ -168,8 +170,10 @@ class Handler:
                                     "arguments": "",
                                 }
 
-                            if tool_call.id:
-                                tool_calls_buffer[idx]["id"] = tool_call.id
+                            if tool_call.get("id"):
+                                tool_calls_buffer[idx]["id"] = tool_call["id"]
+                            else:
+                                tool_calls_buffer[idx]["id"] = tool_call_id
 
                             if tool_call.function.name:
                                 tool_calls_buffer[idx]["name"] = tool_call.function.name
@@ -178,22 +182,18 @@ class Handler:
                                 tool_calls_buffer[idx]["arguments"] += (
                                     tool_call.function.arguments
                                 )
-                if chunk.choices[0].finish_reason == "tool_calls":
 
+                if chunk.choices[0].finish_reason == "tool_calls":
                     for idx in sorted(tool_calls_buffer):
                         call = tool_calls_buffer[idx]
-                        yield (
-                            f"Tool call idx: {idx} "
-                            f"name={call['name']} "
-                            f"arguments={call['arguments']}\n"
-                        )
-
                         yield from self.handle_function_call(
                             messages,
                             call["id"],
                             call["name"],
                             call["arguments"],
                         )
+
+                    tool_calls_buffer.clear()
 
                     yield from self.get_completion(
                         model=model,
