@@ -5,6 +5,8 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from typer import secho
+import time
+
 
 
 class Printer(ABC):
@@ -38,13 +40,38 @@ class MarkdownPrinter(Printer):
         self.vertical_overflow = vertical_overflow
 
     def live_print(self, chunks: Generator[str, None, None]) -> str:
-        full_completion = ""
-        with Live(console=self.console, vertical_overflow=self.vertical_overflow) as live:
-            for chunk in chunks:
-                full_completion += chunk
-                markdown = Markdown(markup=full_completion, code_theme=self.theme)
-                live.update(markdown, refresh=True)
-        return full_completion
+      full_completion = ""
+
+      with Live(
+          console=self.console,
+          vertical_overflow=self.vertical_overflow,
+          auto_refresh=False,
+      ) as live:
+          last_refresh = time.monotonic()
+          for chunk in chunks:
+              full_completion += chunk
+              if time.monotonic() - last_refresh > 0.5:
+                  live.update(
+                      Markdown(
+                          markup=full_completion,
+                          code_theme=self.theme,
+                      ),
+                      refresh=True,
+                  )
+                  last_refresh = time.monotonic()
+
+          # Avoid excessive terminal flickering caused by frequent refreshes.
+          # Ensure the complete output is always rendered when streaming finishes.
+          live.update(
+              Markdown(
+                  markup=full_completion,
+                  code_theme=self.theme,
+              ),
+              refresh=True,
+          )
+
+      return full_completion
+
 
     def static_print(self, text: str) -> str:
         markdown = Markdown(markup=text, code_theme=self.theme)
