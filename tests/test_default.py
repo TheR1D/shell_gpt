@@ -216,8 +216,8 @@ def test_llm_options(completion):
 
 
 @patch("sgpt.handlers.handler.completion")
-def test_extra_body_config_defaults_to_null(completion, monkeypatch):
-    monkeypatch.setenv("EXTRA_BODY", "null")
+def test_extra_body_config_defaults_to_empty(completion, monkeypatch):
+    monkeypatch.setenv("EXTRA_BODY", "")
     completion.return_value = mock_comp("ok")
 
     args = {"prompt": "quick answer"}

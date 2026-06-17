@@ -37,7 +37,7 @@ else:
 def parse_extra_body() -> Optional[Dict[str, Any]]:
     extra_body = os.getenv("EXTRA_BODY")
     if extra_body is None:
-        extra_body = cfg["EXTRA_BODY"] if "EXTRA_BODY" in cfg else "null"
+        extra_body = cfg["EXTRA_BODY"] if "EXTRA_BODY" in cfg else ""
 
     extra_body = extra_body.strip()
     if not extra_body:

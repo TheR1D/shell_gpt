@@ -363,8 +363,10 @@ You can setup some parameters in runtime configuration file `~/.config/shell_gpt
 OPENAI_API_KEY=your_api_key
 # Base URL of the backend server. If "default" URL will be resolved based on --model.
 API_BASE_URL=default
-# Extra JSON body to merge into OpenAI chat completion requests.
-EXTRA_BODY=null
+# Extra JSON body to merge into OpenAI chat completion requests. Leave empty to disable.
+EXTRA_BODY=
+# Example:
+# EXTRA_BODY={"thinking":{"type":"disabled"}}
 # Max amount of cached message per chat session.
 CHAT_CACHE_LENGTH=100
 # Chat cache folder.
