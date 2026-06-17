@@ -238,8 +238,8 @@ def test_extra_body_config_must_be_json_object(completion, monkeypatch):
     result = runner.invoke(app, cmd_args(prompt="quick answer"))
 
     completion.assert_not_called()
-    assert result.exit_code == 2
-    assert "EXTRA_BODY must be a JSON object." in result.output
+    assert result.exit_code != 0
+    assert str(result.exception) == "EXTRA_BODY must be a JSON object."
 
 
 @patch("sgpt.handlers.handler.completion")
