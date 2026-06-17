@@ -1,6 +1,9 @@
 import json
+import os
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
+
+from click import UsageError
 
 from ..cache import Cache
 from ..config import cfg
@@ -29,6 +32,26 @@ else:
     client = OpenAI(**additional_kwargs)  # type: ignore
     completion = client.chat.completions.create
     additional_kwargs = {}
+
+
+def parse_extra_body() -> Optional[Dict[str, Any]]:
+    extra_body = os.getenv("EXTRA_BODY")
+    if extra_body is None:
+        extra_body = cfg["EXTRA_BODY"] if "EXTRA_BODY" in cfg else "{}"
+
+    extra_body = extra_body.strip()
+    if not extra_body or extra_body == "{}":
+        return None
+
+    try:
+        parsed_extra_body = json.loads(extra_body)
+    except json.JSONDecodeError as error:
+        raise UsageError("EXTRA_BODY must be a valid JSON object.") from error
+
+    if not isinstance(parsed_extra_body, dict):
+        raise UsageError("EXTRA_BODY must be a JSON object.")
+
+    return parsed_extra_body
 
 
 class Handler:
@@ -101,6 +124,7 @@ class Handler:
         top_p: float,
         messages: List[Dict[str, Any]],
         functions: Optional[List[Dict[str, str]]],
+        extra_body: Optional[Dict[str, Any]],
     ) -> Generator[str, None, None]:
         tool_call_id = name = arguments = ""
         is_shell_role = self.role.name == DefaultRoles.SHELL.value
@@ -109,10 +133,14 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
+        request_kwargs = dict(additional_kwargs)
+        if extra_body:
+            request_kwargs["extra_body"] = extra_body
+
         if functions:
-            additional_kwargs["tool_choice"] = "auto"
-            additional_kwargs["tools"] = functions
-            additional_kwargs["parallel_tool_calls"] = False
+            request_kwargs["tool_choice"] = "auto"
+            request_kwargs["tools"] = functions
+            request_kwargs["parallel_tool_calls"] = False
 
         response = completion(
             model=model,
@@ -120,7 +148,7 @@ class Handler:
             top_p=top_p,
             messages=messages,
             stream=True,
-            **additional_kwargs,
+            **request_kwargs,
         )
 
         try:
@@ -156,6 +184,7 @@ class Handler:
                         top_p=top_p,
                         messages=messages,
                         functions=functions,
+                        extra_body=extra_body,
                         caching=False,
                     )
                     return
@@ -182,6 +211,7 @@ class Handler:
             top_p=top_p,
             messages=messages,
             functions=functions,
+            extra_body=parse_extra_body(),
             caching=caching,
             **kwargs,
         )

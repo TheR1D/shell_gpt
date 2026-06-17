@@ -216,6 +216,33 @@ def test_llm_options(completion):
 
 
 @patch("sgpt.handlers.handler.completion")
+def test_extra_body_config(completion, monkeypatch):
+    extra_body = {"thinking": {"type": "disabled"}}
+    monkeypatch.setenv("EXTRA_BODY", '{"thinking":{"type":"disabled"}}')
+    completion.return_value = mock_comp("ok")
+
+    args = {"prompt": "quick answer"}
+    result = runner.invoke(app, cmd_args(**args))
+
+    completion.assert_called_once_with(
+        **comp_args(role=role, prompt=args["prompt"], extra_body=extra_body)
+    )
+    assert result.exit_code == 0
+    assert "ok" in result.output
+
+
+@patch("sgpt.handlers.handler.completion")
+def test_extra_body_config_must_be_json_object(completion, monkeypatch):
+    monkeypatch.setenv("EXTRA_BODY", "[]")
+
+    result = runner.invoke(app, cmd_args(prompt="quick answer"))
+
+    completion.assert_not_called()
+    assert result.exit_code == 2
+    assert "EXTRA_BODY must be a JSON object." in result.output
+
+
+@patch("sgpt.handlers.handler.completion")
 def test_version(completion):
     args = {"--version": True}
     result = runner.invoke(app, cmd_args(**args))
