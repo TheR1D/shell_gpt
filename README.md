@@ -364,7 +364,7 @@ OPENAI_API_KEY=your_api_key
 # Base URL of the backend server. If "default" URL will be resolved based on --model.
 API_BASE_URL=default
 # Extra JSON body to merge into OpenAI chat completion requests.
-EXTRA_BODY={"thinking":{"type":"disabled"}}
+EXTRA_BODY=null
 # Max amount of cached message per chat session.
 CHAT_CACHE_LENGTH=100
 # Chat cache folder.
