@@ -432,6 +432,8 @@ MARKDOWN_LIVE_REFRESH_INTERVAL=0
 ```
 Controls how frequently markdown live output is refreshed, in seconds. Set it to `0` (default) to refresh on every streamed chunk, or increase to reduce terminal flickering.
 
+With `visible` mode, you can continuously observe generated markdown output, tool execution details, and progress updates instead of staring at `...` for several minutes.
+
 ### Full list of arguments
 ```text
 ╭─ Arguments ──────────────────────────────────────────────────────────────────────────────────────────────╮

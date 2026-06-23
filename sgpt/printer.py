@@ -8,6 +8,7 @@ from rich.markdown import Markdown
 from typer import secho
 
 
+
 DEFAULT_LIVE_REFRESH_INTERVAL = 0
 VALID_VERTICAL_OVERFLOW = {"ellipsis", "visible", "crop"}
 
