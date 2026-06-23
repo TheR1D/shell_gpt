@@ -71,7 +71,6 @@ class MarkdownPrinter(Printer):
                     )
                     last_refresh = time.monotonic()
 
-            # Avoid excessive terminal flickering caused by frequent refreshes.
             # Ensure the complete output is always rendered when streaming finishes.
             live.update(
                 Markdown(markup=full_completion, code_theme=self.theme),

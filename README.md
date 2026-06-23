@@ -396,11 +396,6 @@ USE_LITELLM=false
 MARKDOWN_LIVE_VERTICAL_OVERFLOW=visible
 # Control markdown live refresh interval in seconds. Use 0 to refresh on every chunk.
 MARKDOWN_LIVE_REFRESH_INTERVAL=0.5
-```
-Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
-Possible options for `CODE_THEME`: https://pygments.org/styles/
-Possible options for `MARKDOWN_LIVE_VERTICAL_OVERFLOW`: `ellipsis`, `visible`, `crop`.
-Possible values for `MARKDOWN_LIVE_REFRESH_INTERVAL`: any non-negative number of seconds, for example `0`, `0.2`, `0.5`.
 
 ### Configuration Examples
 
