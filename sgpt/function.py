@@ -1,7 +1,8 @@
 import importlib.util
 import sys
+import inspect
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, NamedTuple
 
 from pydantic import BaseModel
 
@@ -51,17 +52,50 @@ class Function:
         return module
 
 
+class _FunctionEntry(NamedTuple):
+    function: Function
+    execute: Callable[..., Any]
+    params: set[str]
+    has_kwargs: bool
+
+
 functions_folder = Path(cfg.get("OPENAI_FUNCTIONS_PATH"))
 functions_folder.mkdir(parents=True, exist_ok=True)
-functions = [Function(str(path)) for path in functions_folder.glob("*.py")]
+
+_functions_list = [Function(str(path)) for path in functions_folder.glob("*.py")]
+
+_registry: dict[str, _FunctionEntry] = {}
+for func in _functions_list:
+    execute = func.execute
+    sig = inspect.signature(execute)
+    params = set(sig.parameters)
+    has_kwargs = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD
+        for p in sig.parameters.values()
+    )
+    if func.name in _registry:
+        raise ValueError(f"Duplicate function name: {func.name}")
+    _registry[func.name] = _FunctionEntry(
+        function=func,
+        execute=execute,
+        params=params,
+        has_kwargs=has_kwargs,
+    )
 
 
 def get_function(name: str) -> Callable[..., Any]:
-    for function in functions:
-        if function.name == name:
-            return function.execute
-    raise ValueError(f"Function {name} not found")
+    entry = _registry.get(name)
+    if entry is None:
+        raise ValueError(f"Function {name} not found")
+
+    def wrapper(**kwargs: Any) -> Any:
+        if entry.has_kwargs:
+            return entry.execute(**kwargs)
+        filtered = {k: v for k, v in kwargs.items() if k in entry.params}
+        return entry.execute(**filtered)
+
+    return wrapper
 
 
 def get_openai_schemas() -> List[Dict[str, Any]]:
-    return [function.openai_schema for function in functions]
+    return [func.openai_schema for func in _functions_list]
