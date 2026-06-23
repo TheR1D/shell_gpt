@@ -394,8 +394,8 @@ USE_LITELLM=false
 # Control how markdown live rendering handles overflow when output exceeds terminal height.
 # Possible values: ellipsis, visible, crop
 MARKDOWN_LIVE_VERTICAL_OVERFLOW=visible
-# Control markdown live refresh interval in seconds. Use 0 to refresh on every chunk.
-MARKDOWN_LIVE_REFRESH_INTERVAL=0.5
+# Control markdown live refresh interval in seconds. Default is 0 (refresh on every chunk).
+MARKDOWN_LIVE_REFRESH_INTERVAL=0
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
@@ -428,9 +428,9 @@ Content is cropped to terminal height.
 
 **Live refresh interval:**
 ```text
-MARKDOWN_LIVE_REFRESH_INTERVAL=0.5
+MARKDOWN_LIVE_REFRESH_INTERVAL=0
 ```
-Controls how frequently markdown live output is refreshed, in seconds. Increase it to reduce terminal flickering, or set it to `0` to refresh on every streamed chunk.
+Controls how frequently markdown live output is refreshed, in seconds. Set it to `0` (default) to refresh on every streamed chunk, or increase to reduce terminal flickering.
 
 ### Full list of arguments
 ```text
