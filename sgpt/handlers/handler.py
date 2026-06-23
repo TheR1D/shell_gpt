@@ -46,8 +46,10 @@ class Handler:
 
     @property
     def printer(self) -> Printer:
+        vertical_overflow = cfg.get("MARKDOWN_LIVE_VERTICAL_OVERFLOW")
+        refresh_interval = float(cfg.get("MARKDOWN_LIVE_REFRESH_INTERVAL"))
         return (
-            MarkdownPrinter(self.code_theme)
+            MarkdownPrinter(self.code_theme, vertical_overflow, refresh_interval)
             if self.markdown
             else TextPrinter(self.color)
         )
