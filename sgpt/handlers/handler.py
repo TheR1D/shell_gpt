@@ -46,8 +46,9 @@ class Handler:
 
     @property
     def printer(self) -> Printer:
+        vertical_overflow = cfg.get("MARKDOWN_LIVE_VERTICAL_OVERFLOW")
         return (
-            MarkdownPrinter(self.code_theme)
+            MarkdownPrinter(self.code_theme, vertical_overflow)
             if self.markdown
             else TextPrinter(self.color)
         )

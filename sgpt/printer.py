@@ -1,10 +1,15 @@
+import time
 from abc import ABC, abstractmethod
-from typing import Generator
+from typing import Generator, Literal
 
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from typer import secho
+
+
+LIVE_REFRESH_INTERVAL = 0.5
+VALID_VERTICAL_OVERFLOW = {"ellipsis", "visible", "crop"}
 
 
 class Printer(ABC):
@@ -28,17 +33,44 @@ class Printer(ABC):
 
 
 class MarkdownPrinter(Printer):
-    def __init__(self, theme: str) -> None:
+    def __init__(
+        self,
+        theme: str,
+        vertical_overflow: Literal["ellipsis", "visible", "crop"] = "visible",
+    ) -> None:
+        if vertical_overflow not in VALID_VERTICAL_OVERFLOW:
+            raise ValueError(
+                f"Invalid vertical_overflow: {vertical_overflow!r}. "
+                f"Must be one of: {', '.join(sorted(VALID_VERTICAL_OVERFLOW))}"
+            )
         self.console = Console()
         self.theme = theme
+        self.vertical_overflow = vertical_overflow
 
     def live_print(self, chunks: Generator[str, None, None]) -> str:
         full_completion = ""
-        with Live(console=self.console) as live:
+        with Live(
+            console=self.console,
+            vertical_overflow=self.vertical_overflow,
+            auto_refresh=False,
+        ) as live:
+            last_refresh = time.monotonic()
             for chunk in chunks:
                 full_completion += chunk
-                markdown = Markdown(markup=full_completion, code_theme=self.theme)
-                live.update(markdown, refresh=True)
+                if time.monotonic() - last_refresh > LIVE_REFRESH_INTERVAL:
+                    live.update(
+                        Markdown(markup=full_completion, code_theme=self.theme),
+                        refresh=True,
+                    )
+                    last_refresh = time.monotonic()
+
+            # Avoid excessive terminal flickering caused by frequent refreshes.
+            # Ensure the complete output is always rendered when streaming finishes.
+            live.update(
+                Markdown(markup=full_completion, code_theme=self.theme),
+                refresh=True,
+            )
+
         return full_completion
 
     def static_print(self, text: str) -> str:
