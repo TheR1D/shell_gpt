@@ -391,9 +391,32 @@ SHOW_FUNCTIONS_OUTPUT=false
 OPENAI_USE_FUNCTIONS=true
 # Enforce LiteLLM usage (for local LLMs).
 USE_LITELLM=false
+# Control how markdown live rendering handles overflow when output exceeds terminal height.
+# Possible values: ellipsis, visible, crop
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
+Possible options for `MARKDOWN_LIVE_VERTICAL_OVERFLOW`: `ellipsis`, `visible`, `crop`.
+
+### Configuration Examples
+
+**Default behavior (ellipsis):**
+```text
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
+```
+When the markdown output exceeds the terminal height, only `...` is shown. This is the default and preserves backward compatibility.
+
+**Visible mode (recommended for REPL sessions):**
+```text
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=visible
+```
+All generated markdown content is visible in real-time. This is especially useful for long-running REPL interactions or agent workflows where you want to observe the model's reasoning process, tool calls, and intermediate outputs.
+
+```shell
+sgpt --repl
+```
+With `visible` mode, you can continuously observe generated markdown output, tool execution details, and progress updates instead of staring at `...` for several minutes.
 
 ### Full list of arguments
 ```text
