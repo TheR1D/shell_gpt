@@ -97,7 +97,7 @@ def main(
     ),
     chat: str = typer.Option(
         None,
-        help="Follow conversation with id, " 'use "temp" for quick session.',
+        help='Follow conversation with id, use "temp" for quick session.',
         rich_help_panel="Chat Options",
     ),
     repl: str = typer.Option(
@@ -145,7 +145,7 @@ def main(
     ),
     install_integration: bool = typer.Option(
         False,
-        help="Install shell integration (ZSH and Bash only)",
+        help="Install shell integration (Bash, ZSH and Fish)",
         callback=install_shell_integration,
         hidden=True,  # Hiding since should be used only once.
     ),
