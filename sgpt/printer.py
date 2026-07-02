@@ -4,13 +4,9 @@ from typing import Generator, Literal
 
 from rich.console import Console
 from rich.live import Live
+from rich.live_render import VerticalOverflowMethod
 from rich.markdown import Markdown
 from typer import secho
-
-
-
-DEFAULT_LIVE_REFRESH_INTERVAL = 0
-VALID_VERTICAL_OVERFLOW = {"ellipsis", "visible", "crop"}
 
 
 class Printer(ABC):
@@ -37,20 +33,13 @@ class MarkdownPrinter(Printer):
     def __init__(
         self,
         theme: str,
-        vertical_overflow: Literal["ellipsis", "visible", "crop"] = "visible",
-        refresh_interval: float = DEFAULT_LIVE_REFRESH_INTERVAL,
+        refresh_interval: float,
+        vertical_overflow: VerticalOverflowMethod,
     ) -> None:
-        if vertical_overflow not in VALID_VERTICAL_OVERFLOW:
-            raise ValueError(
-                f"Invalid vertical_overflow: {vertical_overflow!r}. "
-                f"Must be one of: {', '.join(sorted(VALID_VERTICAL_OVERFLOW))}"
-            )
-        if refresh_interval < 0:
-            raise ValueError("refresh_interval must be greater than or equal to 0")
         self.console = Console()
         self.theme = theme
-        self.vertical_overflow = vertical_overflow
         self.refresh_interval = refresh_interval
+        self.vertical_overflow: VerticalOverflowMethod = vertical_overflow
 
     def live_print(self, chunks: Generator[str, None, None]) -> str:
         full_completion = ""

@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional
+from typing import Any, Callable, Dict, Generator, List, Optional, cast
+
+from rich.live_render import VerticalOverflowMethod
 
 from ..cache import Cache
 from ..config import cfg
@@ -46,10 +48,12 @@ class Handler:
 
     @property
     def printer(self) -> Printer:
-        vertical_overflow = cfg.get("MARKDOWN_LIVE_VERTICAL_OVERFLOW")
+        vertical_overflow = cast(
+            VerticalOverflowMethod, cfg.get("MARKDOWN_LIVE_VERTICAL_OVERFLOW")
+        )
         refresh_interval = float(cfg.get("MARKDOWN_LIVE_REFRESH_INTERVAL"))
         return (
-            MarkdownPrinter(self.code_theme, vertical_overflow, refresh_interval)
+            MarkdownPrinter(self.code_theme, refresh_interval, vertical_overflow)
             if self.markdown
             else TextPrinter(self.color)
         )
