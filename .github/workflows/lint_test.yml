@@ -35,4 +35,4 @@ jobs:
     - name: tests
       run: |
         export OPENAI_API_KEY=test_api_key
-        pytest tests/ -p no:warnings
+        pytest tests/ -p no:warnings -v -s

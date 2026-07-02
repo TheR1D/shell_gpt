@@ -5,7 +5,7 @@ import readline  # noqa: F401
 import sys
 
 import typer
-from click import BadArgumentUsage
+from click import UsageError
 from click.types import Choice
 from prompt_toolkit import PromptSession
 
@@ -102,7 +102,7 @@ def main(
     ),
     repl: str = typer.Option(
         None,
-        help="Start a REPL (Read–eval–print loop) session.",
+        help="Start a REPL (Read-eval-print loop) session.",
         rich_help_panel="Chat Options",
     ),
     show_chat: str = typer.Option(
@@ -187,15 +187,15 @@ def main(
         ChatHandler.show_messages(show_chat, md)
 
     if sum((shell, describe_shell, code)) > 1:
-        raise BadArgumentUsage(
+        raise UsageError(
             "Only one of --shell, --describe-shell, and --code options can be used at a time."
         )
 
     if chat and repl:
-        raise BadArgumentUsage("--chat and --repl options cannot be used together.")
+        raise UsageError("--chat and --repl options cannot be used together.")
 
     if editor and stdin_passed:
-        raise BadArgumentUsage("--editor option cannot be used with stdin input.")
+        raise UsageError("--editor option cannot be used with stdin input.")
 
     if editor:
         prompt = get_edited_prompt()
@@ -248,6 +248,7 @@ def main(
             show_choices=False,
             show_default=False,
         )
+
         if option in ("e", "y"):
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)

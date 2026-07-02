@@ -4,7 +4,7 @@ from unittest.mock import patch
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, mock_comp, runner
+from .utils import app, assert_usage_error, cmd_args, comp_args, mock_comp, runner
 
 role = SystemRole.get(DefaultRoles.CODE.value)
 
@@ -18,7 +18,7 @@ def test_code_generation(completion):
 
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
-    assert "print('Hello World')" in result.stdout
+    assert "print('Hello World')" in result.output
 
 
 @patch("sgpt.printer.TextPrinter.live_print")
@@ -47,8 +47,8 @@ def test_code_generation_stdin(completion):
     expected_prompt = f"{stdin}\n\n{args['prompt']}"
     completion.assert_called_once_with(**comp_args(role, expected_prompt))
     assert result.exit_code == 0
-    assert "# Hello" in result.stdout
-    assert "print('Hello')" in result.stdout
+    assert "# Hello" in result.output
+    assert "print('Hello')" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -64,14 +64,14 @@ def test_code_chat(completion):
     args = {"prompt": "print hello", "--code": True, "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
-    assert "print('hello')" in result.stdout
+    assert "print('hello')" in result.output
     assert chat_path.exists()
 
     args["prompt"] = "also print world"
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
-    assert "print('hello')" in result.stdout
-    assert "print('world')" in result.stdout
+    assert "print('hello')" in result.output
+    assert "print('world')" in result.output
 
     expected_messages = [
         {"role": "system", "content": role.role},
@@ -86,8 +86,7 @@ def test_code_chat(completion):
 
     args["--shell"] = True
     result = runner.invoke(app, cmd_args(**args))
-    assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert_usage_error(result)
     chat_path.unlink()
     # TODO: Code chat can be recalled without --code option.
 
@@ -118,10 +117,10 @@ def test_code_repl(completion):
     assert completion.call_count == 2
 
     assert result.exit_code == 0
-    assert ">>> print hello" in result.stdout
-    assert "print('hello')" in result.stdout
-    assert ">>> also print world" in result.stdout
-    assert "print('world')" in result.stdout
+    assert ">>> print hello" in result.output
+    assert "print('hello')" in result.output
+    assert ">>> also print world" in result.output
+    assert "print('world')" in result.output
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -130,8 +129,7 @@ def test_code_and_shell(completion):
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
-    assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert_usage_error(result)
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -140,5 +138,4 @@ def test_code_and_describe_shell(completion):
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
-    assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert_usage_error(result)

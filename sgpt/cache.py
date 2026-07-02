@@ -38,7 +38,7 @@ class Cache:
                 result += i
                 yield i
             if "@FunctionCall" not in result:
-                file.write_text(result)
+                file.write_text(result, encoding="utf-8")
             self._delete_oldest_files(self.length)  # type: ignore
 
         return wrapper

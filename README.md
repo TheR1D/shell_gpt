@@ -1,16 +1,16 @@
 # ShellGPT
 A command-line productivity tool powered by AI large language models (LLM). This command-line tool offers streamlined generation of **shell commands, code snippets, documentation**, eliminating the need for external resources (like Google search). Supports Linux, macOS, Windows and compatible with all major Shells like PowerShell, CMD, Bash, Zsh, etc.
 
-https://github.com/TheR1D/shell_gpt/assets/16740832/9197283c-db6a-4b46-bfea-3eb776dd9093
+https://github.com/TheR1D/shell_gpt/assets/16740832/721ddb19-97e7-428f-a0ee-107d027ddd59
 
 ## Installation
 ```shell
 pip install shell-gpt
 ```
-By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
+By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://platform.openai.com/api-keys). You will be prompted for your key which will then be stored in `~/.config/shell_gpt/.sgptrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
 > [!TIP]
-> Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up ShellGPT with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama).
+> Alternatively, you can run open-source models locally for free. This requires setting up your own LLM backend, such as [Ollama](https://github.com/ollama/ollama). To get ShellGPT working with Ollama, follow this detailed [guide](https://github.com/TheR1D/shell_gpt/wiki/Ollama)
 >
 > **❗️Note that ShellGPT is not optimized for local models and may not work as expected.**
 
@@ -290,28 +290,7 @@ The snippet of code you've provided is written in Python. It prompts the user...
 sgpt --install-functions
 ```
 
-ShellGPT has a convenient way to define functions and use them. In order to create your custom function, navigate to `~/.config/shell_gpt/functions` and create a new .py file with the function name. Inside this file, you can define your function using the following syntax:
-```python
-# execute_shell_command.py
-import subprocess
-from pydantic import Field
-from instructor import OpenAISchema
-
-
-class Function(OpenAISchema):
-    """
-    Executes a shell command and returns the output (result).
-    """
-    shell_command: str = Field(..., example="ls -la", descriptions="Shell command to execute.")
-
-    class Config:
-        title = "execute_shell_command"
-
-    @classmethod
-    def execute(cls, shell_command: str) -> str:
-        result = subprocess.run(shell_command.split(), capture_output=True, text=True)
-        return f"Exit code: {result.returncode}, Output:\n{result.stdout}"
-```
+ShellGPT has a convenient way to define functions and use them. In order to create your custom function, navigate to `~/.config/shell_gpt/functions` and create a new .py file with the function name. Inside this file, you can define your function using this [example](https://github.com/TheR1D/shell_gpt/blob/main/sgpt/llm_functions/common/execute_shell.py).
 
 The docstring comment inside the class will be passed to OpenAI API as a description for the function, along with the `title` attribute and parameters descriptions. The `execute` function will be called if LLM decides to use your function. In this case we are allowing LLM to execute any Shell commands in our system. Since we are returning the output of the command, LLM will be able to analyze it and decide if it is a good fit for the prompt. Here is an example how the function might be executed by LLM:
 ```shell
@@ -395,7 +374,7 @@ CACHE_PATH=/tmp/shell_gpt/cache
 # Request timeout in seconds.
 REQUEST_TIMEOUT=60
 # Default OpenAI model to use.
-DEFAULT_MODEL=gpt-4o
+DEFAULT_MODEL=gpt-5.4-mini
 # Default color for shell and code completions.
 DEFAULT_COLOR=magenta
 # When in --shell mode, default to "Y" for no input.
@@ -412,9 +391,32 @@ SHOW_FUNCTIONS_OUTPUT=false
 OPENAI_USE_FUNCTIONS=true
 # Enforce LiteLLM usage (for local LLMs).
 USE_LITELLM=false
+# Control how markdown live rendering handles overflow when output exceeds terminal height.
+# Possible values: ellipsis, visible, crop
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
+Possible options for `MARKDOWN_LIVE_VERTICAL_OVERFLOW`: `ellipsis`, `visible`, `crop`.
+
+### Configuration Examples
+
+**Default behavior (ellipsis):**
+```text
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
+```
+When the markdown output exceeds the terminal height, only `...` is shown. This is the default and preserves backward compatibility.
+
+**Visible mode (recommended for REPL sessions):**
+```text
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=visible
+```
+All generated markdown content is visible in real-time. This is especially useful for long-running REPL interactions or agent workflows where you want to observe the model's reasoning process, tool calls, and intermediate outputs.
+
+```shell
+sgpt --repl
+```
+With `visible` mode, you can continuously observe generated markdown output, tool execution details, and progress updates instead of staring at `...` for several minutes.
 
 ### Full list of arguments
 ```text
@@ -422,7 +424,7 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 │   prompt      [PROMPT]  The prompt to generate completions for.                                          │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --model            TEXT                       Large language model to use. [default: gpt-4o]             │
+│ --model            TEXT                       Large language model to use. [default: gpt-5.4-mini]       │
 │ --temperature      FLOAT RANGE [0.0<=x<=2.0]  Randomness of generated output. [default: 0.0]             │
 │ --top-p            FLOAT RANGE [0.0<=x<=1.0]  Limits highest probable tokens (words). [default: 1.0]     │
 │ --md             --no-md                      Prettify markdown output. [default: md]                    │
@@ -476,35 +478,6 @@ You also can use the provided `Dockerfile` to build your own image:
 ```shell
 docker build -t sgpt .
 ```
-
-### Docker + Ollama
-
-If you want to send your requests to an Ollama instance and run ShellGPT inside a Docker container, you need to adjust the Dockerfile and build the container yourself: the litellm package is needed and env variables need to be set correctly.
-
-Example Dockerfile:
-```
-FROM python:3-slim
-
-ENV DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
-ENV API_BASE_URL=http://10.10.10.10:11434
-ENV USE_LITELLM=true
-ENV OPENAI_API_KEY=bad_key
-ENV SHELL_INTERACTION=false
-ENV PRETTIFY_MARKDOWN=false
-ENV OS_NAME="Arch Linux"
-ENV SHELL_NAME=auto
-
-WORKDIR /app
-COPY . /app
-
-RUN apt-get update && apt-get install -y gcc
-RUN pip install --no-cache /app[litellm] && mkdir -p /tmp/shell_gpt
-
-VOLUME /tmp/shell_gpt
-
-ENTRYPOINT ["sgpt"]
-```
-
 
 ## Additional documentation
 * [Azure integration](https://github.com/TheR1D/shell_gpt/wiki/Azure)

@@ -1,23 +1,20 @@
 import subprocess
+from typing import Any, Dict
 
-from instructor import OpenAISchema
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
-class Function(OpenAISchema):
+class Function(BaseModel):
     """
     Executes Apple Script on macOS and returns the output (result).
     Can be used for actions like: draft (prepare) an email, show calendar events, create a note.
     """
 
     apple_script: str = Field(
-        ...,
+        default=...,
         example='tell application "Finder" to get the name of every disk',
-        descriptions="Apple Script to execute.",
-    )
-
-    class Config:
-        title = "execute_apple_script"
+        description="Apple Script to execute.",
+    )  # type: ignore
 
     @classmethod
     def execute(cls, apple_script):
@@ -31,3 +28,20 @@ class Function(OpenAISchema):
             return f"Output: {output}"
         except Exception as e:
             return f"Error: {e}"
+
+    @classmethod
+    def openai_schema(cls) -> Dict[str, Any]:
+        """Generate OpenAI function schema from Pydantic model."""
+        schema = cls.model_json_schema()
+        return {
+            "type": "function",
+            "function": {
+                "name": "execute_apple_script",
+                "description": cls.__doc__.strip() if cls.__doc__ else "",
+                "parameters": {
+                    "type": "object",
+                    "properties": schema.get("properties", {}),
+                    "required": schema.get("required", []),
+                },
+            },
+        }

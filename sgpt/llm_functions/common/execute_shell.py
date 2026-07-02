@@ -1,10 +1,10 @@
 import subprocess
+from typing import Any, Dict
 
-from instructor import OpenAISchema
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
-class Function(OpenAISchema):
+class Function(BaseModel):
     """
     Executes a shell command and returns the output (result).
     """
@@ -12,11 +12,8 @@ class Function(OpenAISchema):
     shell_command: str = Field(
         ...,
         example="ls -la",
-        descriptions="Shell command to execute.",
-    )
-
-    class Config:
-        title = "execute_shell_command"
+        description="Shell command to execute.",
+    )  # type: ignore
 
     @classmethod
     def execute(cls, shell_command: str) -> str:
@@ -26,3 +23,20 @@ class Function(OpenAISchema):
         output, _ = process.communicate()
         exit_code = process.returncode
         return f"Exit code: {exit_code}, Output:\n{output.decode()}"
+
+    @classmethod
+    def openai_schema(cls) -> Dict[str, Any]:
+        """Generate OpenAI function schema from Pydantic model."""
+        schema = cls.model_json_schema()
+        return {
+            "type": "function",
+            "function": {
+                "name": "execute_shell_command",
+                "description": cls.__doc__.strip() if cls.__doc__ else "",
+                "parameters": {
+                    "type": "object",
+                    "properties": schema.get("properties", {}),
+                    "required": schema.get("required", []),
+                },
+            },
+        }

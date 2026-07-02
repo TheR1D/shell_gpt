@@ -23,6 +23,7 @@ from sgpt.app import main
 from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
 from sgpt.role import SystemRole
+from tests.utils import assert_usage_error
 
 runner = CliRunner()
 app = typer.Typer()
@@ -34,8 +35,8 @@ class TestShellGpt(TestCase):
     def setUpClass(cls):
         # Response streaming should be enabled for these tests.
         assert cfg.get("DISABLE_STREAMING") == "false"
-        # ShellGPT optimised and tested with gpt-4 turbo.
-        assert cfg.get("DEFAULT_MODEL") == "gpt-4o"
+        # ShellGPT optimised and tested with gpt-5.4-mini.
+        assert cfg.get("DEFAULT_MODEL") == "gpt-5.4-mini"
         # Make sure we will not call any functions.
         assert cfg.get("OPENAI_USE_FUNCTIONS") == "false"
 
@@ -56,7 +57,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "Prague" in result.stdout
+        assert "Prague" in result.output
 
     def test_shell(self):
         dict_arguments = {
@@ -65,7 +66,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "git commit" in result.stdout
+        assert "git commit" in result.output
 
     def test_describe_shell(self):
         dict_arguments = {
@@ -74,7 +75,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "lists" in result.stdout.lower()
+        assert "lists" in result.output.lower()
 
     def test_code(self):
         """
@@ -93,10 +94,10 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        print(result.stdout)
+        print(result.output)
         # Since output will be slightly different, there is no way how to test it precisely.
-        assert "print" in result.stdout
-        assert "*" in result.stdout
+        assert "print" in result.output
+        assert "*" in result.output
         with NamedTemporaryFile("w+", delete=False) as file:
             try:
                 compile(result.output, file.name, "exec")
@@ -124,14 +125,14 @@ class TestShellGpt(TestCase):
         dict_arguments["prompt"] = "What is my favorite number + 2?"
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "8" in result.stdout
+        assert "8" in result.output
         dict_arguments["--shell"] = True
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
-        assert result.exit_code == 2
+        assert_usage_error(result)
         dict_arguments["--code"] = True
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we have default chat, we cannot use --code or --shell.
-        assert result.exit_code == 2
+        assert_usage_error(result)
 
     def test_chat_shell(self):
         chat_name = uuid4()
@@ -143,20 +144,20 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "docker run" in result.stdout
-        assert "-p 80:80" in result.stdout
-        assert "nginx" in result.stdout
+        assert "docker run" in result.output
+        assert "-p 80:80" in result.output
+        assert "nginx" in result.output
         dict_arguments["prompt"] = "Also forward port 443."
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "-p 80:80" in result.stdout
-        assert "-p 443:443" in result.stdout
+        assert "-p 80:80" in result.output
+        assert "-p 443:443" in result.output
         dict_arguments["--code"] = True
         del dict_arguments["--shell"]
         assert "--shell" not in dict_arguments
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we are using --code, we cannot use --shell.
-        assert result.exit_code == 2
+        assert_usage_error(result)
 
     def test_chat_describe_shell(self):
         chat_name = uuid4()
@@ -167,11 +168,11 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "adds" in result.stdout.lower() or "stages" in result.stdout.lower()
+        assert "adds" in result.output.lower() or "stages" in result.output.lower()
         dict_arguments["prompt"] = "'-A'"
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "all" in result.stdout
+        assert "all" in result.output
 
     def test_chat_code(self):
         chat_name = uuid4()
@@ -182,22 +183,22 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "localhost:80" in result.stdout
+        assert "localhost:80" in result.output
         dict_arguments["prompt"] = "Change port to 443."
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "localhost:443" in result.stdout
+        assert "localhost:443" in result.output
         del dict_arguments["--code"]
         assert "--code" not in dict_arguments
         dict_arguments["--shell"] = True
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we have --code chat, we cannot use --shell.
-        assert result.exit_code == 2
+        assert_usage_error(result)
 
     def test_list_chat(self):
         result = runner.invoke(app, ["--list-chats"])
         assert result.exit_code == 0
-        assert "test_" in result.stdout
+        assert "test_" in result.output
 
     def test_show_chat(self):
         chat_name = uuid4()
@@ -210,9 +211,9 @@ class TestShellGpt(TestCase):
         runner.invoke(app, self.get_arguments(**dict_arguments))
         result = runner.invoke(app, ["--show-chat", f"test_{chat_name}"])
         assert result.exit_code == 0
-        assert "Remember my favorite number: 6" in result.stdout
-        assert "What is my favorite number + 2?" in result.stdout
-        assert "8" in result.stdout
+        assert "Remember my favorite number: 6" in result.output
+        assert "What is my favorite number + 2?" in result.output
+        assert "8" in result.output
 
     def test_validation_code_shell(self):
         dict_arguments = {
@@ -221,8 +222,10 @@ class TestShellGpt(TestCase):
             "--shell": True,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
-        assert result.exit_code == 2
-        assert "Only one of --shell, --describe-shell, and --code" in result.stdout
+        assert_usage_error(
+            result,
+            "Only one of --shell, --describe-shell, and --code",
+        )
 
     def test_repl_default(
         self,
@@ -240,9 +243,9 @@ class TestShellGpt(TestCase):
             app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
         )
         assert result.exit_code == 0
-        assert ">>> Please remember my favorite number: 6" in result.stdout
-        assert ">>> What is my favorite number + 2?" in result.stdout
-        assert "8" in result.stdout
+        assert ">>> Please remember my favorite number: 6" in result.output
+        assert ">>> What is my favorite number + 2?" in result.output
+        assert "8" in result.output
 
     def test_repl_multiline(
         self,
@@ -263,11 +266,11 @@ class TestShellGpt(TestCase):
         )
 
         assert result.exit_code == 0
-        assert '"""' in result.stdout
-        assert "Please remember my favorite number: 6" in result.stdout
-        assert "What is my favorite number + 2?" in result.stdout
-        assert '"""' in result.stdout
-        assert "8" in result.stdout
+        assert '"""' in result.output
+        assert "Please remember my favorite number: 6" in result.output
+        assert "What is my favorite number + 2?" in result.output
+        assert '"""' in result.output
+        assert "8" in result.output
 
     def test_repl_shell(self):
         # Temp chat session from previous test should be overwritten.
@@ -281,11 +284,11 @@ class TestShellGpt(TestCase):
             app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
         )
         assert result.exit_code == 0
-        assert "type [e] to execute commands" in result.stdout
-        assert ">>> What is in current folder?" in result.stdout
-        assert ">>> Simple sort by name" in result.stdout
-        assert "ls -la" in result.stdout
-        assert "sort" in result.stdout
+        assert "type [e] to execute commands" in result.output
+        assert ">>> What is in current folder?" in result.output
+        assert ">>> Simple sort by name" in result.output
+        assert "ls -la" in result.output
+        assert "sort" in result.output
         chat_storage = cfg.get("CHAT_CACHE_PATH")
         tmp_chat = Path(chat_storage) / "temp"
         chat_messages = json.loads(tmp_chat.read_text())
@@ -313,8 +316,8 @@ class TestShellGpt(TestCase):
             app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
         )
         assert result.exit_code == 0
-        assert "install" in result.stdout.lower()
-        assert "upgrade" in result.stdout.lower()
+        assert "install" in result.output.lower()
+        assert "upgrade" in result.output.lower()
 
         chat_storage = cfg.get("CHAT_CACHE_PATH")
         tmp_chat = Path(chat_storage) / "temp"
@@ -338,11 +341,11 @@ class TestShellGpt(TestCase):
             app, self.get_arguments(**dict_arguments), input="\n".join(inputs)
         )
         assert result.exit_code == 0
-        assert f">>> {inputs[0]}" in result.stdout
-        assert "requests.get" in result.stdout
-        assert "localhost:8080" in result.stdout
-        assert f">>> {inputs[1]}" in result.stdout
-        assert "localhost:443" in result.stdout
+        assert f">>> {inputs[0]}" in result.output
+        assert "requests.get" in result.output
+        assert "localhost:8080" in result.output
+        assert f">>> {inputs[1]}" in result.output
+        assert "localhost:443" in result.output
 
         chat_storage = cfg.get("CHAT_CACHE_PATH")
         tmp_chat = Path(chat_storage) / dict_arguments["--repl"]
@@ -356,8 +359,8 @@ class TestShellGpt(TestCase):
             app, self.get_arguments(**dict_arguments), input="\n".join(new_inputs)
         )
         # Should include previous chat history.
-        assert "Chat History" in result.stdout
-        assert f"user: {inputs[1]}" in result.stdout
+        assert "Chat History" in result.output
+        assert f"user: {inputs[1]}" in result.output
 
     def test_zsh_command(self):
         """
@@ -372,12 +375,12 @@ class TestShellGpt(TestCase):
             "--shell": True,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input="y\n")
-        stdout = result.stdout.strip()
+        stdout = result.output.strip()
         print(stdout)
         # TODO: Fix this test.
         # Not sure how os.system pipes the output to stdout,
-        # but it is not part of the result.stdout.
-        # assert "command not found" not in result.stdout
+        # but it is not part of the result.output.
+        # assert "command not found" not in result.output
         # assert "hello world" in stdout.split("\n")[-1]
 
     @patch("sgpt.handlers.handler.Handler.get_completion")
@@ -400,15 +403,15 @@ class TestShellGpt(TestCase):
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
         role = SystemRole.get("ShellGPT")
-        handler = Handler(role=role)
+        handler = Handler(role=role, markdown=False)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(role=role)
+        handler = Handler(role=role, markdown=False)
         assert handler.color == "red"
 
     def test_simple_stdin(self):
         result = runner.invoke(app, input="What is the capital of Germany?\n")
-        assert "Berlin" in result.stdout
+        assert "Berlin" in result.output
 
     def test_shell_stdin_with_prompt(self):
         dict_arguments = {
@@ -417,8 +420,8 @@ class TestShellGpt(TestCase):
         }
         stdin = "What is in current folder\n"
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
-        assert "ls" in result.stdout
-        assert "sort" in result.stdout
+        assert "ls" in result.output
+        assert "sort" in result.output
 
     def test_role(self):
         test_role = Path(cfg.get("ROLE_STORAGE_PATH")) / "json_generator.json"
@@ -440,7 +443,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "json_generator" in result.stdout
+        assert "json_generator" in result.output
 
         dict_arguments = {
             "prompt": "test",
@@ -448,7 +451,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        assert "You are json_generator" in result.stdout
+        assert "You are json_generator" in result.output
 
         # Test with command line argument prompt.
         dict_arguments = {
@@ -457,7 +460,7 @@ class TestShellGpt(TestCase):
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         assert result.exit_code == 0
-        generated_json = json.loads(result.stdout)
+        generated_json = json.loads(result.output)
         assert "username" in generated_json
         assert "password" in generated_json
         assert "email" in generated_json
@@ -470,7 +473,7 @@ class TestShellGpt(TestCase):
         stdin = "random username, password, email"
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input=stdin)
         assert result.exit_code == 0
-        generated_json = json.loads(result.stdout)
+        generated_json = json.loads(result.output)
         assert "username" in generated_json
         assert "password" in generated_json
         assert "email" in generated_json
@@ -485,7 +488,7 @@ class TestShellGpt(TestCase):
         assert result.exit_code == 0
         # Can't really test it since stdin in disable for --shell flag.
         # for word in ("prints", "hello", "console"):
-        #     assert word in result.stdout
+        #     assert word in result.output
 
     def test_version(self):
         dict_arguments = {
@@ -493,6 +496,6 @@ class TestShellGpt(TestCase):
             "--version": True,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments), input="d\n")
-        assert __version__ in result.stdout
+        assert __version__ in result.output
 
     # TODO: Implement function call tests.

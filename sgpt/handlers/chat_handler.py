@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
 
 import typer
-from click import BadArgumentUsage
+from click import BadParameter, UsageError
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -151,15 +151,13 @@ class ChatHandler(Handler):
         if self.initiated:
             chat_role_name = self.role.get_role_name(self.initial_message(self.chat_id))
             if not chat_role_name:
-                raise BadArgumentUsage(
-                    f'Could not determine chat role of "{self.chat_id}"'
-                )
+                raise BadParameter(f'Could not determine chat role of "{self.chat_id}"')
             if self.role.name == DefaultRoles.DEFAULT.value:
                 # If user didn't pass chat mode, we will use the one that was used to initiate the chat.
                 self.role = SystemRole.get(chat_role_name)
             else:
                 if not self.is_same_role:
-                    raise BadArgumentUsage(
+                    raise UsageError(
                         f'Cant change chat role to "{self.role.name}" '
                         f'since it was initiated as "{chat_role_name}" chat.'
                     )
