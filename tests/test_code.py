@@ -4,7 +4,7 @@ from unittest.mock import patch
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, mock_comp, runner
+from .utils import app, assert_usage_error, cmd_args, comp_args, mock_comp, runner
 
 role = SystemRole.get(DefaultRoles.CODE.value)
 
@@ -86,8 +86,7 @@ def test_code_chat(completion):
 
     args["--shell"] = True
     result = runner.invoke(app, cmd_args(**args))
-    assert result.exit_code == 2
-    assert "Error" in result.output
+    assert_usage_error(result)
     chat_path.unlink()
     # TODO: Code chat can be recalled without --code option.
 
@@ -130,8 +129,7 @@ def test_code_and_shell(completion):
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
-    assert result.exit_code == 2
-    assert "Error" in result.output
+    assert_usage_error(result)
 
 
 @patch("sgpt.handlers.handler.completion")
@@ -140,5 +138,4 @@ def test_code_and_describe_shell(completion):
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
-    assert result.exit_code == 2
-    assert "Error" in result.output
+    assert_usage_error(result)

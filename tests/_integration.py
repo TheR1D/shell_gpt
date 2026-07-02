@@ -23,6 +23,7 @@ from sgpt.app import main
 from sgpt.config import cfg
 from sgpt.handlers.handler import Handler
 from sgpt.role import SystemRole
+from tests.utils import assert_usage_error
 
 runner = CliRunner()
 app = typer.Typer()
@@ -127,11 +128,11 @@ class TestShellGpt(TestCase):
         assert "8" in result.output
         dict_arguments["--shell"] = True
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
-        assert result.exit_code == 2
+        assert_usage_error(result)
         dict_arguments["--code"] = True
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we have default chat, we cannot use --code or --shell.
-        assert result.exit_code == 2
+        assert_usage_error(result)
 
     def test_chat_shell(self):
         chat_name = uuid4()
@@ -156,7 +157,7 @@ class TestShellGpt(TestCase):
         assert "--shell" not in dict_arguments
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we are using --code, we cannot use --shell.
-        assert result.exit_code == 2
+        assert_usage_error(result)
 
     def test_chat_describe_shell(self):
         chat_name = uuid4()
@@ -192,7 +193,7 @@ class TestShellGpt(TestCase):
         dict_arguments["--shell"] = True
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
         # If we have --code chat, we cannot use --shell.
-        assert result.exit_code == 2
+        assert_usage_error(result)
 
     def test_list_chat(self):
         result = runner.invoke(app, ["--list-chats"])
@@ -221,8 +222,10 @@ class TestShellGpt(TestCase):
             "--shell": True,
         }
         result = runner.invoke(app, self.get_arguments(**dict_arguments))
-        assert result.exit_code == 2
-        assert "Only one of --shell, --describe-shell, and --code" in result.output
+        assert_usage_error(
+            result,
+            "Only one of --shell, --describe-shell, and --code",
+        )
 
     def test_repl_default(
         self,
