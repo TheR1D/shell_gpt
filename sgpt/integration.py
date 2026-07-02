@@ -25,3 +25,19 @@ zle -N _sgpt_zsh
 bindkey ^l _sgpt_zsh
 # Shell-GPT integration ZSH v0.2
 """
+
+fish_integration = r"""
+# Shell-GPT integration FISH v0.1
+function _sgpt_fish
+    if test -n "$(commandline)"
+        set -g _sgpt_prev_cmd (commandline)
+        commandline -r ""
+        commandline -f repaint
+        set -g _sgpt_result (sgpt --shell --no-interaction (echo "$_sgpt_prev_cmd"))
+        commandline -r "$_sgpt_result"
+        commandline -f end-of-line
+    end
+end
+bind \cl _sgpt_fish
+# Shell-GPT integration FISH v0.1
+"""

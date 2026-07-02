@@ -8,7 +8,7 @@ import typer
 from click import BadParameter, UsageError
 
 from sgpt.__version__ import __version__
-from sgpt.integration import bash_integration, zsh_integration
+from sgpt.integration import bash_integration, fish_integration, zsh_integration
 
 
 def get_edited_prompt() -> str:
@@ -81,8 +81,16 @@ def install_shell_integration(*_args: Any) -> None:
         typer.echo("Installing Bash integration...")
         with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as file:
             file.write(bash_integration)
+    elif "fish" in shell:
+        typer.echo("Installing Fish integration...")
+        with open(
+            os.path.expanduser("~/.config/fish/config.fish"), "a", encoding="utf-8"
+        ) as file:
+            file.write(fish_integration)
     else:
-        raise UsageError("ShellGPT integrations only available for ZSH and Bash.")
+        raise UsageError(
+            "ShellGPT integrations only available for Bash, ZSH, and Fish."
+        )
 
     typer.echo("Done! Restart your shell to apply changes.")
 
