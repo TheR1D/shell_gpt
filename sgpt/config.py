@@ -35,7 +35,8 @@ DEFAULT_CONFIG = {
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
     "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
-    "MARKDOWN_LIVE_VERTICAL_OVERFLOW": os.getenv("MARKDOWN_LIVE_VERTICAL_OVERFLOW", "ellipsis"),
+    "MARKDOWN_LIVE_VERTICAL_OVERFLOW": os.getenv("MARKDOWN_LIVE_VERTICAL_OVERFLOW", "visible"),
+    "MARKDOWN_LIVE_REFRESH_INTERVAL": os.getenv("MARKDOWN_LIVE_REFRESH_INTERVAL", "0"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
     # New features might add their own config variables here.
