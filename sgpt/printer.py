@@ -1,6 +1,6 @@
 import time
 from abc import ABC, abstractmethod
-from typing import Generator, Literal
+from typing import Generator
 
 from rich.console import Console
 from rich.live import Live

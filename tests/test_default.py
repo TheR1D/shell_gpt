@@ -8,7 +8,7 @@ from sgpt import config, main
 from sgpt.__version__ import __version__
 from sgpt.role import DefaultRoles, SystemRole
 
-from .utils import app, cmd_args, comp_args, mock_comp, runner
+from .utils import app, assert_usage_error, cmd_args, comp_args, mock_comp, runner
 
 role = SystemRole.get(DefaultRoles.DEFAULT.value)
 cfg = config.cfg
@@ -82,7 +82,7 @@ def test_default_chat(completion):
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
     chat_path.unlink(missing_ok=True)
 
-    args = {"prompt": "my number is 2", "--chat": chat_name}
+    args: dict[str, str | bool] = {"prompt": "my number is 2", "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 0
     assert "ok" in result.output
@@ -117,13 +117,11 @@ def test_default_chat(completion):
 
     args["--shell"] = True
     result = runner.invoke(app, cmd_args(**args))
-    assert result.exit_code == 2
-    assert "Error" in result.output
+    assert_usage_error(result)
 
     args["--code"] = True
     result = runner.invoke(app, cmd_args(**args))
-    assert result.exit_code == 2
-    assert "Error" in result.output
+    assert_usage_error(result)
     chat_path.unlink()
 
 
