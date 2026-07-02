@@ -35,7 +35,7 @@ def main(
         help="Large language model to use.",
     ),
     temperature: float = typer.Option(
-        0.0,
+        cfg.get("DEFAULT_TEMPERATURE"),
         min=0.0,
         max=2.0,
         help="Randomness of generated output.",
