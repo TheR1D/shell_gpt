@@ -66,7 +66,10 @@ class ChatSession:
         file_path = self.storage_path / chat_id
         if not file_path.exists():
             return []
-        parsed_cache = json.loads(file_path.read_text())
+        try:
+            parsed_cache = json.loads(file_path.read_text())
+        except json.JSONDecodeError:
+            return []
         return parsed_cache if isinstance(parsed_cache, list) else []
 
     def _write(self, messages: List[Dict[str, str]], chat_id: str) -> None:
