@@ -1,5 +1,5 @@
 import json
-from hashlib import md5
+from hashlib import sha256
 from pathlib import Path
 from typing import Any, Callable, Generator, no_type_check
 
@@ -28,7 +28,7 @@ class Cache:
         """
 
         def wrapper(*args: Any, **kwargs: Any) -> Generator[str, None, None]:
-            key = md5(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
+            key = sha256(json.dumps((args[1:], kwargs)).encode("utf-8")).hexdigest()
             file = self.cache_path / key
             if kwargs.pop("caching") and file.exists():
                 yield file.read_text()
