@@ -393,9 +393,7 @@ OPENAI_USE_FUNCTIONS=true
 USE_LITELLM=false
 # Control how markdown live rendering handles overflow when output exceeds terminal height.
 # Possible values: ellipsis, visible, crop
-MARKDOWN_LIVE_VERTICAL_OVERFLOW=visible
-# Control markdown live refresh interval in seconds. Default is 0 (refresh on every chunk).
-MARKDOWN_LIVE_REFRESH_INTERVAL=0
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
@@ -403,35 +401,21 @@ Possible options for `MARKDOWN_LIVE_VERTICAL_OVERFLOW`: `ellipsis`, `visible`, `
 
 ### Configuration Examples
 
-**Default behavior (visible):**
+**Default behavior (ellipsis):**
+```text
+MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
+```
+When the markdown output exceeds the terminal height, only `...` is shown. This is the default and preserves backward compatibility.
+
+**Visible mode (recommended for REPL sessions):**
 ```text
 MARKDOWN_LIVE_VERTICAL_OVERFLOW=visible
 ```
-All generated markdown content is visible in real-time. This is the default. Recommended for REPL sessions and agent workflows where you want to observe the model's reasoning, tool calls, and intermediate outputs.
+All generated markdown content is visible in real-time. This is especially useful for long-running REPL interactions or agent workflows where you want to observe the model's reasoning process, tool calls, and intermediate outputs.
 
 ```shell
 sgpt --repl
 ```
-
-
-**Ellipsis mode:**
-```text
-MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
-```
-When markdown output exceeds terminal height, only `...` is shown. This matches the original 1.5.0 behavior.
-
-**Crop mode:**
-```text
-MARKDOWN_LIVE_VERTICAL_OVERFLOW=crop
-```
-Content is cropped to terminal height.
-
-**Live refresh interval:**
-```text
-MARKDOWN_LIVE_REFRESH_INTERVAL=0
-```
-Controls how frequently markdown live output is refreshed, in seconds. Set it to `0` (default) to refresh on every streamed chunk, or increase to reduce terminal flickering.
-
 With `visible` mode, you can continuously observe generated markdown output, tool execution details, and progress updates instead of staring at `...` for several minutes.
 
 ### Full list of arguments
