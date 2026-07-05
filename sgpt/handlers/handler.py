@@ -130,6 +130,7 @@ class Handler:
         )
 
         try:
+            tool_calls_buffer = {}
             for chunk in response:
                 if not chunk.choices:
                     continue
@@ -139,23 +140,64 @@ class Handler:
                 tool_calls = (
                     delta.get("tool_calls") if use_litellm else delta.tool_calls
                 )
+
                 if tool_calls:
                     for tool_call in tool_calls:
                         if use_litellm:
-                            # TODO: test.
-                            tool_call_id = tool_call.get("id") or tool_call_id
-                            name = tool_call.get("function", {}).get("name") or name
-                            arguments += tool_call.get("function", {}).get(
-                                "arguments", ""
-                            )
+                            idx = tool_call.get("index", 0)
+
+                            if idx not in tool_calls_buffer:
+                                tool_calls_buffer[idx] = {
+                                    "id": "",
+                                    "name": "",
+                                    "arguments": "",
+                                }
+
+                            if tool_call.get("id"):
+                                tool_calls_buffer[idx]["id"] = tool_call["id"]
+                            else:
+                                tool_calls_buffer[idx]["id"] = tool_call_id
+
+                            fn = tool_call.get("function", {})
+
+                            if fn.get("name"):
+                                tool_calls_buffer[idx]["name"] = fn["name"]
+
+                            if fn.get("arguments"):
+                                tool_calls_buffer[idx]["arguments"] += fn["arguments"]
+
                         else:
-                            tool_call_id = tool_call.id or tool_call_id
-                            name = tool_call.function.name or name
-                            arguments += tool_call.function.arguments or ""
+                            idx = getattr(tool_call, 'index', None) or 0
+
+                            if idx not in tool_calls_buffer:
+                                tool_calls_buffer[idx] = {
+                                    "id": "",
+                                    "name": "",
+                                    "arguments": "",
+                                }
+
+                            tool_calls_buffer[idx]["id"] = tool_call.id or tool_call_id
+
+                            if tool_call.function.name:
+                                tool_calls_buffer[idx]["name"] = tool_call.function.name
+
+                            if tool_call.function.arguments:
+                                tool_calls_buffer[idx]["arguments"] += (
+                                    tool_call.function.arguments
+                                )
+
                 if chunk.choices[0].finish_reason == "tool_calls":
-                    yield from self.handle_function_call(
-                        messages, tool_call_id, name, arguments
-                    )
+                    for idx in sorted(tool_calls_buffer):
+                        call = tool_calls_buffer[idx]
+                        yield from self.handle_function_call(
+                            messages,
+                            call["id"],
+                            call["name"],
+                            call["arguments"],
+                        )
+
+                    tool_calls_buffer.clear()
+
                     yield from self.get_completion(
                         model=model,
                         temperature=temperature,
@@ -164,6 +206,7 @@ class Handler:
                         functions=functions,
                         caching=False,
                     )
+
                     return
 
                 yield delta.content or ""
