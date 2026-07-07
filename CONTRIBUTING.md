@@ -30,7 +30,7 @@ With your environment set up and the issue assigned, you can start working on yo
 **This is a crucial step.** Any changes that implement a new feature or modify existing features should include tests. **Unverified code will not be merged.** These tests should call `sgpt` with defined arguments, capture the output, and verify that the feature works as expected. Refer to the `tests` folder for examples.
 
 ### Pull Request
-Before creating a pull request, run `scripts/lint.sh` and `scripts/tests.sh` to ensure all linters and tests pass. In your pull request, provide a high-level description of your changes and detailed instructions for testing them, including any necessary commands.
+Before creating a pull request, run `scripts/lint.sh` and `scripts/test.sh` to ensure all linters and tests pass. In your pull request, provide a high-level description of your changes and detailed instructions for testing them, including any necessary commands.
 
 ### Code Review
 After submitting your pull request, be patient and receptive to feedback from reviewers. Address any concerns they raise and collaborate to refine the code. Together, we can enhance the ShellGPT project.
