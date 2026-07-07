@@ -14,18 +14,24 @@ completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, No
 
 base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
-additional_kwargs = {
-    "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("OPENAI_API_KEY"),
-    "base_url": None if base_url == "default" else base_url,
-}
+
 
 if use_litellm:
-    import litellm  # type: ignore
+    additional_kwargs = {
+        "timeout": int(cfg.get("REQUEST_TIMEOUT")),
+        "api_key": "",
+        "base_url": None if base_url == "default" else base_url,
+    }
+    import litellm    # type: ignore
 
     completion = litellm.completion
     litellm.suppress_debug_info = True
 else:
+    additional_kwargs = {
+        "timeout": int(cfg.get("REQUEST_TIMEOUT")),
+        "api_key": cfg.get("OPENAI_API_KEY"),
+        "base_url": None if base_url == "default" else base_url,
+    }
     from openai import OpenAI
 
     client = OpenAI(**additional_kwargs)  # type: ignore
