@@ -41,7 +41,7 @@ def main(
         help="Randomness of generated output.",
     ),
     top_p: float = typer.Option(
-        1.0,
+        cfg.get("DEFAULT_TOP_PROBABILITY"),
         min=0.0,
         max=1.0,
         help="Limits highest probable tokens (words).",
