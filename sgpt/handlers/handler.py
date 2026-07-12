@@ -135,6 +135,8 @@ class Handler:
                     continue
                 delta = chunk.choices[0].delta
 
+                if not delta: continue
+
                 # LiteLLM uses dict instead of Pydantic object like OpenAI does.
                 tool_calls = (
                     delta.get("tool_calls") if use_litellm else delta.tool_calls
