@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, cast
 
@@ -38,6 +39,7 @@ class Handler:
 
     def __init__(self, role: SystemRole, markdown: bool) -> None:
         self.role = role
+        self.is_shell = role.name == DefaultRoles.SHELL.value
 
         api_base_url = cfg.get("API_BASE_URL")
         self.base_url = None if api_base_url == "default" else api_base_url
@@ -45,6 +47,13 @@ class Handler:
 
         self.markdown = "APPLY MARKDOWN" in self.role.role and markdown
         self.code_theme, self.color = cfg.get("CODE_THEME"), cfg.get("DEFAULT_COLOR")
+
+        self.backticks_start = re.compile(r"(^|[\r\n]+)```\w*[\r\n]+")
+        end_regex_parts = [r"[\r\n]+", "`", "`", "`", r"([\r\n]+|$)"]
+        self.backticks_end_prefixes = [
+            re.compile("".join(end_regex_parts[: i + 1]))
+            for i in range(len(end_regex_parts))
+        ]
 
     @property
     def printer(self) -> Printer:
@@ -98,6 +107,48 @@ class Handler:
         messages.append(
             {"role": "tool", "content": result, "tool_call_id": tool_call_id}
         )
+
+    def _matches_end_at(self, text: str) -> tuple[bool, int]:
+        end_of_match = 0
+        for _i, regex in enumerate(self.backticks_end_prefixes):
+            m = regex.search(text)
+            if m:
+                end_of_match = m.end()
+            else:
+                return False, end_of_match
+        return True, m.start()
+
+    def _filter_chunks(
+        self, chunks: Generator[str, None, None]
+    ) -> Generator[str, None, None]:
+        buffer = ""
+        inside_backticks = False
+        end_of_beginning = 0
+
+        for chunk in chunks:
+            buffer += chunk
+            if not inside_backticks:
+                m = self.backticks_start.search(buffer)
+                if not m:
+                    continue
+                new_end_of_beginning = m.end()
+                if new_end_of_beginning > end_of_beginning:
+                    end_of_beginning = new_end_of_beginning
+                    continue
+                inside_backticks = True
+                buffer = buffer[end_of_beginning:]
+            if inside_backticks:
+                matches_end, index = self._matches_end_at(buffer)
+                if matches_end:
+                    yield buffer[:index]
+                    return
+                if index == len(buffer):
+                    continue
+                else:
+                    yield buffer
+                    buffer = ""
+        if buffer:
+            yield buffer
 
     @cache
     def get_completion(
@@ -191,4 +242,6 @@ class Handler:
             caching=caching,
             **kwargs,
         )
+        if self.role.name == DefaultRoles.SHELL.value:
+            generator = self._filter_chunks(generator)
         return self.printer(generator, not disable_stream)

@@ -20,7 +20,7 @@ python -m venv env && source ./env/bin/activate
 Install the necessary dependencies, including development and test dependencies:
 
 ```shell
-pip install -e ."[dev,test]"
+pip install -e ."[dev,test,litellm]"
 ```
 
 ### Start Coding
