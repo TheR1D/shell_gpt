@@ -4,6 +4,8 @@ from typing import Any, Callable, Dict, Generator, List, Optional, cast
 
 from rich.live_render import VerticalOverflowMethod
 
+import typer
+
 from ..cache import Cache
 from ..config import cfg
 from ..function import get_function
@@ -90,9 +92,15 @@ class Handler:
         joined_args = ", ".join(f'{k}="{v}"' for k, v in dict_args.items())
         yield f"> @FunctionCall `{name}({joined_args})` \n\n"
 
-        result = get_function(name)(**dict_args)
-        if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
-            yield f"```text\n{result}\n```\n"
+        if cfg.get("FUNCTION_CALL_CONFIRM") == "true" and not typer.confirm(
+            f"Run function {name}({joined_args})?", default=False, err=True
+        ):
+            result = "Function call was not confirmed, the user declined to run it."
+            yield "> Function call aborted.\n\n"
+        else:
+            result = get_function(name)(**dict_args)
+            if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
+                yield f"```text\n{result}\n```\n"
 
         # Add tool response message
         messages.append(

@@ -32,6 +32,10 @@ DEFAULT_CONFIG = {
     "OPENAI_FUNCTIONS_PATH": os.getenv("OPENAI_FUNCTIONS_PATH", str(FUNCTIONS_PATH)),
     "OPENAI_USE_FUNCTIONS": os.getenv("OPENAI_USE_FUNCTIONS", "true"),
     "SHOW_FUNCTIONS_OUTPUT": os.getenv("SHOW_FUNCTIONS_OUTPUT", "false"),
+    # Require an explicit user confirmation before running a function call
+    # proposed by the model, mirroring the confirmation already required
+    # before running a --shell-proposed command.
+    "FUNCTION_CALL_CONFIRM": os.getenv("FUNCTION_CALL_CONFIRM", "true"),
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
