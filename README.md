@@ -375,6 +375,10 @@ CACHE_PATH=/tmp/shell_gpt/cache
 REQUEST_TIMEOUT=60
 # Default OpenAI model to use.
 DEFAULT_MODEL=gpt-5.4-mini
+# Default randomness of generated output.
+DEFAULT_TEMPERATURE=0.0
+# Default nucleus sampling probability.
+DEFAULT_TOP_P=1.0
 # Default color for shell and code completions.
 DEFAULT_COLOR=magenta
 # When in --shell mode, default to "Y" for no input.
