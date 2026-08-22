@@ -42,6 +42,8 @@ DEFAULT_CONFIG = {
     "MARKDOWN_LIVE_REFRESH_INTERVAL": os.getenv("MARKDOWN_LIVE_REFRESH_INTERVAL", "0"),
     "OS_NAME": os.getenv("OS_NAME", "auto"),
     "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
+    # Optional JSON object merged into the request body for OpenAI-compatible providers.
+    "API_EXTRA_BODY": os.getenv("API_EXTRA_BODY", ""),
     # New features might add their own config variables here.
 }
 
