@@ -394,7 +394,13 @@ USE_LITELLM=false
 # Control how markdown live rendering handles overflow when output exceeds terminal height.
 # Possible values: ellipsis, visible, crop
 MARKDOWN_LIVE_VERTICAL_OVERFLOW=ellipsis
+# Optional JSON object merged into the request body for OpenAI-compatible providers.
+# Example: disable MiniMax-style thinking at the API level
+# API_EXTRA_BODY={"thinking": {"type": "disabled"}}
+API_EXTRA_BODY=
 ```
+
+> Reasoning blocks emitted by providers that expose them (e.g. `<think>...</think>` inside the content, or a separate `reasoning_content` field) are filtered from `sgpt` output automatically. Use `API_EXTRA_BODY` to disable them at the provider level when supported.
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
 Possible options for `MARKDOWN_LIVE_VERTICAL_OVERFLOW`: `ellipsis`, `visible`, `crop`.
