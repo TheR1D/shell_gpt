@@ -28,6 +28,9 @@ if use_litellm:
 else:
     from openai import OpenAI
 
+    user_agent = cfg.get("OPENAI_USER_AGENT")
+    if user_agent != "default":
+        additional_kwargs["default_headers"] = {"User-Agent": user_agent}
     client = OpenAI(**additional_kwargs)  # type: ignore
     completion = client.chat.completions.create
     additional_kwargs = {}

@@ -363,6 +363,9 @@ You can setup some parameters in runtime configuration file `~/.config/shell_gpt
 OPENAI_API_KEY=your_api_key
 # Base URL of the backend server. If "default" URL will be resolved based on --model.
 API_BASE_URL=default
+# User-Agent header for API requests. If "default" the OpenAI SDK User-Agent is used.
+# Useful for proxies or API gateways that filter requests based on User-Agent.
+OPENAI_USER_AGENT=default
 # Max amount of cached message per chat session.
 CHAT_CACHE_LENGTH=100
 # Chat cache folder.
