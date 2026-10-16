@@ -1,3 +1,4 @@
+import os
 import json
 from hashlib import md5
 from pathlib import Path
@@ -17,7 +18,8 @@ class Cache:
         """
         self.length = length
         self.cache_path = cache_path
-        self.cache_path.mkdir(parents=True, exist_ok=True)
+        self.cache_path.mkdir(parents=True, exist_ok=True, mode=0o700)
+        os.chmod(self.cache_path, 0o700)
 
     def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """

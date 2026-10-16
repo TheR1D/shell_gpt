@@ -1,3 +1,4 @@
+import os
 import json
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional
@@ -32,7 +33,8 @@ class ChatSession:
         """
         self.length = length
         self.storage_path = storage_path
-        self.storage_path.mkdir(parents=True, exist_ok=True)
+        self.storage_path.mkdir(parents=True, exist_ok=True, mode=0o700)
+        os.chmod(self.storage_path, 0o700)
 
     def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """

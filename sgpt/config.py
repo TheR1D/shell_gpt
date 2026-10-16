@@ -60,7 +60,8 @@ class Config(dict):  # type: ignore
             if has_new_config:
                 self._write()
         else:
-            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            os.chmod(config_path.parent, 0o700)
             # Don't write API key to config file if it is in the environment.
             if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
                 __api_key = getpass(prompt="Please enter your OpenAI API key: ")
@@ -73,7 +74,11 @@ class Config(dict):  # type: ignore
         return self.config_path.exists()
 
     def _write(self) -> None:
-        with open(self.config_path, "w", encoding="utf-8") as file:
+        fd = os.open(
+            self.config_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600
+        )
+        with os.fdopen(fd, "w", encoding="utf-8") as file:
+            os.chmod(self.config_path, 0o600)
             string_config = ""
             for key, value in self.items():
                 string_config += f"{key}={value}\n"
