@@ -29,7 +29,7 @@ class Function:
 
     @classmethod
     def _read(cls, path: str) -> Any:
-        module_name = path.replace("/", ".").rstrip(".py")
+        module_name = Path(path).stem
         spec = importlib.util.spec_from_file_location(module_name, path)
         module = importlib.util.module_from_spec(spec)  # type: ignore
         sys.modules[module_name] = module

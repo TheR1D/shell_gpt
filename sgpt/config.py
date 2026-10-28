@@ -20,10 +20,10 @@ DEFAULT_CONFIG = {
     "CHAT_CACHE_PATH": os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
     "CACHE_PATH": os.getenv("CACHE_PATH", str(CACHE_PATH)),
     "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
-    "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
+    "CACHE_LENGTH": int(os.getenv("CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
     "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-5.4-mini"),
-    "DEFAULT_TEMPERATURE": os.getenv("DEFAULT_TEMPERATURE", 0.0),
+    "DEFAULT_TEMPERATURE": os.getenv("DEFAULT_TEMPERATURE", "0.0"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
     "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
@@ -35,7 +35,7 @@ DEFAULT_CONFIG = {
     "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
     "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
     "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
-    "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
+    "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION", "true"),
     "MARKDOWN_LIVE_VERTICAL_OVERFLOW": os.getenv(
         "MARKDOWN_LIVE_VERTICAL_OVERFLOW", "visible"
     ),
