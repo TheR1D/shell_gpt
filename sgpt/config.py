@@ -46,6 +46,19 @@ DEFAULT_CONFIG = {
 }
 
 
+# Config keys whose values are filesystem paths. Values read from the
+# config file for these keys support "~" and environment variables
+# such as $HOME, so the same config file can be shared across machines.
+PATH_CONFIG_KEYS = frozenset(
+    {
+        "CHAT_CACHE_PATH",
+        "CACHE_PATH",
+        "ROLE_STORAGE_PATH",
+        "OPENAI_FUNCTIONS_PATH",
+    }
+)
+
+
 class Config(dict):  # type: ignore
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
@@ -84,6 +97,8 @@ class Config(dict):  # type: ignore
             for line in file:
                 if line.strip() and not line.startswith("#"):
                     key, value = line.strip().split("=", 1)
+                    if key in PATH_CONFIG_KEYS:
+                        value = os.path.expandvars(os.path.expanduser(value))
                     self[key] = value
 
     def get(self, key: str) -> str:  # type: ignore
