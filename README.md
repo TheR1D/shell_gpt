@@ -14,6 +14,27 @@ By default, ShellGPT uses OpenAI's API and GPT-4 model. You'll need an API key, 
 >
 > **❗️Note that ShellGPT is not optimized for local models and may not work as expected.**
 
+## Providers
+
+ShellGPT talks to any provider that speaks the OpenAI Chat Completions API — OpenAI, Anthropic,
+Gemini, DeepSeek, OpenRouter, Groq, Mistral, or a local Ollama. Configure one once:
+
+```shell
+sgpt setup        # pick a provider, confirm base URL and model, name the env var holding your key
+sgpt --setup      # same thing, for muscle memory
+sgpt setup list   # saved profiles and the active one
+sgpt setup test   # one-token request, reports latency or the exact failure
+sgpt --provider groq "list the largest files in this folder"   # one-off override
+```
+
+Keys are never written to disk. A profile stores the *name* of an environment variable
+(`DEEPSEEK_API_KEY`); ShellGPT reads that variable on each run. See
+[docs/providers.md](docs/providers.md) for the full guide, including custom base URLs.
+
+Existing `.sgptrc` setups keep working unchanged: with no profile saved, ShellGPT behaves exactly as
+before. Two notes: `setup` is now a reserved first argument, and this fork installs the same `sgpt`
+command as upstream, so install one or the other in a given environment.
+
 ## Usage
 **ShellGPT** is designed to quickly analyse and retrieve information. It's useful for straightforward requests ranging from technical configurations to general knowledge.
 ```shell

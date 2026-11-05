@@ -22,7 +22,7 @@ DEFAULT_CONFIG = {
     "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
-    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-5.4-mini"),
+    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-6-luna"),
     "DEFAULT_TEMPERATURE": os.getenv("DEFAULT_TEMPERATURE", "0.0"),
     "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
     "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
@@ -46,6 +46,12 @@ DEFAULT_CONFIG = {
 }
 
 
+def _profiles_exist() -> bool:
+    from .providers import path as providers_path
+
+    return providers_path().exists()
+
+
 class Config(dict):  # type: ignore
     def __init__(self, config_path: Path, **defaults: Any):
         self.config_path = config_path
@@ -62,7 +68,12 @@ class Config(dict):  # type: ignore
         else:
             config_path.parent.mkdir(parents=True, exist_ok=True)
             # Don't write API key to config file if it is in the environment.
-            if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
+            # A saved provider profile supplies its own key, so don't ask here.
+            if (
+                not defaults.get("OPENAI_API_KEY")
+                and not os.getenv("OPENAI_API_KEY")
+                and not _profiles_exist()
+            ):
                 __api_key = getpass(prompt="Please enter your OpenAI API key: ")
                 defaults["OPENAI_API_KEY"] = __api_key
             super().__init__(**defaults)
