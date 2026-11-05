@@ -238,7 +238,14 @@ def main(
             functions=function_schemas,
         )
 
-    session: PromptSession[str] = PromptSession()
+    # Only the interactive shell loop needs this, and prompt_toolkit cannot
+    # attach to a pipe: building it unconditionally crashed on Windows.
+    session: PromptSession[str] | None = None
+    if shell and interaction:
+        try:
+            session = PromptSession()
+        except Exception:  # no usable console; fall back to click's prompt
+            session = None
 
     while shell and interaction:
         option = typer.prompt(
@@ -253,7 +260,11 @@ def main(
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
         elif option == "m":
-            full_completion = session.prompt("", default=full_completion)
+            full_completion = (
+                session.prompt("", default=full_completion)
+                if session
+                else typer.prompt("", default=full_completion)
+            )
             continue
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(

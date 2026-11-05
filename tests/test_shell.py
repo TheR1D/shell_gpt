@@ -1,6 +1,9 @@
 import os
+import sys
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
@@ -80,6 +83,7 @@ def test_describe_shell_stdin(completion):
 
 @patch("os.system")
 @patch("sgpt.handlers.handler.completion")
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX shell semantics ($SHELL -c)")
 def test_shell_run_description(completion, system):
     completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
@@ -129,6 +133,7 @@ def test_shell_chat(completion):
 
 @patch("os.system")
 @patch("sgpt.handlers.handler.completion")
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX shell semantics ($SHELL -c)")
 def test_shell_repl(completion, mock_system):
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
