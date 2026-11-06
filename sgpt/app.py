@@ -15,8 +15,10 @@ from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
+from sgpt.providers import resolve
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
+    cli_error,
     get_edited_prompt,
     get_sgpt_version,
     install_shell_integration,
@@ -31,8 +33,18 @@ def main(
         help="The prompt to generate completions for.",
     ),
     model: str = typer.Option(
-        cfg.get("DEFAULT_MODEL"),
-        help="Large language model to use.",
+        None,
+        help="Large language model to use. Defaults to the active provider's model.",
+    ),
+    provider: str = typer.Option(
+        None,
+        "--provider",
+        help="Use a saved provider for this call only (see 'sgpt setup list').",
+    ),
+    setup: bool = typer.Option(
+        False,
+        "--setup",
+        help="Configure the provider (same as 'sgpt setup').",
     ),
     temperature: float = typer.Option(
         cfg.get("DEFAULT_TEMPERATURE"),
@@ -156,6 +168,22 @@ def main(
         hidden=True,  # Hiding since should be used only once.
     ),
 ) -> None:
+    if setup:
+        from sgpt.setup_cmd import app as setup_app
+
+        setup_app(args=[], prog_name="sgpt setup")
+        raise typer.Exit()
+
+    if provider:
+        os.environ["SGPT_PROVIDER"] = provider
+    from click import UsageError as _UsageError
+
+    try:
+        active = resolve()
+    except _UsageError as error:
+        cli_error(error)
+    model = model or active.model
+
     stdin_passed = not sys.stdin.isatty()
 
     if stdin_passed:
@@ -238,7 +266,14 @@ def main(
             functions=function_schemas,
         )
 
-    session: PromptSession[str] = PromptSession()
+    # Built lazily, and only if a console exists: prompt_toolkit cannot attach to
+    # a pipe (pytest, redirected stdin on Windows). Falls back to click's prompt.
+    session: PromptSession[str] | None = None
+    if shell and interaction:
+        try:
+            session = PromptSession()
+        except Exception:  # no usable console; the --modify path uses click instead
+            session = None
 
     while shell and interaction:
         option = typer.prompt(
@@ -253,7 +288,11 @@ def main(
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
         elif option == "m":
-            full_completion = session.prompt("", default=full_completion)
+            full_completion = (
+                session.prompt("", default=full_completion)
+                if session
+                else typer.prompt("", default=full_completion)
+            )
             continue
         elif option == "d":
             DefaultHandler(DefaultRoles.DESCRIBE_SHELL.get_role(), md).handle(
@@ -269,6 +308,12 @@ def main(
 
 
 def entry_point() -> None:
+    argv = sys.argv[1:]
+    if argv and argv[0] == "setup":
+        from sgpt.setup_cmd import app as setup_app
+
+        setup_app(args=argv[1:], prog_name="sgpt setup")
+        return
     typer.run(main)
 
 

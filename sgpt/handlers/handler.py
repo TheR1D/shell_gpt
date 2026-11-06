@@ -2,35 +2,56 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Dict, Generator, List, Optional, cast
 
+from click import UsageError
 from rich.live_render import VerticalOverflowMethod
 
 from ..cache import Cache
 from ..config import cfg
 from ..function import get_function
 from ..printer import MarkdownPrinter, Printer, TextPrinter
+from ..providers import resolve
 from ..role import DefaultRoles, SystemRole
 
 completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
 
-base_url = cfg.get("API_BASE_URL")
 use_litellm = cfg.get("USE_LITELLM") == "true"
-additional_kwargs = {
-    "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("OPENAI_API_KEY"),
-    "base_url": None if base_url == "default" else base_url,
-}
+additional_kwargs: Dict[str, Any] = {}
+
+
+def _provider_kwargs() -> Dict[str, Any]:
+    """Connection settings for the provider resolved at call time."""
+    provider = resolve()
+    key = provider.api_key()
+    if not key:
+        raise UsageError(
+            f"Missing API key: set {provider.api_key_env or 'OPENAI_API_KEY'} "
+            "or run 'sgpt setup test'."
+        )
+    return {
+        "timeout": int(cfg.get("REQUEST_TIMEOUT")),
+        "api_key": key,
+        "base_url": provider.base_url or None,
+    }
+
 
 if use_litellm:
     import litellm  # type: ignore
 
     completion = litellm.completion
     litellm.suppress_debug_info = True
+    # shortcut: resolved at import, so --provider does not apply with USE_LITELLM
+    additional_kwargs = _provider_kwargs()
 else:
     from openai import OpenAI
 
-    client = OpenAI(**additional_kwargs)  # type: ignore
-    completion = client.chat.completions.create
-    additional_kwargs = {}
+    _client: Any = None
+
+    def completion(*args: Any, **kwargs: Any) -> Any:
+        """Build the client on first use, once the provider is settled."""
+        global _client
+        if _client is None:
+            _client = OpenAI(**_provider_kwargs())
+        return _client.chat.completions.create(*args, **kwargs)
 
 
 class Handler:
@@ -39,8 +60,7 @@ class Handler:
     def __init__(self, role: SystemRole, markdown: bool) -> None:
         self.role = role
 
-        api_base_url = cfg.get("API_BASE_URL")
-        self.base_url = None if api_base_url == "default" else api_base_url
+        self.base_url = resolve().base_url or None
         self.timeout = int(cfg.get("REQUEST_TIMEOUT"))
 
         self.markdown = "APPLY MARKDOWN" in self.role.role and markdown

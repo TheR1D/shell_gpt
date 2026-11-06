@@ -2,7 +2,7 @@ import os
 import platform
 import shlex
 from tempfile import NamedTemporaryFile
-from typing import Any, Callable
+from typing import Any, Callable, NoReturn
 
 import typer
 from click import BadParameter, UsageError
@@ -93,3 +93,9 @@ def get_sgpt_version(*_args: Any) -> None:
     Displays the current installed version of ShellGPT
     """
     typer.echo(f"ShellGPT {__version__}")
+
+
+def cli_error(message: object) -> NoReturn:
+    """Print a one-line error and exit 1, instead of a Typer traceback panel."""
+    typer.echo(f"Error: {message}", err=True)
+    raise typer.Exit(1)
